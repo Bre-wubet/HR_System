@@ -1,0 +1,49 @@
+import { Router } from "express";
+import * as controller from "../controllers/employeeController.js";
+
+const router = Router();
+
+router.get("/", controller.listEmployees);
+router.post("/", controller.createEmployee);
+router.get("/:id", controller.getEmployeeById);
+router.put("/:id", controller.updateEmployeeById);
+router.delete("/:id", controller.deleteEmployeeById);
+
+// Directory search and org chart
+router.get("/directory/search", controller.searchDirectory);
+router.get("/org-chart", controller.getOrgChart); // ?rootId&depth=
+
+// Skills
+router.get("/:id/skills", controller.listEmployeeSkills);
+router.post("/:id/skills", controller.addEmployeeSkill);
+router.put("/:id/skills/:assignmentId", controller.updateEmployeeSkill);
+router.delete("/:id/skills/:assignmentId", controller.removeEmployeeSkill);
+
+// Certifications
+router.get("/:id/certifications", controller.listEmployeeCertifications);
+router.post("/:id/certifications", controller.addEmployeeCertification);
+router.delete("/:id/certifications/:certId", controller.removeEmployeeCertification);
+
+// Documents
+router.get("/:id/documents", controller.listEmployeeDocuments);
+router.post("/:id/documents", controller.addEmployeeDocument);
+router.delete("/:id/documents/:docId", controller.removeEmployeeDocument);
+
+// Evaluations (incl. probation-related)
+router.get("/:id/evaluations", controller.listEmployeeEvaluations);
+router.post("/:id/evaluations", controller.addEmployeeEvaluation);
+
+// Career progression
+router.post("/:id/promotion", controller.promoteEmployee);
+router.post("/:id/transfer", controller.transferEmployee);
+
+// Probation lifecycle
+router.post("/:id/probation/start", controller.startProbation);
+router.post("/:id/probation/end", controller.endProbation);
+
+// Offboarding
+router.post("/:id/offboard", controller.offboardEmployee);
+
+export default router;
+
+

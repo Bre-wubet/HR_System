@@ -179,12 +179,188 @@ export function addEmployeeEvaluation(employeeId, data) {
 }
 
 // Career progression
-export function promoteEmployee(employeeId, { jobTitle }) {
-  return prisma.employee.update({ where: { id: employeeId }, data: { jobTitle } });
+export async function promoteEmployee(employeeId, { jobTitle, salary, effectiveDate, reason, approvedBy }) {
+  return prisma.$transaction(async (tx) => {
+    // Get current employee data
+    const employee = await tx.employee.findUnique({ where: { id: employeeId } });
+    if (!employee) {
+      throw new Error(`Employee with ID ${employeeId} not found`);
+    }
+
+    // Create career progression record
+    const progression = await tx.careerProgression.create({
+      data: {
+        employeeId,
+        type: 'PROMOTION',
+        previousJobTitle: employee.jobTitle,
+        newJobTitle: jobTitle,
+        previousSalary: employee.salary || null,
+        newSalary: salary || null,
+        effectiveDate: effectiveDate || new Date(),
+        reason,
+        approvedById: approvedBy,
+        status: 'APPROVED'
+      }
+    });
+
+    // Update employee
+    const updatedEmployee = await tx.employee.update({
+      where: { id: employeeId },
+      data: { 
+        jobTitle,
+        salary: salary || employee.salary,
+        updatedAt: new Date()
+      }
+    });
+
+    return { employee: updatedEmployee, progression };
+  });
 }
 
-export function transferEmployee(employeeId, { departmentId, managerId }) {
-  return prisma.employee.update({ where: { id: employeeId }, data: { departmentId, managerId } });
+export async function transferEmployee(employeeId, { departmentId, managerId, reason, effectiveDate, approvedBy }) {
+  return prisma.$transaction(async (tx) => {
+    // Get current employee data
+    const employee = await tx.employee.findUnique({ 
+      where: { id: employeeId },
+      include: { department: true }
+    });
+    if (!employee) {
+      throw new Error(`Employee with ID ${employeeId} not found`);
+    }
+
+    // Validate department exists
+    const department = await tx.department.findUnique({ where: { id: departmentId } });
+    if (!department) {
+      throw new Error(`Department with ID ${departmentId} not found`);
+    }
+
+    // Validate manager exists if provided
+    if (managerId) {
+      const manager = await tx.employee.findUnique({ where: { id: managerId } });
+      if (!manager) {
+        throw new Error(`Manager with ID ${managerId} not found`);
+      }
+    }
+
+    // Create career progression record
+    const progression = await tx.careerProgression.create({
+      data: {
+        employeeId,
+        type: 'TRANSFER',
+        previousDepartmentId: employee.departmentId,
+        newDepartmentId: departmentId,
+        previousManagerId: employee.managerId,
+        newManagerId: managerId,
+        effectiveDate: effectiveDate || new Date(),
+        reason,
+        approvedById: approvedBy,
+        status: 'APPROVED'
+      }
+    });
+
+    // Update employee
+    const updatedEmployee = await tx.employee.update({
+      where: { id: employeeId },
+      data: { 
+        departmentId,
+        managerId,
+        updatedAt: new Date()
+      }
+    });
+
+    return { employee: updatedEmployee, progression };
+  });
+}
+
+// Career progression tracking functions
+export function getCareerProgressionHistory(employeeId) {
+  return prisma.careerProgression.findMany({
+    where: { employeeId },
+    include: {
+      approvedBy: { select: { id: true, firstName: true, lastName: true } },
+      employee: { select: { id: true, firstName: true, lastName: true } }
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+}
+
+export function getPendingCareerProgressions() {
+  return prisma.careerProgression.findMany({
+    where: { status: 'PENDING' },
+    include: {
+      employee: { 
+        select: { id: true, firstName: true, lastName: true, jobTitle: true, department: true }
+      },
+      approvedBy: { select: { id: true, firstName: true, lastName: true } }
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+}
+
+export async function approveCareerProgression(progressionId, { approvedBy, status = 'APPROVED', reason }) {
+  return prisma.$transaction(async (tx) => {
+    const progression = await tx.careerProgression.findUnique({ where: { id: progressionId } });
+    if (!progression) {
+      throw new Error(`Career progression with ID ${progressionId} not found`);
+    }
+
+    if (progression.status !== 'PENDING') {
+      throw new Error(`Career progression is already ${progression.status}`);
+    }
+
+    // Update progression status
+    const updatedProgression = await tx.careerProgression.update({
+      where: { id: progressionId },
+      data: {
+        status,
+        approvedById: approvedBy,
+        approvedAt: new Date(),
+        reason: reason || progression.reason
+      }
+    });
+
+    // If approved, apply the changes to the employee
+    if (status === 'APPROVED') {
+      const updateData = {};
+      
+      if (progression.type === 'PROMOTION') {
+        if (progression.newJobTitle) updateData.jobTitle = progression.newJobTitle;
+        if (progression.newSalary) updateData.salary = progression.newSalary;
+      } else if (progression.type === 'TRANSFER') {
+        if (progression.newDepartmentId) updateData.departmentId = progression.newDepartmentId;
+        if (progression.newManagerId !== undefined) updateData.managerId = progression.newManagerId;
+      }
+
+      if (Object.keys(updateData).length > 0) {
+        await tx.employee.update({
+          where: { id: progression.employeeId },
+          data: { ...updateData, updatedAt: new Date() }
+        });
+      }
+    }
+
+    return updatedProgression;
+  });
+}
+
+export function getCareerProgressionAnalytics({ from, to, departmentId } = {}) {
+  const where = {
+    status: 'APPROVED',
+    ...(from && to && { effectiveDate: { gte: from, lte: to } }),
+    ...(departmentId && { 
+      employee: { departmentId }
+    })
+  };
+
+  return prisma.careerProgression.groupBy({
+    by: ['type'],
+    where,
+    _count: { type: true },
+    _avg: { 
+      newSalary: true,
+      previousSalary: true
+    }
+  });
 }
 
 // Probation lifecycle

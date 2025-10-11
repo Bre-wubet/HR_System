@@ -209,8 +209,8 @@ export async function addEmployeeEvaluation(req, res, next) {
 // Career progression
 export async function promoteEmployee(req, res, next) {
   try {
-    const updated = await service.promoteEmployee(req.params.id, req.body);
-    res.json(response.success(updated));
+    const result = await service.promoteEmployee(req.params.id, req.body);
+    res.json(response.success(result));
   } catch (err) {
     next(err);
   }
@@ -218,8 +218,44 @@ export async function promoteEmployee(req, res, next) {
 
 export async function transferEmployee(req, res, next) {
   try {
-    const updated = await service.transferEmployee(req.params.id, req.body);
-    res.json(response.success(updated));
+    const result = await service.transferEmployee(req.params.id, req.body);
+    res.json(response.success(result));
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getCareerProgressionHistory(req, res, next) {
+  try {
+    const history = await service.getCareerProgressionHistory(req.params.id);
+    res.json(response.success(history));
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getPendingCareerProgressions(req, res, next) {
+  try {
+    const progressions = await service.getPendingCareerProgressions();
+    res.json(response.success(progressions));
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function approveCareerProgression(req, res, next) {
+  try {
+    const result = await service.approveCareerProgression(req.params.id, req.body);
+    res.json(response.success(result));
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getCareerProgressionAnalytics(req, res, next) {
+  try {
+    const analytics = await service.getCareerProgressionAnalytics(req.query);
+    res.json(response.success(analytics));
   } catch (err) {
     next(err);
   }

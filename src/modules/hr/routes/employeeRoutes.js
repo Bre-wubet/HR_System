@@ -41,6 +41,10 @@ router.post("/:id/evaluations", controller.addEmployeeEvaluation);
 // Career progression
 router.post("/:id/promotion", controller.promoteEmployee);
 router.post("/:id/transfer", controller.transferEmployee);
+router.get("/:id/career-history", controller.getCareerProgressionHistory);
+router.get("/career-progressions/pending", controller.getPendingCareerProgressions);
+router.post("/career-progressions/:id/approve", controller.approveCareerProgression);
+router.get("/career-progressions/analytics", controller.getCareerProgressionAnalytics);
 
 // Probation lifecycle
 router.post("/:id/probation/start", controller.startProbation);

@@ -66,12 +66,33 @@ export const addEvaluationSchema = Joi.object({
 
 export const promotionSchema = Joi.object({
   params: Joi.object({ id: Joi.string().uuid().required() }).required(),
-  body: Joi.object({ jobTitle: Joi.string().required() }).required(),
+  body: Joi.object({ 
+    jobTitle: Joi.string().required(),
+    salary: Joi.number().positive().optional(),
+    effectiveDate: Joi.date().optional(),
+    reason: Joi.string().allow("").optional(),
+    approvedBy: Joi.string().uuid().optional()
+  }).required(),
 });
 
 export const transferSchema = Joi.object({
   params: Joi.object({ id: Joi.string().uuid().required() }).required(),
-  body: Joi.object({ departmentId: Joi.string().uuid().required(), managerId: Joi.string().uuid().allow(null).optional() }).required(),
+  body: Joi.object({ 
+    departmentId: Joi.string().uuid().required(), 
+    managerId: Joi.string().uuid().allow(null).optional(),
+    reason: Joi.string().allow("").optional(),
+    effectiveDate: Joi.date().optional(),
+    approvedBy: Joi.string().uuid().optional()
+  }).required(),
+});
+
+export const careerProgressionApprovalSchema = Joi.object({
+  params: Joi.object({ id: Joi.string().uuid().required() }).required(),
+  body: Joi.object({
+    status: Joi.string().valid("APPROVED", "REJECTED").required(),
+    approvedBy: Joi.string().uuid().required(),
+    reason: Joi.string().allow("").optional()
+  }).required(),
 });
 
 export const startProbationSchema = Joi.object({

@@ -142,12 +142,28 @@ export function addEmployeeEvaluation(employeeId, data) {
 }
 
 // Career progression
-export function promoteEmployee(employeeId, data) {
+export async function promoteEmployee(employeeId, data) {
   return repo.promoteEmployee(employeeId, data);
 }
 
-export function transferEmployee(employeeId, data) {
+export async function transferEmployee(employeeId, data) {
   return repo.transferEmployee(employeeId, data);
+}
+
+export function getCareerProgressionHistory(employeeId) {
+  return repo.getCareerProgressionHistory(employeeId);
+}
+
+export function getPendingCareerProgressions() {
+  return repo.getPendingCareerProgressions();
+}
+
+export async function approveCareerProgression(progressionId, data) {
+  return repo.approveCareerProgression(progressionId, data);
+}
+
+export function getCareerProgressionAnalytics(query) {
+  return repo.getCareerProgressionAnalytics(query);
 }
 
 // Probation lifecycle

@@ -86,6 +86,7 @@ model Employee {
   status          EmploymentStatus   @default(ACTIVE)
   jobType         JobType
   jobTitle        String
+  salary          Float?             // Current salary
   department      Department         @relation(fields: [departmentId], references: [id])
   departmentId    String
   manager         Employee?          @relation("EmployeeManager", fields: [managerId], references: [id])
@@ -101,6 +102,8 @@ model Employee {
   documents       EmployeeDocument[]
   interviewsTaken Interview[]        @relation("InterviewInterviewer") // interviews conducted by this employee
   approvedLeaves  LeaveRequest[]     @relation("ApprovedBy")          // leave requests approved by this employee
+  careerProgressions CareerProgression[] // career progression history
+  approvedProgressions CareerProgression[] @relation("CareerProgressionApprover") // progressions approved by this employee
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
 }
@@ -239,4 +242,28 @@ model LeaveRequest {
   appliedAt    DateTime    @default(now())
   approvedBy   Employee?   @relation("ApprovedBy", fields: [approvedById], references: [id])
   approvedById String?
+}
+
+// Career Progression Tracking
+model CareerProgression {
+  id                   String   @id @default(uuid())
+  employee             Employee @relation(fields: [employeeId], references: [id])
+  employeeId           String
+  type                 String   // PROMOTION, TRANSFER, DEMOTION, LATERAL_MOVE
+  previousJobTitle     String?
+  newJobTitle          String?
+  previousSalary       Float?
+  newSalary            Float?
+  previousDepartmentId String?
+  newDepartmentId      String?
+  previousManagerId    String?
+  newManagerId         String?
+  effectiveDate        DateTime @default(now())
+  reason               String?
+  status               String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  approvedBy           Employee? @relation("CareerProgressionApprover", fields: [approvedById], references: [id])
+  approvedById         String?
+  approvedAt           DateTime?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 }

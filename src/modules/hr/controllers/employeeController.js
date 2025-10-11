@@ -29,6 +29,33 @@ export async function getEmployeeById(req, res, next) {
   }
 }
 
+export async function listDepartments(req, res, next) {
+  try {
+    const departments = await service.listDepartments();
+    res.json(response.success(departments));
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function listEmployeesForManagerSelection(req, res, next) {
+  try {
+    const employees = await service.listEmployeesForManagerSelection();
+    res.json(response.success(employees));
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function listAllSkills(req, res, next) {
+  try {
+    const skills = await service.listAllSkills();
+    res.json(response.success(skills));
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function updateEmployeeById(req, res, next) {
   try {
     const updated = await service.updateEmployeeById(req.params.id, req.body);

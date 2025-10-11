@@ -23,6 +23,35 @@ export function findById(id) {
   return prisma.employee.findUnique({ where: { id } });
 }
 
+export function findDepartmentById(id) {
+  return prisma.department.findUnique({ where: { id } });
+}
+
+export function findAllDepartments() {
+  return prisma.department.findMany({ orderBy: { name: 'asc' } });
+}
+
+export function findAllSkills() {
+  return prisma.skill.findMany({ orderBy: { name: 'asc' } });
+}
+
+export function findSkillById(id) {
+  return prisma.skill.findUnique({ where: { id } });
+}
+
+export function findSkillAssignment(employeeId, skillId) {
+  return prisma.skillAssignment.findFirst({ 
+    where: { employeeId, skillId } 
+  });
+}
+
+export function findManyForManagerSelection() {
+  return prisma.employee.findMany({ 
+    select: { id: true, firstName: true, lastName: true, email: true, jobTitle: true },
+    orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }]
+  });
+}
+
 export function create(data) {
   return prisma.employee.create({ data });
 }
@@ -63,13 +92,32 @@ export function searchDirectory({ q, departmentId, take = 20, skip = 0 } = {}) {
 
 // Org chart: fetch tree up to depth using recursive expansion in app layer
 export async function getOrgChart({ rootId, depth = 2 }) {
-  const root = rootId ? await prisma.employee.findUnique({ where: { id: rootId } }) : null;
-  const topManagers = await prisma.employee.findMany({ where: { managerId: null } });
+  const root = rootId ? await prisma.employee.findUnique({ 
+    where: { id: rootId },
+    include: { department: { select: { id: true, name: true } } }
+  }) : null;
+  
+  // If rootId is provided but employee doesn't exist, throw error
+  if (rootId && !root) {
+    const error = new Error(`Employee with ID ${rootId} not found`);
+    error.statusCode = 404;
+    error.code = 'EMPLOYEE_NOT_FOUND';
+    throw error;
+  }
+  
+  const topManagers = await prisma.employee.findMany({ 
+    where: { managerId: null },
+    include: { department: { select: { id: true, name: true } } }
+  });
   const seeds = root ? [root] : topManagers;
 
   async function loadChildren(node, level) {
     if (level >= depth) return { ...node, subordinates: [] };
-    const subs = await prisma.employee.findMany({ where: { managerId: node.id }, orderBy: { lastName: "asc" } });
+    const subs = await prisma.employee.findMany({ 
+      where: { managerId: node.id }, 
+      orderBy: { lastName: "asc" },
+      include: { department: { select: { id: true, name: true } } }
+    });
     const children = await Promise.all(subs.map((s) => loadChildren(s, level + 1)));
     return { ...node, subordinates: children };
   }

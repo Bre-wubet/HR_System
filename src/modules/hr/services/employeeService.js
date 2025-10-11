@@ -6,11 +6,39 @@ export async function listEmployees({ query }) {
 }
 
 export async function createEmployee(payload) {
+  // Validate that department exists
+  const department = await repo.findDepartmentById(payload.departmentId);
+  if (!department) {
+    const error = new Error(`Department with ID ${payload.departmentId} does not exist`);
+    error.statusCode = 400;
+    error.code = 'DEPARTMENT_NOT_FOUND';
+    throw error;
+  }
+  
+  // Validate that manager exists if provided
+  if (payload.managerId) {
+    const manager = await repo.findById(payload.managerId);
+    if (!manager) {
+      const error = new Error(`Manager with ID ${payload.managerId} does not exist`);
+      error.statusCode = 400;
+      error.code = 'MANAGER_NOT_FOUND';
+      throw error;
+    }
+  }
+  
   return repo.create(payload);
 }
 
 export async function getEmployeeById(id) {
   return repo.findById(id);
+}
+
+export async function listDepartments() {
+  return repo.findAllDepartments();
+}
+
+export async function listEmployeesForManagerSelection() {
+  return repo.findManyForManagerSelection();
 }
 
 export async function updateEmployeeById(id, payload) {
@@ -35,8 +63,39 @@ export function listEmployeeSkills(employeeId) {
   return repo.listEmployeeSkills(employeeId);
 }
 
-export function addEmployeeSkill(employeeId, data) {
+export async function addEmployeeSkill(employeeId, data) {
+  // Validate that employee exists
+  const employee = await repo.findById(employeeId);
+  if (!employee) {
+    const error = new Error(`Employee with ID ${employeeId} not found`);
+    error.statusCode = 404;
+    error.code = 'EMPLOYEE_NOT_FOUND';
+    throw error;
+  }
+  
+  // Validate that skill exists
+  const skill = await repo.findSkillById(data.skillId);
+  if (!skill) {
+    const error = new Error(`Skill with ID ${data.skillId} not found`);
+    error.statusCode = 400;
+    error.code = 'SKILL_NOT_FOUND';
+    throw error;
+  }
+  
+  // Check if employee already has this skill
+  const existingAssignment = await repo.findSkillAssignment(employeeId, data.skillId);
+  if (existingAssignment) {
+    const error = new Error(`Employee already has skill ${skill.name}`);
+    error.statusCode = 400;
+    error.code = 'SKILL_ALREADY_ASSIGNED';
+    throw error;
+  }
+  
   return repo.addEmployeeSkill(employeeId, data);
+}
+
+export async function listAllSkills() {
+  return repo.findAllSkills();
 }
 
 export function updateEmployeeSkill(employeeId, assignmentId, data) {

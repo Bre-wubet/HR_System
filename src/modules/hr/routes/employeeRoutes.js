@@ -5,13 +5,18 @@ const router = Router();
 
 router.get("/", controller.listEmployees);
 router.post("/", controller.createEmployee);
+router.get("/departments", controller.listDepartments);
+router.get("/managers", controller.listEmployeesForManagerSelection);
+router.get("/skills", controller.listAllSkills);
+
+// Directory search and org chart (must be before /:id routes)
+router.get("/directory/search", controller.searchDirectory);
+router.get("/org-chart", controller.getOrgChart); // ?rootId&depth=
+
+// Parameterized routes (must be after specific routes)
 router.get("/:id", controller.getEmployeeById);
 router.put("/:id", controller.updateEmployeeById);
 router.delete("/:id", controller.deleteEmployeeById);
-
-// Directory search and org chart
-router.get("/directory/search", controller.searchDirectory);
-router.get("/org-chart", controller.getOrgChart); // ?rootId&depth=
 
 // Skills
 router.get("/:id/skills", controller.listEmployeeSkills);

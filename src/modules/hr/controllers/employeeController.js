@@ -131,6 +131,52 @@ export async function removeEmployeeSkill(req, res, next) {
   }
 }
 
+// Enhanced Skills Functions
+export async function getAllSkills(req, res, next) {
+  try {
+    const skills = await service.getAllSkills();
+    res.json(response.success(skills));
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getSkillsByCategory(req, res, next) {
+  try {
+    const skills = await service.getSkillsByCategory(req.params.category);
+    res.json(response.success(skills));
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getSkillGapAnalysis(req, res, next) {
+  try {
+    const analysis = await service.getSkillGapAnalysis(req.params.employeeId, req.params.jobPostingId);
+    res.json(response.success(analysis));
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getSkillAnalytics(req, res, next) {
+  try {
+    const analytics = await service.getSkillAnalytics();
+    res.json(response.success(analytics));
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getSkillRecommendations(req, res, next) {
+  try {
+    const recommendations = await service.getSkillRecommendations(req.params.id);
+    res.json(response.success(recommendations));
+  } catch (err) {
+    next(err);
+  }
+}
+
 // Certifications
 export async function listEmployeeCertifications(req, res, next) {
   try {

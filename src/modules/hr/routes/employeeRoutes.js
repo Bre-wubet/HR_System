@@ -24,6 +24,13 @@ router.post("/:id/skills", controller.addEmployeeSkill);
 router.put("/:id/skills/:assignmentId", controller.updateEmployeeSkill);
 router.delete("/:id/skills/:assignmentId", controller.removeEmployeeSkill);
 
+// Enhanced Skills Functions
+router.get("/skills/all", controller.getAllSkills);
+router.get("/skills/category/:category", controller.getSkillsByCategory);
+router.get("/skills/analytics", controller.getSkillAnalytics);
+router.get("/:employeeId/skill-gap/:jobPostingId", controller.getSkillGapAnalysis);
+router.get("/:id/skill-recommendations", controller.getSkillRecommendations);
+
 // Certifications
 router.get("/:id/certifications", controller.listEmployeeCertifications);
 router.post("/:id/certifications", controller.addEmployeeCertification);

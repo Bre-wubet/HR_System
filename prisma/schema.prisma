@@ -94,6 +94,8 @@ model Employee {
   subordinates    Employee[]         @relation("EmployeeManager")
   skills          SkillAssignment[]
   certifications  Certification[]
+  assessedSkills  SkillAssignment[] @relation("SkillAssessor")
+  verifiedCertifications Certification[] @relation("CertificationVerifier")
   contracts       Contract[]
   attendances     Attendance[]
   leaves          LeaveRequest[]
@@ -118,29 +120,91 @@ model Department {
 
 // Skills & Certifications
 model Skill {
-  id          String             @id @default(uuid())
-  name        String
-  description String?
-  employees   SkillAssignment[]
+  id            String             @id @default(uuid())
+  name          String
+  description   String?
+  category      String?            // Technical, Soft Skills, Leadership, etc.
+  subcategory   String?            // Programming, Communication, etc.
+  isRequired    Boolean            @default(false) // Required skill for certain roles
+  skillLevels   SkillLevel[]       // Defined proficiency levels
+  employees     SkillAssignment[]
+  jobPostings   JobPostingSkill[]  // Skills required for job postings
+  certifications CertificationSkill[] // Skills validated by certifications
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
 }
 
 model SkillAssignment {
-  id         String   @id @default(uuid())
-  employee   Employee @relation(fields: [employeeId], references: [id])
-  employeeId String
-  skill      Skill    @relation(fields: [skillId], references: [id])
-  skillId    String
-  level      Int      // 1-5 scale
+  id            String   @id @default(uuid())
+  employee      Employee @relation(fields: [employeeId], references: [id])
+  employeeId    String
+  skill         Skill    @relation(fields: [skillId], references: [id])
+  skillId       String
+  level         Int      // 1-5 scale
+  evidence      String?  // Evidence of skill proficiency
+  notes         String?  // Additional notes about the skill
+  assessedBy    Employee? @relation("SkillAssessor", fields: [assessedById], references: [id])
+  assessedById  String?
+  assessedAt    DateTime?
+  isSelfAssessed Boolean @default(true)
+  lastUpdated   DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model SkillLevel {
+  id          String @id @default(uuid())
+  skill       Skill  @relation(fields: [skillId], references: [id])
+  skillId     String
+  level       Int    // 1-5 scale
+  title       String // Beginner, Intermediate, Advanced, Expert, Master
+  description String // What this level means
+  requirements String // What's required to achieve this level
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Certification {
-  id         String   @id @default(uuid())
-  employee   Employee @relation(fields: [employeeId], references: [id])
-  employeeId String
-  name       String
-  issuer     String?
-  issuedAt   DateTime
-  expiresAt  DateTime?
+  id              String   @id @default(uuid())
+  employee        Employee @relation(fields: [employeeId], references: [id])
+  employeeId      String
+  name            String
+  issuer          String?
+  credentialId    String?  // Certification number/ID
+  issuedAt        DateTime
+  expiresAt       DateTime?
+  verifiedAt      DateTime?
+  verifiedBy      Employee? @relation("CertificationVerifier", fields: [verifiedById], references: [id])
+  verifiedById    String?
+  status          String   @default("ACTIVE") // ACTIVE, EXPIRED, REVOKED, PENDING_VERIFICATION
+  documentUrl     String?  // Link to certificate document
+  skills          CertificationSkill[] // Skills this certification validates
+  renewalReminder Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model CertificationSkill {
+  id             String       @id @default(uuid())
+  certification  Certification @relation(fields: [certificationId], references: [id])
+  certificationId String
+  skill          Skill        @relation(fields: [skillId], references: [id])
+  skillId        String
+  level          Int          // Skill level validated by this certification
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model JobPostingSkill {
+  id          String     @id @default(uuid())
+  jobPosting  JobPosting @relation(fields: [jobPostingId], references: [id])
+  jobPostingId String
+  skill       Skill      @relation(fields: [skillId], references: [id])
+  skillId     String
+  required    Boolean    @default(true) // Required vs nice-to-have
+  minLevel    Int        @default(1) // Minimum skill level required
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 // Contracts
@@ -187,6 +251,7 @@ model JobPosting {
   departmentId String
   isActive     Boolean      @default(true)
   candidates   Candidate[]
+  skills       JobPostingSkill[] // Skills required for this job
   createdAt    DateTime     @default(now())
 }
 

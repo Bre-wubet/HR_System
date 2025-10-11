@@ -36,12 +36,23 @@ export const updateEmployeeSchema = Joi.object({
 // Additional schemas
 export const addSkillSchema = Joi.object({
   params: Joi.object({ id: Joi.string().uuid().required() }).required(),
-  body: Joi.object({ skillId: Joi.string().uuid().required(), level: Joi.number().integer().min(1).max(5).required() }).required(),
+  body: Joi.object({ 
+    skillId: Joi.string().uuid().required(), 
+    level: Joi.number().integer().min(1).max(5).required(),
+    evidence: Joi.string().allow("").optional(),
+    notes: Joi.string().allow("").optional(),
+    assessedBy: Joi.string().uuid().optional()
+  }).required(),
 });
 
 export const updateSkillSchema = Joi.object({
   params: Joi.object({ id: Joi.string().uuid().required(), assignmentId: Joi.string().uuid().required() }).required(),
-  body: Joi.object({ level: Joi.number().integer().min(1).max(5).required() }).required(),
+  body: Joi.object({ 
+    level: Joi.number().integer().min(1).max(5).required(),
+    evidence: Joi.string().allow("").optional(),
+    notes: Joi.string().allow("").optional(),
+    assessedBy: Joi.string().uuid().optional()
+  }).required(),
 });
 
 export const addCertificationSchema = Joi.object({

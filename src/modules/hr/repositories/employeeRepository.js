@@ -128,19 +128,275 @@ export async function getOrgChart({ rootId, depth = 2 }) {
 
 // Skills
 export function listEmployeeSkills(employeeId) {
-  return prisma.skillAssignment.findMany({ where: { employeeId }, include: { skill: true } });
+  return prisma.skillAssignment.findMany({
+    where: { employeeId },
+    include: { 
+      skill: { 
+        include: { 
+          skillLevels: { orderBy: { level: 'asc' } } 
+        } 
+      },
+      assessedBy: { 
+        select: { id: true, firstName: true, lastName: true, email: true } 
+      }
+    },
+    orderBy: { level: "desc" },
+  });
 }
 
-export function addEmployeeSkill(employeeId, { skillId, level }) {
-  return prisma.skillAssignment.create({ data: { employeeId, skillId, level } });
+export function addEmployeeSkill(employeeId, { skillId, level, evidence, notes, assessedBy }) {
+  return prisma.$transaction(async (tx) => {
+    const existing = await tx.skillAssignment.findFirst({
+      where: { employeeId, skillId }
+    });
+    
+    if (existing) {
+      return tx.skillAssignment.update({
+        where: { id: existing.id },
+        data: {
+          level,
+          evidence,
+          notes,
+          assessedById: assessedBy,
+          assessedAt: assessedBy ? new Date() : null,
+          isSelfAssessed: !assessedBy,
+          lastUpdated: new Date()
+        }
+      });
+    } else {
+      return tx.skillAssignment.create({
+        data: {
+          employeeId,
+          skillId,
+          level,
+          evidence,
+          notes,
+          assessedById: assessedBy,
+          assessedAt: assessedBy ? new Date() : null,
+          isSelfAssessed: !assessedBy
+        }
+      });
+    }
+  });
 }
 
-export function updateEmployeeSkill(_employeeId, assignmentId, { level }) {
-  return prisma.skillAssignment.update({ where: { id: assignmentId }, data: { level } });
+export function updateEmployeeSkill(_employeeId, assignmentId, { level, evidence, notes, assessedBy }) {
+  return prisma.skillAssignment.update({ 
+    where: { id: assignmentId }, 
+    data: { 
+      level, 
+      evidence, 
+      notes, 
+      assessedById: assessedBy,
+      assessedAt: assessedBy ? new Date() : null,
+      isSelfAssessed: !assessedBy,
+      lastUpdated: new Date()
+    } 
+  });
 }
 
 export function removeEmployeeSkill(_employeeId, assignmentId) {
   return prisma.skillAssignment.delete({ where: { id: assignmentId } });
+}
+
+// Enhanced Skills Functions
+export function getAllSkills() {
+  return prisma.skill.findMany({
+    include: { 
+      skillLevels: { orderBy: { level: 'asc' } },
+      employees: { 
+        include: { 
+          employee: { 
+            select: { id: true, firstName: true, lastName: true, email: true } 
+          } 
+        } 
+      }
+    },
+    orderBy: { name: 'asc' }
+  });
+}
+
+export function getSkillsByCategory(category) {
+  return prisma.skill.findMany({
+    where: { category },
+    include: { 
+      skillLevels: { orderBy: { level: 'asc' } },
+      employees: { 
+        include: { 
+          employee: { 
+            select: { id: true, firstName: true, lastName: true, email: true } 
+          } 
+        } 
+      }
+    },
+    orderBy: { name: 'asc' }
+  });
+}
+
+export function getSkillGapAnalysis(employeeId, jobPostingId) {
+  return prisma.$transaction(async (tx) => {
+    // Get employee skills
+    const employeeSkills = await tx.skillAssignment.findMany({
+      where: { employeeId },
+      include: { skill: true }
+    });
+
+    // Get job posting required skills
+    const jobSkills = await tx.jobPostingSkill.findMany({
+      where: { jobPostingId },
+      include: { skill: true }
+    });
+
+    // Analyze gaps
+    const gaps = [];
+    const strengths = [];
+
+    for (const jobSkill of jobSkills) {
+      const employeeSkill = employeeSkills.find(es => es.skillId === jobSkill.skillId);
+      
+      if (!employeeSkill) {
+        gaps.push({
+          skill: jobSkill.skill,
+          requiredLevel: jobSkill.minLevel,
+          currentLevel: 0,
+          gap: jobSkill.minLevel,
+          isRequired: jobSkill.required
+        });
+      } else if (employeeSkill.level < jobSkill.minLevel) {
+        gaps.push({
+          skill: jobSkill.skill,
+          requiredLevel: jobSkill.minLevel,
+          currentLevel: employeeSkill.level,
+          gap: jobSkill.minLevel - employeeSkill.level,
+          isRequired: jobSkill.required
+        });
+      } else {
+        strengths.push({
+          skill: jobSkill.skill,
+          requiredLevel: jobSkill.minLevel,
+          currentLevel: employeeSkill.level,
+          surplus: employeeSkill.level - jobSkill.minLevel
+        });
+      }
+    }
+
+    return {
+      gaps: gaps.sort((a, b) => b.gap - a.gap),
+      strengths: strengths.sort((a, b) => b.surplus - a.surplus),
+      matchPercentage: Math.round(((jobSkills.length - gaps.length) / jobSkills.length) * 100)
+    };
+  });
+}
+
+export function getSkillAnalytics() {
+  return prisma.$transaction(async (tx) => {
+    const totalSkills = await tx.skill.count();
+    const skillsByCategory = await tx.skill.groupBy({
+      by: ['category'],
+      _count: { category: true }
+    });
+
+    const skillAssignments = await tx.skillAssignment.groupBy({
+      by: ['level'],
+      _count: { level: true }
+    });
+
+    const topSkills = await tx.skill.findMany({
+      include: {
+        _count: {
+          select: { employees: true }
+        }
+      },
+      orderBy: {
+        employees: { _count: 'desc' }
+      },
+      take: 10
+    });
+
+    return {
+      totalSkills,
+      skillsByCategory,
+      skillLevelDistribution: skillAssignments,
+      topSkills: topSkills.map(skill => ({
+        id: skill.id,
+        name: skill.name,
+        category: skill.category,
+        employeeCount: skill._count.employees
+      }))
+    };
+  });
+}
+
+export function getSkillRecommendations(employeeId) {
+  return prisma.$transaction(async (tx) => {
+    // Get employee's current skills
+    const employeeSkills = await tx.skillAssignment.findMany({
+      where: { employeeId },
+      include: { skill: true }
+    });
+
+    // Get skills in same categories as employee's skills
+    const categories = [...new Set(employeeSkills.map(es => es.skill.category))];
+    
+    // Find skills in same categories that employee doesn't have
+    const recommendedSkills = await tx.skill.findMany({
+      where: {
+        category: { in: categories },
+        id: { notIn: employeeSkills.map(es => es.skillId) }
+      },
+      include: {
+        skillLevels: { orderBy: { level: 'asc' } },
+        _count: {
+          select: { employees: true }
+        }
+      },
+      orderBy: {
+        employees: { _count: 'desc' }
+      },
+      take: 10
+    });
+
+    // Get complementary skills (skills that are often paired with employee's skills)
+    const complementarySkills = await tx.skill.findMany({
+      where: {
+        id: { notIn: employeeSkills.map(es => es.skillId) },
+        category: { notIn: categories }
+      },
+      include: {
+        skillLevels: { orderBy: { level: 'asc' } },
+        _count: {
+          select: { employees: true }
+        }
+      },
+      orderBy: {
+        employees: { _count: 'desc' }
+      },
+      take: 5
+    });
+
+    return {
+      categoryBased: recommendedSkills.map(skill => ({
+        id: skill.id,
+        name: skill.name,
+        category: skill.category,
+        subcategory: skill.subcategory,
+        description: skill.description,
+        popularity: skill._count.employees,
+        skillLevels: skill.skillLevels,
+        reason: `Popular in ${skill.category} category`
+      })),
+      complementary: complementarySkills.map(skill => ({
+        id: skill.id,
+        name: skill.name,
+        category: skill.category,
+        subcategory: skill.subcategory,
+        description: skill.description,
+        popularity: skill._count.employees,
+        skillLevels: skill.skillLevels,
+        reason: `Complements your ${categories.join(', ')} skills`
+      }))
+    };
+  });
 }
 
 // Certifications

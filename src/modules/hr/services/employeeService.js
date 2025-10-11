@@ -106,6 +106,27 @@ export function removeEmployeeSkill(employeeId, assignmentId) {
   return repo.removeEmployeeSkill(employeeId, assignmentId);
 }
 
+// Enhanced Skills Functions
+export function getAllSkills() {
+  return repo.getAllSkills();
+}
+
+export function getSkillsByCategory(category) {
+  return repo.getSkillsByCategory(category);
+}
+
+export function getSkillGapAnalysis(employeeId, jobPostingId) {
+  return repo.getSkillGapAnalysis(employeeId, jobPostingId);
+}
+
+export function getSkillAnalytics() {
+  return repo.getSkillAnalytics();
+}
+
+export function getSkillRecommendations(employeeId) {
+  return repo.getSkillRecommendations(employeeId);
+}
+
 // Certifications
 export function listEmployeeCertifications(employeeId) {
   return repo.listEmployeeCertifications(employeeId);

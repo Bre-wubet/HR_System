@@ -183,7 +183,7 @@ export class AuthService {
    */
   async verifyToken(token) {
     try {
-      const decoded = jwt.verify(token, env.JWT_SECRET);
+      const decoded = jwt.verify(token, env.jwtSecret);
       
       // Get fresh user data
       const user = await authRepository.findUserById(decoded.userId);
@@ -253,8 +253,8 @@ export class AuthService {
   async generateTokens(userId) {
     const accessToken = jwt.sign(
       { userId },
-      env.JWT_SECRET,
-      { expiresIn: env.JWT_ACCESS_EXPIRES_IN || '15m' }
+      env.jwtSecret,
+      { expiresIn: env.jwtAccessExpiresIn }
     );
 
     const refreshToken = crypto.randomBytes(32).toString('hex');
@@ -265,7 +265,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      expiresIn: env.JWT_ACCESS_EXPIRES_IN || '15m',
+      expiresIn: env.jwtAccessExpiresIn,
     };
   }
 

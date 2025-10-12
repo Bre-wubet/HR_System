@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../generated/prisma/index.js';
 import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -264,5 +264,10 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    try {
+      await prisma.$disconnect();
+    } catch (error) {
+      // Prisma client might already be disconnected or method might not exist
+      console.log('Prisma client disconnected');
+    }
   });

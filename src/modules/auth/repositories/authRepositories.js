@@ -1,7 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../../config/db.js';
 import bcrypt from 'bcrypt';
 
-const prisma = new PrismaClient();
 
 export class AuthRepository {
   /**

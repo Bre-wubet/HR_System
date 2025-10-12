@@ -1,24 +1,34 @@
 import { Router } from "express";
 import * as controller from "../controllers/attendanceController.js";
+import { 
+  authenticateToken, 
+  requirePermission, 
+  requireAnyPermission,
+  requireEmployeeAccess 
+} from "../../../middlewares/authMiddleware.js";
 
 const router = Router();
 
-router.get("/", controller.listAttendance);
-router.post("/", controller.recordAttendance);
-router.get("/employee/:employeeId", controller.listAttendanceByEmployee);
+// Apply authentication to all routes
+router.use(authenticateToken);
 
-// Check-in/out endpoints
-router.post("/employee/:employeeId/check-in", controller.checkIn);
-router.post("/employee/:employeeId/check-out", controller.checkOut);
+// Attendance records - require attendance permissions
+router.get("/", requirePermission("attendance:read"), controller.listAttendance);
+router.post("/", requirePermission("attendance:create"), controller.recordAttendance);
+router.get("/employee/:employeeId", requireEmployeeAccess(), controller.listAttendanceByEmployee);
 
-// Leave requests
-router.post("/leave", controller.createLeaveRequest);
-router.put("/leave/:id/status", controller.updateLeaveStatus);
-router.get("/leave", controller.listLeaveRequests);
+// Check-in/out endpoints - require attendance create permission or own data
+router.post("/employee/:employeeId/check-in", requireAnyPermission(["attendance:create"]), requireEmployeeAccess(), controller.checkIn);
+router.post("/employee/:employeeId/check-out", requireAnyPermission(["attendance:create"]), requireEmployeeAccess(), controller.checkOut);
 
-// Analytics
-router.get("/analytics/summary", controller.getAttendanceSummary);
-router.get("/analytics/absence", controller.getAbsenceAnalytics);
+// Leave requests - require attendance permissions
+router.post("/leave", requirePermission("attendance:create"), controller.createLeaveRequest);
+router.put("/leave/:id/status", requirePermission("attendance:update"), controller.updateLeaveStatus);
+router.get("/leave", requirePermission("attendance:read"), controller.listLeaveRequests);
+
+// Analytics - require attendance read permission
+router.get("/analytics/summary", requirePermission("attendance:read"), controller.getAttendanceSummary);
+router.get("/analytics/absence", requirePermission("attendance:read"), controller.getAbsenceAnalytics);
 
 export default router;
 

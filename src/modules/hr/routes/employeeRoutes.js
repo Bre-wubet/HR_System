@@ -1,64 +1,87 @@
 import { Router } from "express";
 import * as controller from "../controllers/employeeController.js";
+import { 
+  authenticateToken, 
+  requirePermission, 
+  requireAnyPermission,
+  requireEmployeeAccess 
+} from "../../../middlewares/authMiddleware.js";
 
 const router = Router();
 
-router.get("/", controller.listEmployees);
-router.post("/", controller.createEmployee);
-router.get("/departments", controller.listDepartments);
-router.get("/managers", controller.listEmployeesForManagerSelection);
-router.get("/skills", controller.listAllSkills);
+// Apply authentication to all routes
+router.use(authenticateToken);
+
+// List employees - requires employee read permission
+router.get("/", requirePermission("employee:read"), controller.listEmployees);
+
+// Create employee - requires employee create permission
+router.post("/", requirePermission("employee:create"), controller.createEmployee);
+
+// List departments - requires employee read permission
+router.get("/departments", requirePermission("employee:read"), controller.listDepartments);
+
+// List managers - requires employee read permission
+router.get("/managers", requirePermission("employee:read"), controller.listEmployeesForManagerSelection);
+
+// List all skills - requires employee read permission
+router.get("/skills", requirePermission("employee:read"), controller.listAllSkills);
 
 // Directory search and org chart (must be before /:id routes)
-router.get("/directory/search", controller.searchDirectory);
-router.get("/org-chart", controller.getOrgChart); // ?rootId&depth=
+router.get("/directory/search", requirePermission("employee:read"), controller.searchDirectory);
+router.get("/org-chart", requirePermission("employee:read"), controller.getOrgChart); // ?rootId&depth=
 
 // Parameterized routes (must be after specific routes)
-router.get("/:id", controller.getEmployeeById);
-router.put("/:id", controller.updateEmployeeById);
-router.delete("/:id", controller.deleteEmployeeById);
+// Get employee by ID - requires employee access (own data or HR permission)
+router.get("/:id", requireEmployeeAccess(), controller.getEmployeeById);
 
-// Skills
-router.get("/:id/skills", controller.listEmployeeSkills);
-router.post("/:id/skills", controller.addEmployeeSkill);
-router.put("/:id/skills/:assignmentId", controller.updateEmployeeSkill);
-router.delete("/:id/skills/:assignmentId", controller.removeEmployeeSkill);
+// Update employee - requires employee update permission or own data
+router.put("/:id", requireAnyPermission(["employee:update"]), requireEmployeeAccess(), controller.updateEmployeeById);
 
-// Enhanced Skills Functions
-router.get("/skills/all", controller.getAllSkills);
-router.get("/skills/category/:category", controller.getSkillsByCategory);
-router.get("/skills/analytics", controller.getSkillAnalytics);
-router.get("/:employeeId/skill-gap/:jobPostingId", controller.getSkillGapAnalysis);
-router.get("/:id/skill-recommendations", controller.getSkillRecommendations);
+// Delete employee - requires employee delete permission
+router.delete("/:id", requirePermission("employee:delete"), controller.deleteEmployeeById);
 
-// Certifications
-router.get("/:id/certifications", controller.listEmployeeCertifications);
-router.post("/:id/certifications", controller.addEmployeeCertification);
-router.delete("/:id/certifications/:certId", controller.removeEmployeeCertification);
+// Skills - require employee access
+router.get("/:id/skills", requireEmployeeAccess(), controller.listEmployeeSkills);
+router.post("/:id/skills", requireAnyPermission(["employee:update"]), requireEmployeeAccess(), controller.addEmployeeSkill);
+router.put("/:id/skills/:assignmentId", requireAnyPermission(["employee:update"]), requireEmployeeAccess(), controller.updateEmployeeSkill);
+router.delete("/:id/skills/:assignmentId", requireAnyPermission(["employee:update"]), requireEmployeeAccess(), controller.removeEmployeeSkill);
 
-// Documents
-router.get("/:id/documents", controller.listEmployeeDocuments);
-router.post("/:id/documents", controller.addEmployeeDocument);
-router.delete("/:id/documents/:docId", controller.removeEmployeeDocument);
+// Enhanced Skills Functions - require employee read permission
+router.get("/skills/all", requirePermission("employee:read"), controller.getAllSkills);
+router.get("/skills/category/:category", requirePermission("employee:read"), controller.getSkillsByCategory);
+router.get("/skills/analytics", requirePermission("employee:read"), controller.getSkillAnalytics);
+router.get("/:employeeId/skill-gap/:jobPostingId", requireEmployeeAccess(), controller.getSkillGapAnalysis);
+router.get("/:id/skill-recommendations", requireEmployeeAccess(), controller.getSkillRecommendations);
 
-// Evaluations (incl. probation-related)
-router.get("/:id/evaluations", controller.listEmployeeEvaluations);
-router.post("/:id/evaluations", controller.addEmployeeEvaluation);
+// Certifications - require employee access
+router.get("/:id/certifications", requireEmployeeAccess(), controller.listEmployeeCertifications);
+router.post("/:id/certifications", requireAnyPermission(["employee:update"]), requireEmployeeAccess(), controller.addEmployeeCertification);
+router.delete("/:id/certifications/:certId", requireAnyPermission(["employee:update"]), requireEmployeeAccess(), controller.removeEmployeeCertification);
 
-// Career progression
-router.post("/:id/promotion", controller.promoteEmployee);
-router.post("/:id/transfer", controller.transferEmployee);
-router.get("/:id/career-history", controller.getCareerProgressionHistory);
-router.get("/career-progressions/pending", controller.getPendingCareerProgressions);
-router.post("/career-progressions/:id/approve", controller.approveCareerProgression);
-router.get("/career-progressions/analytics", controller.getCareerProgressionAnalytics);
+// Documents - require employee access
+router.get("/:id/documents", requireEmployeeAccess(), controller.listEmployeeDocuments);
+router.post("/:id/documents", requireAnyPermission(["employee:update"]), requireEmployeeAccess(), controller.addEmployeeDocument);
+router.delete("/:id/documents/:docId", requireAnyPermission(["employee:update"]), requireEmployeeAccess(), controller.removeEmployeeDocument);
 
-// Probation lifecycle
-router.post("/:id/probation/start", controller.startProbation);
-router.post("/:id/probation/end", controller.endProbation);
+// Evaluations (incl. probation-related) - require employee access
+router.get("/:id/evaluations", requireEmployeeAccess(), controller.listEmployeeEvaluations);
+router.post("/:id/evaluations", requireAnyPermission(["employee:update"]), requireEmployeeAccess(), controller.addEmployeeEvaluation);
 
-// Offboarding
-router.post("/:id/offboard", controller.offboardEmployee);
+// Career progression - require employee update permission
+router.post("/:id/promotion", requirePermission("employee:update"), controller.promoteEmployee);
+router.post("/:id/transfer", requirePermission("employee:update"), controller.transferEmployee);
+router.get("/:id/career-history", requireEmployeeAccess(), controller.getCareerProgressionHistory);
+router.get("/career-progressions/pending", requirePermission("employee:read"), controller.getPendingCareerProgressions);
+router.post("/career-progressions/:id/approve", requirePermission("employee:update"), controller.approveCareerProgression);
+router.get("/career-progressions/analytics", requirePermission("employee:read"), controller.getCareerProgressionAnalytics);
+
+// Probation lifecycle - require employee update permission
+router.post("/:id/probation/start", requirePermission("employee:update"), controller.startProbation);
+router.post("/:id/probation/end", requirePermission("employee:update"), controller.endProbation);
+
+// Offboarding - require employee delete permission
+router.post("/:id/offboard", requirePermission("employee:delete"), controller.offboardEmployee);
 
 export default router;
 

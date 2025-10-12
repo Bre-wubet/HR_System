@@ -1,40 +1,50 @@
 import { Router } from "express";
 import * as controller from "../controllers/recruitmentController.js";
+import { 
+  authenticateToken, 
+  requirePermission, 
+  requireAnyPermission 
+} from "../../../middlewares/authMiddleware.js";
 
 const router = Router();
 
-router.get("/jobs", controller.listJobPostings);
-router.post("/jobs", controller.createJobPosting);
-router.get("/jobs/:id", controller.getJobPostingById);
-router.put("/jobs/:id", controller.updateJobPostingById);
-router.delete("/jobs/:id", controller.archiveJobPostingById);
+// Apply authentication to all routes
+router.use(authenticateToken);
 
-router.get("/jobs/:id/candidates", controller.listCandidatesForJob);
-router.post("/jobs/:id/candidates", controller.createCandidateForJob);
-router.put("/candidates/:candidateId/stage", controller.updateCandidateStage);
+// Job postings - require recruitment permissions
+router.get("/jobs", requirePermission("recruitment:read"), controller.listJobPostings);
+router.post("/jobs", requirePermission("recruitment:create"), controller.createJobPosting);
+router.get("/jobs/:id", requirePermission("recruitment:read"), controller.getJobPostingById);
+router.put("/jobs/:id", requirePermission("recruitment:update"), controller.updateJobPostingById);
+router.delete("/jobs/:id", requirePermission("recruitment:delete"), controller.archiveJobPostingById);
 
-// Shortlist and scoring
-router.post("/jobs/:id/shortlist", controller.shortlistCandidates);
-router.put("/candidates/:candidateId/score", controller.setCandidateScore);
+// Candidates - require recruitment permissions
+router.get("/jobs/:id/candidates", requirePermission("recruitment:read"), controller.listCandidatesForJob);
+router.post("/jobs/:id/candidates", requirePermission("recruitment:create"), controller.createCandidateForJob);
+router.put("/candidates/:candidateId/stage", requirePermission("recruitment:update"), controller.updateCandidateStage);
 
-// Communications
-router.post("/candidates/:candidateId/notify", controller.notifyCandidate);
-router.post("/candidates/:candidateId/status", controller.updateCandidateStatusWithReason);
+// Shortlist and scoring - require recruitment update permission
+router.post("/jobs/:id/shortlist", requirePermission("recruitment:update"), controller.shortlistCandidates);
+router.put("/candidates/:candidateId/score", requirePermission("recruitment:update"), controller.setCandidateScore);
 
-// Interviews
-router.post("/interviews", controller.scheduleInterview);
-router.put("/interviews/:id", controller.updateInterview);
-router.get("/candidates/:candidateId/interviews", controller.listInterviewsForCandidate);
+// Communications - require recruitment update permission
+router.post("/candidates/:candidateId/notify", requirePermission("recruitment:update"), controller.notifyCandidate);
+router.post("/candidates/:candidateId/status", requirePermission("recruitment:update"), controller.updateCandidateStatusWithReason);
 
-// KPIs
-router.get("/kpis", controller.getRecruitmentKpis);
+// Interviews - require recruitment permissions
+router.post("/interviews", requirePermission("recruitment:create"), controller.scheduleInterview);
+router.put("/interviews/:id", requirePermission("recruitment:update"), controller.updateInterview);
+router.get("/candidates/:candidateId/interviews", requirePermission("recruitment:read"), controller.listInterviewsForCandidate);
 
-// Offers and contracts
-router.post("/offers/:candidateId", controller.generateOfferLetter);
-router.post("/contracts/:candidateId", controller.createEmploymentContract);
+// KPIs - require recruitment read permission
+router.get("/kpis", requirePermission("recruitment:read"), controller.getRecruitmentKpis);
 
-// Onboarding linkage
-router.post("/onboarding/:candidateId", controller.createOnboardingChecklist);
+// Offers and contracts - require recruitment create permission
+router.post("/offers/:candidateId", requirePermission("recruitment:create"), controller.generateOfferLetter);
+router.post("/contracts/:candidateId", requirePermission("recruitment:create"), controller.createEmploymentContract);
+
+// Onboarding linkage - require recruitment create permission
+router.post("/onboarding/:candidateId", requirePermission("recruitment:create"), controller.createOnboardingChecklist);
 
 export default router;
 

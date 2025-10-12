@@ -106,6 +106,7 @@ model Employee {
   approvedLeaves  LeaveRequest[]     @relation("ApprovedBy")          // leave requests approved by this employee
   careerProgressions CareerProgression[] // career progression history
   approvedProgressions CareerProgression[] @relation("CareerProgressionApprover") // progressions approved by this employee
+  user            User?              // Link to authentication user
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
 }
@@ -331,4 +332,88 @@ model CareerProgression {
   approvedAt           DateTime?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
+}
+
+// -----------------------------------------
+// AUTHENTICATION & AUTHORIZATION
+// -----------------------------------------
+
+// User Authentication
+model User {
+  id                String   @id @default(uuid())
+  email             String   @unique
+  password          String
+  firstName         String
+  lastName          String
+  isActive          Boolean  @default(true)
+  emailVerified     Boolean  @default(false)
+  lastLoginAt       DateTime?
+  passwordChangedAt DateTime @default(now())
+  employee          Employee? @relation(fields: [employeeId], references: [id])
+  employeeId        String?  @unique
+  roles             UserRole[]
+  refreshTokens     RefreshToken[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+// Roles
+model Role {
+  id          String      @id @default(uuid())
+  name        String      @unique
+  description String?
+  permissions RolePermission[]
+  users       UserRole[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+// Permissions
+model Permission {
+  id          String          @id @default(uuid())
+  name        String          @unique
+  description String?
+  resource    String          // e.g., 'employee', 'recruitment', 'attendance'
+  action      String          // e.g., 'create', 'read', 'update', 'delete'
+  roles       RolePermission[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+// User-Role relationship
+model UserRole {
+  id     String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+  role   Role   @relation(fields: [roleId], references: [id])
+  roleId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, roleId])
+}
+
+// Role-Permission relationship
+model RolePermission {
+  id           String     @id @default(uuid())
+  role         Role       @relation(fields: [roleId], references: [id])
+  roleId       String
+  permission   Permission @relation(fields: [permissionId], references: [id])
+  permissionId String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([roleId, permissionId])
+}
+
+// Refresh Tokens
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  expiresAt DateTime
+  isRevoked Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

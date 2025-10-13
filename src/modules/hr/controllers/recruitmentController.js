@@ -1,5 +1,6 @@
 import * as service from "../services/recruitmentService.js";
 import { response } from "../../../utils/response.js";
+import * as v from "../validations/recruitmentValidation.js";
 import { validate } from "../../../middlewares/validationMiddleware.js";
 
 export async function listJobPostings(req, res, next) {

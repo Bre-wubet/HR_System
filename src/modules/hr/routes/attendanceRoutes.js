@@ -6,6 +6,8 @@ import {
   requireAnyPermission,
   requireEmployeeAccess 
 } from "../../../middlewares/authMiddleware.js";
+import { validate } from "../../../middlewares/validationMiddleware.js";
+import * as v from "../validations/attendanceValidation.js";
 
 const router = Router();
 
@@ -13,22 +15,22 @@ const router = Router();
 router.use(authenticateToken);
 
 // Attendance records - require attendance permissions
-router.get("/", requirePermission("attendance:read"), controller.listAttendance);
-router.post("/", requirePermission("attendance:create"), controller.recordAttendance);
-router.get("/employee/:employeeId", requireEmployeeAccess(), controller.listAttendanceByEmployee);
+router.get("/", requirePermission("attendance:read"), validate(v.listAttendanceSchema), controller.listAttendance);
+router.post("/", requirePermission("attendance:create"), validate(v.recordAttendanceSchema), controller.recordAttendance);
+router.get("/employee/:employeeId", requireEmployeeAccess(), validate(v.listAttendanceByEmployeeSchema), controller.listAttendanceByEmployee);
 
 // Check-in/out endpoints - require attendance create permission or own data
-router.post("/employee/:employeeId/check-in", requireAnyPermission(["attendance:create"]), requireEmployeeAccess(), controller.checkIn);
-router.post("/employee/:employeeId/check-out", requireAnyPermission(["attendance:create"]), requireEmployeeAccess(), controller.checkOut);
+router.post("/employee/:employeeId/check-in", requireAnyPermission(["attendance:create"]), requireEmployeeAccess(), validate(v.checkInSchema), controller.checkIn);
+router.post("/employee/:employeeId/check-out", requireAnyPermission(["attendance:create"]), requireEmployeeAccess(), validate(v.checkOutSchema), controller.checkOut);
 
 // Leave requests - require attendance permissions
-router.post("/leave", requirePermission("attendance:create"), controller.createLeaveRequest);
-router.put("/leave/:id/status", requirePermission("attendance:update"), controller.updateLeaveStatus);
-router.get("/leave", requirePermission("attendance:read"), controller.listLeaveRequests);
+router.post("/leave", requirePermission("attendance:create"), validate(v.createLeaveSchema), controller.createLeaveRequest);
+router.put("/leave/:id/status", requirePermission("attendance:update"), validate(v.updateLeaveStatusSchema), controller.updateLeaveStatus);
+router.get("/leave", requirePermission("attendance:read"), validate(v.listLeaveRequestsSchema), controller.listLeaveRequests);
 
 // Analytics - require attendance read permission
-router.get("/analytics/summary", requirePermission("attendance:read"), controller.getAttendanceSummary);
-router.get("/analytics/absence", requirePermission("attendance:read"), controller.getAbsenceAnalytics);
+router.get("/analytics/summary", requirePermission("attendance:read"), validate(v.attendanceSummarySchema), controller.getAttendanceSummary);
+router.get("/analytics/absence", requirePermission("attendance:read"), validate(v.absenceAnalyticsSchema), controller.getAbsenceAnalytics);
 
 export default router;
 

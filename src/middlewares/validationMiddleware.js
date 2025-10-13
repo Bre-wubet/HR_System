@@ -9,9 +9,9 @@ export function validate(schema) {
       err.details = error.details?.map((d) => d.message);
       return next(err);
     }
-    req.body = value.body || req.body;
-    req.params = value.params || req.params;
-    req.query = value.query || req.query;
+    if (value.body) Object.assign(req.body, value.body);
+    if (value.params) Object.assign(req.params, value.params);
+    if (value.query) Object.assign(req.query, value.query);
     return next();
   };
 }

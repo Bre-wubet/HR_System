@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import { prisma } from '../../../config/db.js';
 import { AuthRepository } from '../repositories/authRepositories.js';
 import { env } from '../../../config/env.js';
 

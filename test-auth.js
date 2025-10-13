@@ -21,11 +21,11 @@ const adminUser = {
 };
 
 async function testAuth() {
-  console.log('🧪 Testing Authentication System...\n');
+  console.log('Testing Authentication System...\n');
 
   try {
     // Test 1: Register a new user
-    console.log('1️⃣ Testing user registration...');
+    console.log('Testing user registration...');
     const registerResponse = await fetch(`${BASE_URL}/api/auth/register`, {
       method: 'POST',
       headers: {

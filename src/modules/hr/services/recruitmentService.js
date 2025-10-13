@@ -82,4 +82,85 @@ export function createOnboardingChecklist(candidateId, data) {
   return repo.createOnboardingChecklist(candidateId, data);
 }
 
+// Guards and domain rules mirroring employee patterns
+export async function createJobPostingWithGuards(data) {
+  const department = await repo.findDepartmentById(data.departmentId);
+  if (!department) {
+    const error = new Error(`Department with ID ${data.departmentId} does not exist`);
+    error.statusCode = 400;
+    error.code = 'DEPARTMENT_NOT_FOUND';
+    throw error;
+  }
+  return repo.createJobPosting(data);
+}
+
+export async function createCandidateForJobWithGuards(jobId, data) {
+  const job = await repo.findJobPostingByIdWithDept(jobId);
+  if (!job) {
+    const error = new Error(`Job posting with ID ${jobId} not found`);
+    error.statusCode = 404;
+    error.code = 'JOB_NOT_FOUND';
+    throw error;
+  }
+  if (!job.isActive) {
+    const error = new Error(`Job posting ${jobId} is not active`);
+    error.statusCode = 400;
+    error.code = 'JOB_INACTIVE';
+    throw error;
+  }
+  const duplicate = await repo.findCandidateByEmailForJob(jobId, data.email);
+  if (duplicate) {
+    const error = new Error(`Candidate with email ${data.email} already applied to this job`);
+    error.statusCode = 400;
+    error.code = 'CANDIDATE_DUPLICATE';
+    throw error;
+  }
+  return repo.createCandidateForJob(jobId, data);
+}
+
+const VALID_STAGES = ["APPLIED", "SCREENING", "INTERVIEW", "OFFER", "HIRED", "REJECTED"];
+const ALLOWED_TRANSITIONS = {
+  APPLIED: ["SCREENING", "REJECTED"],
+  SCREENING: ["INTERVIEW", "REJECTED"],
+  INTERVIEW: ["OFFER", "REJECTED"],
+  OFFER: ["HIRED", "REJECTED"],
+  REJECTED: [],
+  HIRED: [],
+};
+
+export async function updateCandidateStageWithGuards(candidateId, nextStage) {
+  if (!VALID_STAGES.includes(nextStage)) {
+    const error = new Error(`Invalid stage: ${nextStage}`);
+    error.statusCode = 400;
+    error.code = 'INVALID_STAGE';
+    throw error;
+  }
+  const candidate = await repo.findCandidateById(candidateId);
+  if (!candidate) {
+    const error = new Error(`Candidate with ID ${candidateId} not found`);
+    error.statusCode = 404;
+    error.code = 'CANDIDATE_NOT_FOUND';
+    throw error;
+  }
+  if (!candidate.jobPosting?.isActive && nextStage !== 'REJECTED') {
+    const error = new Error('Cannot progress candidate: job is inactive');
+    error.statusCode = 400;
+    error.code = 'JOB_INACTIVE';
+    throw error;
+  }
+  const currentStage = candidate.stage;
+  const allowed = ALLOWED_TRANSITIONS[currentStage] || [];
+  if (!allowed.includes(nextStage)) {
+    const error = new Error(`Invalid transition from ${currentStage} to ${nextStage}`);
+    error.statusCode = 400;
+    error.code = 'INVALID_STAGE_TRANSITION';
+    throw error;
+  }
+  return repo.updateCandidateStage(candidateId, nextStage);
+}
+
+export function hireCandidate(candidateId, data) {
+  return repo.hireCandidate(candidateId, data);
+}
+
 

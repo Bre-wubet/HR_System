@@ -1,5 +1,6 @@
 import * as service from "../services/recruitmentService.js";
 import { response } from "../../../utils/response.js";
+import { validate } from "../../../middlewares/validationMiddleware.js";
 
 export async function listJobPostings(req, res, next) {
   try {
@@ -12,7 +13,8 @@ export async function listJobPostings(req, res, next) {
 
 export async function createJobPosting(req, res, next) {
   try {
-    const job = await service.createJobPosting(req.body);
+    await validate(v.createJobSchema, { body: req.body });
+    const job = await service.createJobPostingWithGuards(req.body);
     res.status(201).json(response.success(job));
   } catch (err) {
     next(err);
@@ -31,6 +33,7 @@ export async function getJobPostingById(req, res, next) {
 
 export async function updateJobPostingById(req, res, next) {
   try {
+    await validate(v.updateJobSchema, { params: req.params, body: req.body });
     const job = await service.updateJobPostingById(req.params.id, req.body);
     res.json(response.success(job));
   } catch (err) {
@@ -58,7 +61,8 @@ export async function listCandidatesForJob(req, res, next) {
 
 export async function createCandidateForJob(req, res, next) {
   try {
-    const candidate = await service.createCandidateForJob(req.params.id, req.body);
+    await validate(v.createCandidateSchema, { params: req.params, body: req.body });
+    const candidate = await service.createCandidateForJobWithGuards(req.params.id, req.body);
     res.status(201).json(response.success(candidate));
   } catch (err) {
     next(err);
@@ -67,7 +71,8 @@ export async function createCandidateForJob(req, res, next) {
 
 export async function updateCandidateStage(req, res, next) {
   try {
-    const candidate = await service.updateCandidateStage(req.params.candidateId, req.body.stage);
+    await validate(v.candidateStageSchema, { params: req.params, body: req.body });
+    const candidate = await service.updateCandidateStageWithGuards(req.params.candidateId, req.body.stage);
     res.json(response.success(candidate));
   } catch (err) {
     next(err);
@@ -77,6 +82,7 @@ export async function updateCandidateStage(req, res, next) {
 // Shortlist and scoring
 export async function shortlistCandidates(req, res, next) {
   try {
+    await validate(v.shortlistSchema, { params: req.params, body: req.body });
     const result = await service.shortlistCandidates(req.params.id, req.body.criteria);
     res.json(response.success(result));
   } catch (err) {
@@ -86,6 +92,7 @@ export async function shortlistCandidates(req, res, next) {
 
 export async function setCandidateScore(req, res, next) {
   try {
+    await validate(v.setScoreSchema, { params: req.params, body: req.body });
     const result = await service.setCandidateScore(req.params.candidateId, req.body.score);
     res.json(response.success(result));
   } catch (err) {
@@ -96,6 +103,7 @@ export async function setCandidateScore(req, res, next) {
 // Communications
 export async function notifyCandidate(req, res, next) {
   try {
+    await validate(v.notifySchema, { params: req.params, body: req.body });
     const result = await service.notifyCandidate(req.params.candidateId, req.body);
     res.json(response.success(result));
   } catch (err) {
@@ -105,6 +113,7 @@ export async function notifyCandidate(req, res, next) {
 
 export async function updateCandidateStatusWithReason(req, res, next) {
   try {
+    await validate(v.statusWithReasonSchema, { params: req.params, body: req.body });
     const result = await service.updateCandidateStatusWithReason(req.params.candidateId, req.body.stage, req.body.reason);
     res.json(response.success(result));
   } catch (err) {
@@ -115,6 +124,7 @@ export async function updateCandidateStatusWithReason(req, res, next) {
 // Interviews
 export async function scheduleInterview(req, res, next) {
   try {
+    await validate(v.scheduleInterviewSchema, { body: req.body });
     const interview = await service.scheduleInterview(req.body);
     res.status(201).json(response.success(interview));
   } catch (err) {
@@ -124,6 +134,7 @@ export async function scheduleInterview(req, res, next) {
 
 export async function updateInterview(req, res, next) {
   try {
+    await validate(v.updateInterviewSchema, { params: req.params, body: req.body });
     const interview = await service.updateInterview(req.params.id, req.body);
     res.json(response.success(interview));
   } catch (err) {
@@ -153,6 +164,7 @@ export async function getRecruitmentKpis(req, res, next) {
 // Offers and contracts
 export async function generateOfferLetter(req, res, next) {
   try {
+    await validate(v.generateOfferSchema, { params: req.params, body: req.body });
     const payload = await service.generateOfferLetter(req.params.candidateId, req.body);
     res.status(201).json(response.success(payload));
   } catch (err) {
@@ -162,6 +174,7 @@ export async function generateOfferLetter(req, res, next) {
 
 export async function createEmploymentContract(req, res, next) {
   try {
+    await validate(v.createContractSchema, { params: req.params, body: req.body });
     const contract = await service.createEmploymentContract(req.params.candidateId, req.body);
     res.status(201).json(response.success(contract));
   } catch (err) {
@@ -172,8 +185,20 @@ export async function createEmploymentContract(req, res, next) {
 // Onboarding linkage
 export async function createOnboardingChecklist(req, res, next) {
   try {
+    await validate(v.onboardingChecklistSchema, { params: req.params, body: req.body });
     const checklist = await service.createOnboardingChecklist(req.params.candidateId, req.body);
     res.status(201).json(response.success(checklist));
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Hiring endpoint
+export async function hireCandidate(req, res, next) {
+  try {
+    await validate(v.hireCandidateSchema, { params: req.params, body: req.body });
+    const result = await service.hireCandidate(req.params.candidateId, req.body);
+    res.status(201).json(response.success(result));
   } catch (err) {
     next(err);
   }

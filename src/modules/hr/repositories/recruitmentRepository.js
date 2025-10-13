@@ -120,4 +120,89 @@ export async function createOnboardingChecklist(candidateId, { tasks = [] } = {}
   return checklist;
 }
 
+// Helpers used by service guards
+export function findDepartmentById(id) {
+  return prisma.department.findUnique({ where: { id } });
+}
+
+export function findJobPostingByIdWithDept(id) {
+  return prisma.jobPosting.findUnique({ where: { id }, include: { department: true } });
+}
+
+export function findCandidateById(id) {
+  return prisma.candidate.findUnique({ where: { id }, include: { jobPosting: true } });
+}
+
+export function findCandidateByEmailForJob(jobPostingId, email) {
+  return prisma.candidate.findFirst({ where: { jobPostingId, email } });
+}
+
+export function findEmployeeById(id) {
+  return prisma.employee.findUnique({ where: { id } });
+}
+
+// Hire transaction: create employee, update candidate to HIRED, optional contract
+export async function hireCandidate(candidateId, { jobType, salary, managerId, startDate }) {
+  return prisma.$transaction(async (tx) => {
+    const candidate = await tx.candidate.findUnique({ where: { id: candidateId }, include: { jobPosting: true } });
+    if (!candidate) {
+      const error = new Error("Candidate not found");
+      error.statusCode = 404;
+      error.code = 'CANDIDATE_NOT_FOUND';
+      throw error;
+    }
+    if (candidate.stage === 'HIRED') {
+      const error = new Error("Candidate already hired");
+      error.statusCode = 400;
+      error.code = 'CANDIDATE_ALREADY_HIRED';
+      throw error;
+    }
+
+    const job = candidate.jobPosting;
+    if (!job) {
+      const error = new Error("Candidate is not linked to a job posting");
+      error.statusCode = 400;
+      error.code = 'JOB_NOT_FOUND_FOR_CANDIDATE';
+      throw error;
+    }
+
+    const department = await tx.department.findUnique({ where: { id: job.departmentId } });
+    if (!department) {
+      const error = new Error("Department not found for job posting");
+      error.statusCode = 400;
+      error.code = 'DEPARTMENT_NOT_FOUND';
+      throw error;
+    }
+
+    if (managerId) {
+      const manager = await tx.employee.findUnique({ where: { id: managerId } });
+      if (!manager) {
+        const error = new Error(`Manager with ID ${managerId} not found`);
+        error.statusCode = 400;
+        error.code = 'MANAGER_NOT_FOUND';
+        throw error;
+      }
+    }
+
+    const employee = await tx.employee.create({
+      data: {
+        firstName: candidate.firstName,
+        lastName: candidate.lastName,
+        email: candidate.email,
+        phone: candidate.phone || null,
+        jobType,
+        jobTitle: job.title,
+        departmentId: department.id,
+        managerId: managerId || null,
+        salary: salary || null,
+        hireDate: new Date(startDate),
+      },
+    });
+
+    await tx.candidate.update({ where: { id: candidate.id }, data: { stage: 'HIRED', feedback: 'Converted to employee' } });
+
+    return { employee };
+  });
+}
+
 

@@ -1,16 +1,24 @@
 import { useState } from 'react';
 import { useAuthStore } from '@/features/auth/stores/auth.store.js';
+import { Navigate } from 'react-router-dom';
 
 export default function LoginPage() {
   const setSession = useAuthStore((s) => s.setSession);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const onSubmit = (e) => {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const login = useAuthStore((s) => s.login);
+
+  const onSubmit = async (e) => {
     e.preventDefault();
-    // Placeholder: set a fake session to unlock protected routes
-    setSession({ user: { email, permissions: ['employee:read', 'attendance:read', 'recruitment:read'] }, accessToken: 'dev-token' });
+    const res = await login({ email, password });
+    if (!res?.success) {
+      alert(res?.error || 'Login failed');
+    }
   };
+
+  if (isAuthenticated) return <Navigate to="/employees" replace />;
 
   return (
     <div className="w-full max-w-sm bg-white rounded shadow p-6">

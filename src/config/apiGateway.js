@@ -7,7 +7,7 @@ export const serviceConfig = {
     prefix: '/api/auth',
     version: '1.0.0',
     cors: {
-      allowedOrigins: ['http://localhost:3000', 'http://localhost:3001'],
+      allowedOrigins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'],
       allowedMethods: ['GET', 'POST', 'PUT', 'DELETE'],
       allowedHeaders: ['Content-Type', 'Authorization'],
       credentials: true,
@@ -17,7 +17,7 @@ export const serviceConfig = {
     prefix: '/api/hr',
     version: '1.0.0',
     cors: {
-      allowedOrigins: ['http://localhost:3000', 'http://localhost:3001'],
+      allowedOrigins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'],
       allowedMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
       allowedHeaders: ['Content-Type', 'Authorization'],
       credentials: true,

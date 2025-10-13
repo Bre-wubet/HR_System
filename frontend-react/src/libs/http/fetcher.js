@@ -1,4 +1,7 @@
-export async function apiFetch(url, options = {}) {
+import { useAuthStore } from '@/features/auth/stores/auth.store.js';
+import { withAuthHeaders } from '@/libs/http/withAuth.js';
+
+export async function jsonFetch(url, options = {}) {
   try {
     const res = await fetch(url, {
       credentials: 'include',
@@ -14,6 +17,20 @@ export async function apiFetch(url, options = {}) {
   } catch (e) {
     return { success: false, error: e.message };
   }
+}
+
+export async function apiFetch(url, options = {}) {
+  const withAuth = { ...options, headers: withAuthHeaders(options.headers) };
+  const result = await jsonFetch(url, withAuth);
+  if (result.success) return result;
+  if (result.code === 401) {
+    const refreshed = await useAuthStore.getState().refreshSession?.();
+    if (refreshed) {
+      const retry = await jsonFetch(url, { ...options, headers: withAuthHeaders(options.headers) });
+      return retry;
+    }
+  }
+  return result;
 }
 
 

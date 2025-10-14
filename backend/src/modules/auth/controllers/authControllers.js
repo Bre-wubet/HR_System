@@ -55,7 +55,10 @@ export class AuthController {
       res.json(response.success({
         user: result.user,
         accessToken: result.tokens.accessToken,
+        refreshToken: result.tokens.refreshToken,
         expiresIn: result.tokens.expiresIn,
+        roles: result.roles,
+        permissions: result.permissions,
       }, 'Login successful'));
     } catch (error) {
       next(error);

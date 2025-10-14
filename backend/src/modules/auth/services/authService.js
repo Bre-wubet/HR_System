@@ -63,9 +63,14 @@ export class AuthService {
     // Update last login
     await authRepository.updateLastLogin(user.id);
 
+    // Get user roles and permissions
+    const rolesAndPermissions = await this.getUserRolesAndPermissions(user.id);
+
     return {
       user: this.sanitizeUser(user),
       tokens: await this.generateTokens(user.id),
+      roles: rolesAndPermissions.roles.map(role => role.name),
+      permissions: rolesAndPermissions.permissions, // permissions is already an array of strings
     };
   }
 

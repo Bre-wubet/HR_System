@@ -26,7 +26,18 @@ export async function createEmployee(payload) {
     }
   }
   
-  return repo.create(payload);
+  // Transform data for Prisma
+  const transformedPayload = { ...payload };
+  
+  // Convert date strings to Date objects
+  if (transformedPayload.dob) {
+    transformedPayload.dob = new Date(transformedPayload.dob);
+  }
+  if (transformedPayload.hireDate) {
+    transformedPayload.hireDate = new Date(transformedPayload.hireDate);
+  }
+  
+  return repo.create(transformedPayload);
 }
 
 export async function getEmployeeById(id) {
@@ -42,7 +53,18 @@ export async function listEmployeesForManagerSelection() {
 }
 
 export async function updateEmployeeById(id, payload) {
-  return repo.updateById(id, payload);
+  // Transform data for Prisma
+  const transformedPayload = { ...payload };
+  
+  // Convert date strings to Date objects
+  if (transformedPayload.dob) {
+    transformedPayload.dob = new Date(transformedPayload.dob);
+  }
+  if (transformedPayload.hireDate) {
+    transformedPayload.hireDate = new Date(transformedPayload.hireDate);
+  }
+  
+  return repo.updateById(id, transformedPayload);
 }
 
 export async function deleteEmployeeById(id) {

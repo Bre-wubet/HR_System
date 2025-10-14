@@ -38,7 +38,7 @@ const AuthLayout = ({ children }) => {
 
         {/* Footer */}
         <div className="text-center text-sm text-gray-500">
-          <p>&copy; 2024 HR Management System. All rights reserved.</p>
+          <p>&copy; 2025 HR Management System. All rights reserved.</p>
         </div>
       </motion.div>
     </div>

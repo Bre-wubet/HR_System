@@ -11,6 +11,7 @@ export const useEmployeeDetail = (employeeId) => {
   const {
     getEmployeeById,
     fetchEmployeeSkills,
+    getAllSkills,
     fetchEmployeeCertifications,
     fetchEmployeeEvaluations,
     fetchCareerProgressionHistory,
@@ -52,6 +53,19 @@ export const useEmployeeDetail = (employeeId) => {
       return result.success ? result.data : [];
     },
     enabled: !!employeeId,
+  });
+
+  // Available skills query
+  const {
+    data: availableSkills = [],
+    isLoading: isLoadingAvailableSkills,
+  } = useQuery({
+    queryKey: ['available-skills'],
+    queryFn: async () => {
+      const result = await getAllSkills();
+      return result.success ? result.data : [];
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes
   });
 
   // Certifications query
@@ -214,6 +228,7 @@ export const useEmployeeDetail = (employeeId) => {
     // Data
     employee,
     skills,
+    availableSkills,
     certifications,
     evaluations,
     careerHistory,
@@ -223,6 +238,7 @@ export const useEmployeeDetail = (employeeId) => {
     isLoading,
     isLoadingEmployee,
     isLoadingSkills,
+    isLoadingAvailableSkills,
     isLoadingCertifications,
     isLoadingEvaluations,
     isLoadingCareerHistory,

@@ -198,6 +198,19 @@ const useEmployeeStore = create(
         }
       },
 
+      // Get all available skills
+      getAllSkills: async () => {
+        try {
+          const response = await apiClient.get('/hr/employees/skills/all');
+          const skills = response.data.data;
+          return { success: true, data: skills };
+        } catch (error) {
+          const errorMessage = error.response?.data?.message || 'Failed to fetch available skills';
+          toast.error(errorMessage);
+          return { success: false, error: errorMessage };
+        }
+      },
+
       // Certifications Operations
       fetchEmployeeCertifications: async (employeeId) => {
         try {

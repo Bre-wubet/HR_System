@@ -21,11 +21,11 @@ import { ErrorBoundary, EmployeeNotFound } from './components/ErrorStates';
 
 // Import existing components
 import { 
-  SkillsManager, 
   CertificationsManager, 
   EvaluationsDisplay, 
   CareerProgressionTimeline 
 } from '../../components/hr/EmployeeComponents';
+import { SkillsManager } from './components/SkillsManagerDebug';
 
 
 const EmployeeDetail = () => {
@@ -37,6 +37,7 @@ const EmployeeDetail = () => {
   const {
     employee,
     skills,
+    availableSkills,
     certifications,
     evaluations,
     careerHistory,
@@ -94,33 +95,75 @@ const EmployeeDetail = () => {
 
   // Skill handlers
   const handleAddSkill = async (employeeId, skillData) => {
-    return addSkill({ employeeId, skillData });
+    try {
+      await addSkill({ employeeId, skillData });
+      return { success: true };
+    } catch (error) {
+      console.error('Error adding skill:', error);
+      return { success: false, error: error.message };
+    }
   };
 
   const handleUpdateSkill = async (employeeId, assignmentId, skillData) => {
-    return updateSkill({ employeeId, assignmentId, skillData });
+    try {
+      await updateSkill({ employeeId, assignmentId, skillData });
+      return { success: true };
+    } catch (error) {
+      console.error('Error updating skill:', error);
+      return { success: false, error: error.message };
+    }
   };
 
   const handleRemoveSkill = async (employeeId, assignmentId) => {
-    return removeSkill({ employeeId, assignmentId });
+    try {
+      await removeSkill({ employeeId, assignmentId });
+      return { success: true };
+    } catch (error) {
+      console.error('Error removing skill:', error);
+      return { success: false, error: error.message };
+    }
   };
 
   // Certification handlers
   const handleAddCertification = async (employeeId, certificationData) => {
-    return addCertification({ employeeId, certificationData });
+    try {
+      await addCertification({ employeeId, certificationData });
+      return { success: true };
+    } catch (error) {
+      console.error('Error adding certification:', error);
+      return { success: false, error: error.message };
+    }
   };
 
   const handleRemoveCertification = async (employeeId, certId) => {
-    return removeCertification({ employeeId, certId });
+    try {
+      await removeCertification({ employeeId, certId });
+      return { success: true };
+    } catch (error) {
+      console.error('Error removing certification:', error);
+      return { success: false, error: error.message };
+    }
   };
 
   // Document handlers
   const handleAddDocument = async (employeeId, documentData) => {
-    return addDocument({ employeeId, documentData });
+    try {
+      await addDocument({ employeeId, documentData });
+      return { success: true };
+    } catch (error) {
+      console.error('Error adding document:', error);
+      return { success: false, error: error.message };
+    }
   };
 
   const handleRemoveDocument = async (employeeId, docId) => {
-    return removeDocument({ employeeId, docId });
+    try {
+      await removeDocument({ employeeId, docId });
+      return { success: true };
+    } catch (error) {
+      console.error('Error removing document:', error);
+      return { success: false, error: error.message };
+    }
   };
 
   // Loading state
@@ -160,6 +203,7 @@ const EmployeeDetail = () => {
           <SkillsManager
             employeeId={id}
             skills={skills}
+            availableSkills={availableSkills}
             onAddSkill={handleAddSkill}
             onUpdateSkill={handleUpdateSkill}
             onRemoveSkill={handleRemoveSkill}

@@ -154,8 +154,36 @@ export function listEmployeeCertifications(employeeId) {
   return repo.listEmployeeCertifications(employeeId);
 }
 
-export function addEmployeeCertification(employeeId, data) {
-  return repo.addEmployeeCertification(employeeId, data);
+export async function addEmployeeCertification(employeeId, data) {
+  console.log('Adding certification for employee:', employeeId, 'with data:', data);
+  
+  // Validate that employee exists
+  const employee = await repo.findById(employeeId);
+  if (!employee) {
+    const error = new Error(`Employee with ID ${employeeId} not found`);
+    error.statusCode = 404;
+    error.code = 'EMPLOYEE_NOT_FOUND';
+    throw error;
+  }
+  
+  // Validate required fields
+  if (!data.name || !data.issuedAt) {
+    const error = new Error('Certification name and issued date are required');
+    error.statusCode = 400;
+    error.code = 'MISSING_REQUIRED_FIELDS';
+    throw error;
+  }
+  
+  // Convert date strings to Date objects
+  const processedData = {
+    ...data,
+    issuedAt: new Date(data.issuedAt),
+    expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
+  };
+  
+  console.log('Processed data:', processedData);
+  
+  return repo.addEmployeeCertification(employeeId, processedData);
 }
 
 export function removeEmployeeCertification(employeeId, certId) {

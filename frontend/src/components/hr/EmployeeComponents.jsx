@@ -296,8 +296,10 @@ export const CertificationsManager = ({
   const handleAddCertification = async () => {
     if (!certificationData.name || !certificationData.issuedAt) return;
     
+    console.log('Adding certification with data:', certificationData);
+    
     const result = await onAddCertification(employeeId, certificationData);
-    if (result.success) {
+    if (result?.success) {
       setShowAddModal(false);
       setCertificationData({
         name: '',
@@ -307,6 +309,8 @@ export const CertificationsManager = ({
         credentialId: '',
         documentUrl: '',
       });
+    } else {
+      console.error('Failed to add certification:', result?.error);
     }
   };
 

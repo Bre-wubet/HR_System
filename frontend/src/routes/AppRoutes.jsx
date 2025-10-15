@@ -22,9 +22,26 @@ import EmployeeList from '../pages/hr/EmployeeList';
 import EmployeeDetail from '../pages/hr/EmployeeDetail';
 import EmployeeForm from '../pages/hr/EmployeeForm';
 import Attendance from '../pages/hr/Attendance';
+import LeaveRequests from '../pages/hr/LeaveRequests';
 import RecruitmentList from '../pages/hr/RecruitmentList';
 import RecruitmentDetail from '../pages/hr/RecruitmentDetail';
 import JobCandidatesView from '../pages/hr/JobCandidatesView';
+import CandidateSection from '../pages/hr/components/CandidatesSection';
+
+// Analytics Pages
+import EmployeeAnalytics from '../pages/analytics/EmployeeAnalytics';
+import AttendanceAnalytics from '../pages/analytics/AttendanceAnalytics';
+import RecruitmentAnalytics from '../pages/analytics/RecruitmentAnalytics';
+
+// Reports Pages
+import EmployeeReports from '../pages/reports/EmployeeReports';
+import AttendanceReports from '../pages/reports/AttendanceReports';
+import RecruitmentReports from '../pages/reports/RecruitmentReports';
+
+// Admin Pages
+import UserManagement from '../pages/admin/UserManagement';
+import RolePermissions from '../pages/admin/RolePermissions';
+import SystemSettings from '../pages/admin/SystemSettings';
 
 // Loading Component
 const LoadingSpinner = () => (
@@ -190,6 +207,16 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/attendance/leave"
+        element={
+          <ProtectedRoute requiredPermissions={['attendance:read']}>
+            <DashboardLayout>
+              <LeaveRequests />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
 
       {/* Recruitment Routes */}
       <Route
@@ -218,6 +245,164 @@ function AppRoutes() {
           <ProtectedRoute requiredPermissions={['recruitment:read']}>
             <DashboardLayout>
               <JobCandidatesView />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/recruitment/candidates"
+        element={
+          <ProtectedRoute requiredPermissions={['recruitment:read']}>
+            <DashboardLayout>
+              <CandidateSection />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/recruitment/interviews"
+        element={
+          <ProtectedRoute requiredPermissions={['recruitment:read']}>
+            <DashboardLayout>
+              <div className="p-6">
+                <h1 className="text-2xl font-bold text-gray-900 mb-4">Interview Management</h1>
+                <p className="text-gray-600">Interview scheduling and management will be implemented here</p>
+              </div>
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Analytics Routes */}
+      <Route
+        path="/analytics"
+        element={
+          <ProtectedRoute requiredPermissions={['employee:read']}>
+            <DashboardLayout>
+              <div className="p-6">
+                <h1 className="text-2xl font-bold text-gray-900 mb-4">Analytics Dashboard</h1>
+                <p className="text-gray-600">Choose an analytics category to view detailed insights</p>
+              </div>
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/analytics/employees"
+        element={
+          <ProtectedRoute requiredPermissions={['employee:read']}>
+            <DashboardLayout>
+              <EmployeeAnalytics />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/analytics/attendance"
+        element={
+          <ProtectedRoute requiredPermissions={['attendance:read']}>
+            <DashboardLayout>
+              <AttendanceAnalytics />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/analytics/recruitment"
+        element={
+          <ProtectedRoute requiredPermissions={['recruitment:read']}>
+            <DashboardLayout>
+              <RecruitmentAnalytics />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Reports Routes */}
+      <Route
+        path="/reports"
+        element={
+          <ProtectedRoute requiredPermissions={['employee:read']}>
+            <DashboardLayout>
+              <div className="p-6">
+                <h1 className="text-2xl font-bold text-gray-900 mb-4">Reports Dashboard</h1>
+                <p className="text-gray-600">Choose a report category to generate and download reports</p>
+              </div>
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reports/employees"
+        element={
+          <ProtectedRoute requiredPermissions={['employee:read']}>
+            <DashboardLayout>
+              <EmployeeReports />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reports/attendance"
+        element={
+          <ProtectedRoute requiredPermissions={['attendance:read']}>
+            <DashboardLayout>
+              <AttendanceReports />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reports/recruitment"
+        element={
+          <ProtectedRoute requiredPermissions={['recruitment:read']}>
+            <DashboardLayout>
+              <RecruitmentReports />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Administration Routes */}
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute requiredPermissions={['admin:manage_users']}>
+            <DashboardLayout>
+              <div className="p-6">
+                <h1 className="text-2xl font-bold text-gray-900 mb-4">Administration Dashboard</h1>
+                <p className="text-gray-600">System administration and user management</p>
+              </div>
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute requiredPermissions={['admin:manage_users']}>
+            <DashboardLayout>
+              <UserManagement />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/roles"
+        element={
+          <ProtectedRoute requiredPermissions={['admin:manage_users']}>
+            <DashboardLayout>
+              <RolePermissions />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/settings"
+        element={
+          <ProtectedRoute requiredPermissions={['admin:manage_system']}>
+            <DashboardLayout>
+              <SystemSettings />
             </DashboardLayout>
           </ProtectedRoute>
         }

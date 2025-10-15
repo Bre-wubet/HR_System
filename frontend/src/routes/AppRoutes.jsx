@@ -26,7 +26,8 @@ import LeaveRequests from '../pages/hr/LeaveRequests';
 import RecruitmentList from '../pages/hr/RecruitmentList';
 import RecruitmentDetail from '../pages/hr/RecruitmentDetail';
 import JobCandidatesView from '../pages/hr/JobCandidatesView';
-import CandidateSection from '../pages/hr/components/CandidatesSection';
+import GlobalCandidatesManagement from '../pages/hr/GlobalCandidatesManagement';
+import InterviewsManagement from '../pages/hr/InterviewsManagement';
 
 // Analytics Pages
 import EmployeeAnalytics from '../pages/analytics/EmployeeAnalytics';
@@ -254,7 +255,7 @@ function AppRoutes() {
         element={
           <ProtectedRoute requiredPermissions={['recruitment:read']}>
             <DashboardLayout>
-              <CandidateSection />
+              <GlobalCandidatesManagement />
             </DashboardLayout>
           </ProtectedRoute>
         }
@@ -264,10 +265,7 @@ function AppRoutes() {
         element={
           <ProtectedRoute requiredPermissions={['recruitment:read']}>
             <DashboardLayout>
-              <div className="p-6">
-                <h1 className="text-2xl font-bold text-gray-900 mb-4">Interview Management</h1>
-                <p className="text-gray-600">Interview scheduling and management will be implemented here</p>
-              </div>
+              <InterviewsManagement />
             </DashboardLayout>
           </ProtectedRoute>
         }

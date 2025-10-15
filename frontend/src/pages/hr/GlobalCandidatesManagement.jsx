@@ -1,0 +1,436 @@
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { 
+  Users, 
+  Plus, 
+  Filter, 
+  Search,
+  TrendingUp,
+  Calendar,
+  Star,
+  Eye,
+  Edit,
+  Trash2,
+  CheckCircle,
+  XCircle,
+  Clock
+} from 'lucide-react';
+
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
+import { Modal } from '../../components/ui/Modal';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import apiClient from '../../api/axiosClient';
+import { cn } from '../../lib/utils';
+import CandidateCard from './components/CandidateCard';
+import CandidateForm from './components/CandidateForm';
+import ScoreModal from './components/ScoreModal';
+import HireModal from './components/HireModal';
+import InterviewScheduler from './components/InterviewScheduler';
+
+/**
+ * Global Candidates Management Component
+ * Manages all candidates across all job postings
+ */
+const GlobalCandidatesManagement = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [stageFilter, setStageFilter] = useState('all');
+  const [jobFilter, setJobFilter] = useState('all');
+  const [showCandidateForm, setShowCandidateForm] = useState(false);
+  const [showScoreModal, setShowScoreModal] = useState(false);
+  const [showHireModal, setShowHireModal] = useState(false);
+  const [showInterviewModal, setShowInterviewModal] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [editingCandidate, setEditingCandidate] = useState(null);
+
+  const queryClient = useQueryClient();
+
+  // Fetch all candidates across all jobs by getting all job postings and their candidates
+  const { data: candidates = [], isLoading: isLoadingCandidates, error: candidatesError } = useQuery({
+    queryKey: ['candidates', 'global'],
+    queryFn: async () => {
+      // First get all job postings
+      const jobsResponse = await apiClient.get('/hr/recruitment/jobs');
+      const jobs = jobsResponse.data.data;
+      
+      // Then get candidates for each job
+      const allCandidates = [];
+      for (const job of jobs) {
+        try {
+          const candidatesResponse = await apiClient.get(`/hr/recruitment/jobs/${job.id}/candidates`);
+          const jobCandidates = candidatesResponse.data.data.map(candidate => ({
+            ...candidate,
+            jobPosting: job,
+            jobPostingId: job.id
+          }));
+          allCandidates.push(...jobCandidates);
+        } catch (error) {
+          console.warn(`Failed to fetch candidates for job ${job.id}:`, error);
+        }
+      }
+      
+      return allCandidates;
+    },
+  });
+
+  // Fetch all job postings for filtering
+  const { data: jobPostings = [] } = useQuery({
+    queryKey: ['jobPostings'],
+    queryFn: async () => {
+      const response = await apiClient.get('/hr/recruitment/jobs');
+      return response.data.data;
+    },
+  });
+
+  // Mutations
+  const createCandidateMutation = useMutation({
+    mutationFn: async ({ jobId, data }) => {
+      const response = await apiClient.post(`/hr/recruitment/jobs/${jobId}/candidates`, data);
+      return response.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['candidates'] });
+      setShowCandidateForm(false);
+    },
+  });
+
+  const updateStageMutation = useMutation({
+    mutationFn: async ({ candidateId, stage }) => {
+      const response = await apiClient.put(`/hr/recruitment/candidates/${candidateId}/stage`, { stage });
+      return response.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['candidates'] });
+    },
+  });
+
+  const setScoreMutation = useMutation({
+    mutationFn: async ({ candidateId, score, feedback }) => {
+      const response = await apiClient.put(`/hr/recruitment/candidates/${candidateId}/score`, { score, feedback });
+      return response.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['candidates'] });
+      setShowScoreModal(false);
+      setSelectedCandidate(null);
+    },
+  });
+
+  const hireMutation = useMutation({
+    mutationFn: async ({ candidateId, data }) => {
+      const response = await apiClient.post(`/hr/recruitment/candidates/${candidateId}/hire`, data);
+      return response.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['candidates'] });
+      setShowHireModal(false);
+      setSelectedCandidate(null);
+    },
+  });
+
+  const scheduleInterviewMutation = useMutation({
+    mutationFn: async (interviewData) => {
+      const response = await apiClient.post('/hr/recruitment/interviews', interviewData);
+      return response.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['candidates'] });
+      setShowInterviewModal(false);
+      setSelectedCandidate(null);
+    },
+  });
+
+  // Filter candidates
+  const filteredCandidates = candidates.filter(candidate => {
+    const matchesSearch = !searchTerm || 
+      `${candidate.firstName} ${candidate.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      candidate.email.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStage = stageFilter === 'all' || candidate.stage === stageFilter;
+    const matchesJob = jobFilter === 'all' || candidate.jobPostingId === jobFilter;
+
+    return matchesSearch && matchesStage && matchesJob;
+  });
+
+  // Group candidates by stage
+  const candidatesByStage = candidates.reduce((groups, candidate) => {
+    if (!groups[candidate.stage]) {
+      groups[candidate.stage] = [];
+    }
+    groups[candidate.stage].push(candidate);
+    return groups;
+  }, {});
+
+  // Calculate statistics
+  const stats = {
+    total: candidates.length,
+    scored: candidates.filter(c => c.score !== null && c.score !== undefined).length,
+    averageScore: candidates.length > 0 
+      ? Math.round(candidates.reduce((sum, c) => sum + (c.score || 0), 0) / candidates.length)
+      : 0,
+    hired: candidates.filter(c => c.stage === 'HIRED').length,
+  };
+
+  // Event handlers
+  const handleCreateCandidate = async ({ jobId, data }) => {
+    try {
+      await createCandidateMutation.mutateAsync({ jobId, data });
+    } catch (error) {
+      console.error('Error creating candidate:', error);
+    }
+  };
+
+  const handleUpdateStage = async ({ candidateId, stage }) => {
+    try {
+      await updateStageMutation.mutateAsync({ candidateId, stage });
+    } catch (error) {
+      console.error('Error updating stage:', error);
+    }
+  };
+
+  const handleSetScore = async ({ candidateId, score, feedback }) => {
+    try {
+      await setScoreMutation.mutateAsync({ candidateId, score, feedback });
+    } catch (error) {
+      console.error('Error setting score:', error);
+    }
+  };
+
+  const handleHire = async ({ candidateId, data }) => {
+    try {
+      await hireMutation.mutateAsync({ candidateId, data });
+    } catch (error) {
+      console.error('Error hiring candidate:', error);
+    }
+  };
+
+  const handleScheduleInterview = async (interviewData) => {
+    try {
+      await scheduleInterviewMutation.mutateAsync(interviewData);
+    } catch (error) {
+      console.error('Error scheduling interview:', error);
+    }
+  };
+
+  const handleEditCandidate = (candidate) => {
+    setEditingCandidate(candidate);
+    setShowCandidateForm(true);
+  };
+
+  const handleDeleteCandidate = async (candidateId) => {
+    // TODO: Implement delete candidate functionality
+    console.log('Delete candidate:', candidateId);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-6"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">All Candidates</h1>
+          <p className="text-gray-600">Manage candidates across all job postings</p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button onClick={() => setShowCandidateForm(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Candidate
+          </Button>
+        </div>
+      </div>
+
+      {/* Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-white rounded-xl shadow-soft p-6">
+          <div className="flex items-center space-x-3">
+            <Users className="h-8 w-8 text-blue-600" />
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900">Total Candidates</h3>
+              <p className="text-xl font-bold text-blue-600">{stats.total}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-soft p-6">
+          <div className="flex items-center space-x-3">
+            <Star className="h-8 w-8 text-yellow-600" />
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900">Scored</h3>
+              <p className="text-xl font-bold text-yellow-600">{stats.scored}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-soft p-6">
+          <div className="flex items-center space-x-3">
+            <TrendingUp className="h-8 w-8 text-green-600" />
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900">Avg Score</h3>
+              <p className="text-xl font-bold text-green-600">{stats.averageScore}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-soft p-6">
+          <div className="flex items-center space-x-3">
+            <CheckCircle className="h-8 w-8 text-purple-600" />
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900">Hired</h3>
+              <p className="text-xl font-bold text-purple-600">{stats.hired}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-white rounded-xl shadow-soft p-6">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search candidates..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            <Filter className="h-4 w-4 text-gray-400" />
+            <select
+              value={stageFilter}
+              onChange={(e) => setStageFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">All Stages</option>
+              <option value="APPLIED">Applied</option>
+              <option value="SCREENING">Screening</option>
+              <option value="INTERVIEW">Interview</option>
+              <option value="OFFER">Offer</option>
+              <option value="HIRED">Hired</option>
+              <option value="REJECTED">Rejected</option>
+            </select>
+            
+            <select
+              value={jobFilter}
+              onChange={(e) => setJobFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">All Jobs</option>
+              {jobPostings.map(job => (
+                <option key={job.id} value={job.id}>
+                  {job.title}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Candidates Grid */}
+      {isLoadingCandidates ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="bg-gray-50 rounded-xl p-6 animate-pulse">
+              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
+              <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
+              <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+            </div>
+          ))}
+        </div>
+      ) : filteredCandidates.length === 0 ? (
+        <div className="text-center py-12 bg-white rounded-xl shadow-soft">
+          <Users className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            {candidates.length === 0 ? 'No Candidates Yet' : 'No Candidates Found'}
+          </h3>
+          <p className="text-gray-600 mb-4">
+            {candidates.length === 0 
+              ? 'Get started by adding candidates to job postings'
+              : 'Try adjusting your search or filters'
+            }
+          </p>
+          {candidates.length === 0 && (
+            <Button onClick={() => setShowCandidateForm(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add First Candidate
+            </Button>
+          )}
+        </div>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
+          {filteredCandidates.map((candidate) => (
+            <CandidateCard
+              key={candidate.id}
+              candidate={candidate}
+              onUpdateStage={handleUpdateStage}
+              onSetScore={handleSetScore}
+              onScheduleInterview={handleScheduleInterview}
+              onHire={handleHire}
+              onEdit={handleEditCandidate}
+              onDelete={handleDeleteCandidate}
+              isLoading={false}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Modals */}
+      <CandidateForm
+        isOpen={showCandidateForm}
+        onClose={() => {
+          setShowCandidateForm(false);
+          setEditingCandidate(null);
+        }}
+        onSubmit={handleCreateCandidate}
+        jobId={null} // Global view - will need to select job
+        candidate={editingCandidate}
+        isLoading={createCandidateMutation.isPending}
+      />
+      
+      <ScoreModal
+        isOpen={showScoreModal}
+        onClose={() => {
+          setShowScoreModal(false);
+          setSelectedCandidate(null);
+        }}
+        onSubmit={handleSetScore}
+        candidate={selectedCandidate}
+        isLoading={setScoreMutation.isPending}
+      />
+      
+      <HireModal
+        isOpen={showHireModal}
+        onClose={() => {
+          setShowHireModal(false);
+          setSelectedCandidate(null);
+        }}
+        onSubmit={handleHire}
+        candidate={selectedCandidate}
+        departments={[]} // TODO: Fetch departments
+        managers={[]} // TODO: Fetch managers
+        isLoading={hireMutation.isPending}
+      />
+      
+      <InterviewScheduler
+        isOpen={showInterviewModal}
+        onClose={() => {
+          setShowInterviewModal(false);
+          setSelectedCandidate(null);
+        }}
+        onSubmit={handleScheduleInterview}
+        candidate={selectedCandidate}
+        interviewers={[]} // TODO: Fetch interviewers
+        isLoading={scheduleInterviewMutation.isPending}
+      />
+    </motion.div>
+  );
+};
+
+export default GlobalCandidatesManagement;

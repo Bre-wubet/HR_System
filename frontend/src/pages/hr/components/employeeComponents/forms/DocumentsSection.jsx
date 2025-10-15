@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Upload, Trash2, AlertCircle } from 'lucide-react';
-import { Button } from '../../../../components/ui/Button';
-import { cn } from '../../../../lib/utils';
+import { Button } from '../../../../../components/ui/Button';
+import { cn } from '../../../../../lib/utils';
 
 /**
  * Documents Section Component

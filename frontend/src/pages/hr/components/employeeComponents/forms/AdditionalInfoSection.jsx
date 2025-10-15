@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Info, Calendar, User } from 'lucide-react';
-import { formatDate } from '../../../../api/employeeApi';
+import { formatDate } from '../../../../../api/employeeApi';
 
 /**
  * Additional Information Section Component

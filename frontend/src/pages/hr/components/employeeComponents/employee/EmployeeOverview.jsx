@@ -14,7 +14,7 @@ import {
   Award,
   TrendingUp
 } from 'lucide-react';
-import { cn, getInitials } from '../../../lib/utils';
+import { cn, getInitials } from '../../../../../lib/utils';
 import { 
   getEmploymentStatusColor, 
   getJobTypeColor, 
@@ -22,7 +22,7 @@ import {
   formatSalary,
   calculateAge,
   getYearsOfService 
-} from '../../../api/employeeApi';
+} from '../../../../../api/employeeApi';
 
 /**
  * Employee Overview Component

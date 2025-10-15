@@ -11,9 +11,9 @@ import {
   Plus
 } from 'lucide-react';
 
-import { Button } from '../../../components/ui/Button';
-import { recruitmentUtils } from '../../../api/recruitmentApi';
-import { cn } from '../../../lib/utils';
+import { Button } from '../../../../components/ui/Button';
+import { recruitmentUtils } from '../../../../api/recruitmentApi';
+import { cn } from '../../../../lib/utils';
 
 /**
  * Job Posting Card Component

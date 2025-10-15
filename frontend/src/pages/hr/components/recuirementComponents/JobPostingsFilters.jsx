@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Search, Filter, Calendar, Building } from 'lucide-react';
 
-import { Input } from '../../../components/ui/Input';
+import { Input } from '../../../../components/ui/Input';
 
 /**
  * Job Postings Filters Component

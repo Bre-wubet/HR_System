@@ -7,17 +7,17 @@ import { ArrowLeft, Save } from 'lucide-react';
 import { useEmployeeForm } from './hooks/useEmployeeForm';
 
 // Modular form sections
-import PersonalInfoSection from './components/forms/PersonalInfoSection';
-import EmploymentInfoSection from './components/forms/EmploymentInfoSection';
-import AdditionalInfoSection from './components/forms/AdditionalInfoSection';
-import DocumentsSection from './components/forms/DocumentsSection';
+import PersonalInfoSection from './components/employeeComponents/forms/PersonalInfoSection';
+import EmploymentInfoSection from './components/employeeComponents/forms/EmploymentInfoSection';
+import AdditionalInfoSection from './components/employeeComponents/forms/AdditionalInfoSection';
+import DocumentsSection from './components/employeeComponents/forms/DocumentsSection';
 
 // Form state components
 import { 
   FormStatusBar, 
   FormErrorDisplay, 
   FormLoadingSkeleton 
-} from './components/forms/FormStates';
+} from './components/employeeComponents/forms/FormStates';
 
 // UI Components
 import { Button } from '../../components/ui/Button';

@@ -13,20 +13,28 @@ const SidebarUserProfile = ({ user }) => {
       <div className="flex items-center space-x-3">
         <div className="h-10 w-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center ring-2 ring-blue-50">
           <span className="text-sm font-semibold text-blue-700">
-            {getInitials(`${user.firstName} ${user.lastName}`)}
+            {getInitials(`${String(user.firstName || '')} ${String(user.lastName || '')}`)}
           </span>
         </div>
         
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-gray-900 truncate">
-            {user.firstName} {user.lastName}
+            {String(user.firstName || '')} {String(user.lastName || '')}
           </p>
           <p className="text-xs text-gray-500 truncate">
-            {user.email}
+            {String(user.email || '')}
           </p>
           {user.role && (
             <p className="text-xs text-blue-600 font-medium truncate">
-              {user.role}
+              {(() => {
+                if (Array.isArray(user.role)) {
+                  return user.role.map(r => (typeof r === 'object' ? (r.name ?? r.scope ?? '') : String(r))).filter(Boolean).join(', ');
+                }
+                if (typeof user.role === 'object') {
+                  return user.role.name ?? user.role.scope ?? JSON.stringify(user.role);
+                }
+                return String(user.role);
+              })()}
             </p>
           )}
         </div>

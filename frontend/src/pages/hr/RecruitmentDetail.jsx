@@ -12,7 +12,7 @@ import {
   ScoreModal,
   InterviewScheduler,
   HireModal
-} from './components';
+} from './components/recuirementComponents';
 
 
 /**

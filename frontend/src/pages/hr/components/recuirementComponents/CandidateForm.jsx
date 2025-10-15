@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Mail, Phone, FileText, Upload } from 'lucide-react';
 
-import { Button } from '../../../components/ui/Button';
-import { Modal } from '../../../components/ui/Modal';
-import { Input } from '../../../components/ui/Input';
-import { recruitmentUtils } from '../../../api/recruitmentApi';
-import { cn } from '../../../lib/utils';
+import { Button } from '../../../../components/ui/Button';
+import { Modal } from '../../../../components/ui/Modal';
+import { Input } from '../../../../components/ui/Input';
+import { recruitmentUtils } from '../../../../api/recruitmentApi';
+import { cn } from '../../../../lib/utils';
 
 /**
  * Candidate Form Component

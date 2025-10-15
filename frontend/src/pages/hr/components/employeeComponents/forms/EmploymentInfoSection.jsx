@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Building, DollarSign, Users } from 'lucide-react';
-import { FormField } from '../../../../components/ui/FormField';
-import { SelectField } from '../../../../components/ui/FormField';
+import { FormField } from '../../../../../components/ui/FormField';
+import { SelectField } from '../../../../../components/ui/FormField';
 
 /**
  * Employment Information Section Component

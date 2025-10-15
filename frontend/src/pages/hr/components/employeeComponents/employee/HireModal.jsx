@@ -11,14 +11,14 @@ import {
   CheckCircle
 } from 'lucide-react';
 
-import { Button } from '../../../components/ui/Button';
-import { Modal } from '../../../components/ui/Modal';
-import { Input } from '../../../components/ui/Input';
-import { recruitmentUtils } from '../../../api/recruitmentApi';
-import { cn } from '../../../lib/utils';
+import { Button } from '../../../../../components/ui/Button';
+import { Modal } from '../../../../../components/ui/Modal';
+import { Input } from '../../../../../components/ui/Input';
+import { recruitmentUtils } from '../../../../../api/recruitmentApi';
+import { cn } from '../../../../../lib/utils';
 
 /**
- * Hire Modal Component
+ * Hire Modal Component-
  * Handles the hiring process for candidates
  */
 const HireModal = ({ 

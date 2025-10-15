@@ -12,10 +12,10 @@ import {
 
 // Import custom hooks and components
 import { useEmployeeDetail } from './hooks/useEmployeeDetail';
-import EmployeeDetailHeader from './components/EmployeeDetailHeader';
+import EmployeeDetailHeader from './components/employeeComponents/employee/EmployeeDetailHeader';
 import TabNavigation from './components/TabNavigation';
-import EmployeeOverview from './components/EmployeeOverview';
-import EmployeeDocuments from './components/EmployeeDocuments';
+import EmployeeOverview from './components/employeeComponents/employee/EmployeeOverview';
+import EmployeeDocuments from './components/employeeComponents/employee/EmployeeDocuments';
 import { EmployeeDetailSkeleton, TabContentSkeleton } from './components/LoadingSkeletons';
 import { ErrorBoundary, EmployeeNotFound } from './components/ErrorStates';
 

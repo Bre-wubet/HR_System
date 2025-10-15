@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Edit, MoreVertical, Share2, Download } from 'lucide-react';
-import { Button } from '../../../components/ui/Button';
-import { cn } from '../../../lib/utils';
+import { Button } from '../../../../../components/ui/Button';
+import { cn } from '../../../../../lib/utils';
 
 /**
  * Employee Detail Header Component

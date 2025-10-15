@@ -5,10 +5,10 @@ export { default as EmployeeDetail } from './EmployeeDetail';
 export { default as EmployeeForm } from './EmployeeForm';
 
 // Sub-components
-export { default as EmployeeDetailHeader } from './components/EmployeeDetailHeader';
+export { default as EmployeeDetailHeader } from './components/employeeComponents/employee/EmployeeDetailHeader';
 export { default as TabNavigation } from './components/TabNavigation';
-export { default as EmployeeOverview } from './components/EmployeeOverview';
-export { default as EmployeeDocuments } from './components/EmployeeDocuments';
+export { default as EmployeeOverview } from './components/employeeComponents/employee/EmployeeOverview';
+export { default as EmployeeDocuments } from './components/employeeComponents/employee/EmployeeDocuments';
 
 // Loading and Error States
 export { 
@@ -22,7 +22,7 @@ export {
 } from './components/ErrorStates';
 
 // Form Components
-export * from './components/forms';
+export * from './components/employeeComponents/forms';
 
 // Custom Hooks
 export { useEmployeeDetail } from './hooks/useEmployeeDetail';

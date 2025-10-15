@@ -12,9 +12,9 @@ import {
   User
 } from 'lucide-react';
 
-import { Button } from '../../../components/ui/Button';
-import { recruitmentUtils } from '../../../api/recruitmentApi';
-import { cn } from '../../../lib/utils';
+import { Button } from '../../../../components/ui/Button';
+import { recruitmentUtils } from '../../../../api/recruitmentApi';
+import { cn } from '../../../../lib/utils';
 
 /**
  * Candidate Card Component

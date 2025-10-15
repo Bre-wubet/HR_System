@@ -22,11 +22,11 @@ import { Modal } from '../../components/ui/Modal';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/axiosClient';
 import { cn } from '../../lib/utils';
-import CandidateCard from './components/CandidateCard';
-import CandidateForm from './components/CandidateForm';
-import ScoreModal from './components/ScoreModal';
-import HireModal from './components/HireModal';
-import InterviewScheduler from './components/InterviewScheduler';
+import CandidateCard from './components/recuirementComponents/CandidateCard';
+import CandidateForm from './components/recuirementComponents/CandidateForm';
+import ScoreModal from './components/employeeComponents/employee/ScoreModal';
+import HireModal from './components/employeeComponents/employee/HireModal';
+import InterviewScheduler from './components/recuirementComponents/InterviewScheduler';
 
 /**
  * Global Candidates Management Component

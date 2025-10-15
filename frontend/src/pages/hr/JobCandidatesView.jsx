@@ -23,11 +23,11 @@ import { Modal } from '../../components/ui/Modal';
 import { useJobPosting, useCandidatesForJob, useCreateCandidate, useUpdateCandidateStage, useSetCandidateScore, useHireCandidate, useScheduleInterview } from './hooks/useRecruitment';
 import { recruitmentUtils } from '../../api/recruitmentApi';
 import { cn } from '../../lib/utils';
-import CandidateCard from './components/CandidateCard';
-import CandidateForm from './components/CandidateForm';
-import ScoreModal from './components/ScoreModal';
-import HireModal from './components/HireModal';
-import InterviewScheduler from './components/InterviewScheduler';
+import CandidateCard from './components/recuirementComponents/CandidateCard';
+import CandidateForm from './components/recuirementComponents/CandidateForm';
+import ScoreModal from './components/employeeComponents/employee/ScoreModal';
+import HireModal from './components/employeeComponents/employee/HireModal';
+import InterviewScheduler from './components/recuirementComponents/InterviewScheduler';
 
 /**
  * Job Candidates View Component

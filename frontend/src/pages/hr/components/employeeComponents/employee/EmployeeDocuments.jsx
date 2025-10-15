@@ -11,10 +11,10 @@ import {
   CheckCircle,
   Clock
 } from 'lucide-react';
-import { Button } from '../../../components/ui/Button';
-import { Modal } from '../../../components/ui/Modal';
-import { cn, formatDate } from '../../../lib/utils';
-import { formatDateTime } from '../../../api/employeeApi';
+import { Button } from '../../../../../components/ui/Button';
+import { Modal } from '../../../../../components/ui/Modal';
+import { cn, formatDate } from '../../../../../lib/utils';
+import { formatDateTime } from '../../../../../api/employeeApi';
 
 /**
  * Employee Documents Component

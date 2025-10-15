@@ -65,16 +65,28 @@ const UserMenu = ({ user, onLogout }) => {
       >
         <div className="h-8 w-8 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center ring-2 ring-blue-50">
           <span className="text-sm font-semibold text-blue-700">
-            {getInitials(`${user.firstName} ${user.lastName}`)}
+            {getInitials(`${String(user.firstName || '')} ${String(user.lastName || '')}`)}
           </span>
         </div>
         
         <div className="hidden sm:block text-left">
           <p className="text-sm font-medium text-gray-900">
-            {user.firstName} {user.lastName}
+            {String(user.firstName || '')} {String(user.lastName || '')}
           </p>
           <p className="text-xs text-gray-500">
-            {user.role || 'User'}
+            {(() => {
+              const roleValue = user.role;
+              if (Array.isArray(roleValue)) {
+                return roleValue
+                  .map(r => (typeof r === 'object' ? (r.name ?? r.scope ?? '') : String(r)))
+                  .filter(Boolean)
+                  .join(', ') || 'User';
+              }
+              if (typeof roleValue === 'object' && roleValue !== null) {
+                return roleValue.name ?? roleValue.scope ?? 'User';
+              }
+              return String(roleValue || 'User');
+            })()}
           </p>
         </div>
         
@@ -98,15 +110,15 @@ const UserMenu = ({ user, onLogout }) => {
               <div className="flex items-center space-x-3">
                 <div className="h-10 w-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
                   <span className="text-sm font-semibold text-blue-700">
-                    {getInitials(`${user.firstName} ${user.lastName}`)}
+                    {getInitials(`${String(user.firstName || '')} ${String(user.lastName || '')}`)}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-900 truncate">
-                    {user.firstName} {user.lastName}
+                    {String(user.firstName || '')} {String(user.lastName || '')}
                   </p>
                   <p className="text-xs text-gray-500 truncate">
-                    {user.email}
+                    {String(user.email || '')}
                   </p>
                 </div>
               </div>

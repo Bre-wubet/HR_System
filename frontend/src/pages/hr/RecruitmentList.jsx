@@ -11,7 +11,7 @@ import {
   JobPostingsGrid,
   EmptyState,
   JobPostingForm
-} from './components';
+} from './components/recuirementComponents';
 
 /**
  * Main Recruitment List Component

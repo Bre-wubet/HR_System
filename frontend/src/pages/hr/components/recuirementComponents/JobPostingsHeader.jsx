@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Briefcase, TrendingUp } from 'lucide-react';
 
-import { Button } from '../../../components/ui/Button';
+import { Button } from '../../../../components/ui/Button';
 
 /**
  * Job Postings Header Component

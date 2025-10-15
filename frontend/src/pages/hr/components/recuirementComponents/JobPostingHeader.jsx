@@ -11,8 +11,8 @@ import {
   Archive
 } from 'lucide-react';
 
-import { Button } from '../../../components/ui/Button';
-import { recruitmentUtils } from '../../../api/recruitmentApi';
+import { Button } from '../../../../components/ui/Button';
+import { recruitmentUtils } from '../../../../api/recruitmentApi';
 
 /**
  * Job Posting Header Component

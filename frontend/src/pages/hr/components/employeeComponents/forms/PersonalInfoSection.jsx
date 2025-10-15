@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { User, Mail, Phone, Calendar } from 'lucide-react';
-import { FormField } from '../../../../components/ui/FormField';
-import { SelectField } from '../../../../components/ui/FormField';
+import { FormField } from '../../../../../components/ui/FormField';
+import { SelectField } from '../../../../../components/ui/FormField';
 
 /**
  * Personal Information Section Component

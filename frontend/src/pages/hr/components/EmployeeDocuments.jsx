@@ -38,8 +38,10 @@ const EmployeeDocuments = ({
   const handleAddDocument = async () => {
     if (!documentData.name || !documentData.type) return;
     
+    console.log('Adding document with data:', documentData);
+    
     const result = await onAddDocument(employeeId, documentData);
-    if (result.success) {
+    if (result?.success) {
       setShowAddModal(false);
       setDocumentData({
         name: '',
@@ -47,6 +49,8 @@ const EmployeeDocuments = ({
         description: '',
         file: null,
       });
+    } else {
+      console.error('Failed to add document:', result?.error);
     }
   };
 

@@ -195,8 +195,38 @@ export function listEmployeeDocuments(employeeId) {
   return repo.listEmployeeDocuments(employeeId);
 }
 
-export function addEmployeeDocument(employeeId, data) {
-  return repo.addEmployeeDocument(employeeId, data);
+export async function addEmployeeDocument(employeeId, data) {
+  console.log('Adding document for employee:', employeeId, 'with data:', data);
+  
+  // Validate that employee exists
+  const employee = await repo.findById(employeeId);
+  if (!employee) {
+    const error = new Error(`Employee with ID ${employeeId} not found`);
+    error.statusCode = 404;
+    error.code = 'EMPLOYEE_NOT_FOUND';
+    throw error;
+  }
+  
+  // Validate required fields
+  if (!data.name) {
+    const error = new Error('Document name is required');
+    error.statusCode = 400;
+    error.code = 'MISSING_REQUIRED_FIELDS';
+    throw error;
+  }
+  
+  // For now, create a placeholder fileUrl if not provided
+  // In a real implementation, you would handle file upload here
+  const processedData = {
+    name: data.name,
+    fileUrl: data.fileUrl || `placeholder-url-for-${data.name}`,
+    // Note: The schema only supports name and fileUrl fields
+    // Additional fields like type and description would need schema migration
+  };
+  
+  console.log('Processed document data:', processedData);
+  
+  return repo.addEmployeeDocument(employeeId, processedData);
 }
 
 export function removeEmployeeDocument(employeeId, docId) {

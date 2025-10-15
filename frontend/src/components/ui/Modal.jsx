@@ -47,7 +47,7 @@ const Modal = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
           {/* Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -64,7 +64,7 @@ const Modal = ({
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2 }}
             className={cn(
-              'relative bg-white rounded-xl shadow-hard w-full',
+              'relative bg-white rounded-xl shadow-hard w-full my-8 max-h-[90vh] flex flex-col',
               sizeClasses[size],
               className
             )}
@@ -72,7 +72,7 @@ const Modal = ({
           >
             {/* Header */}
             {(title || showCloseButton) && (
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
                 {title && (
                   <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
                 )}
@@ -88,7 +88,7 @@ const Modal = ({
             )}
 
             {/* Content */}
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto flex-1 modal-scroll">
               {children}
             </div>
           </motion.div>

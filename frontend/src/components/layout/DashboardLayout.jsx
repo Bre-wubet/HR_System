@@ -43,7 +43,7 @@ const DashboardLayout = ({ children, showBreadcrumb = true }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50">
       {/* Sidebar */}
       <Sidebar
         user={user}
@@ -51,7 +51,7 @@ const DashboardLayout = ({ children, showBreadcrumb = true }) => {
       />
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="lg:ml-64 flex flex-col min-h-screen">
         {/* Header */}
         <Header
           onToggleSidebar={handleToggleSidebar}

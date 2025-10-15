@@ -20,13 +20,14 @@ import {
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
-import { useJobPosting, useCandidatesForJob, useCreateCandidate, useUpdateCandidateStage, useSetCandidateScore, useHireCandidate } from './hooks/useRecruitment';
+import { useJobPosting, useCandidatesForJob, useCreateCandidate, useUpdateCandidateStage, useSetCandidateScore, useHireCandidate, useScheduleInterview } from './hooks/useRecruitment';
 import { recruitmentUtils } from '../../api/recruitmentApi';
 import { cn } from '../../lib/utils';
 import CandidateCard from './components/CandidateCard';
 import CandidateForm from './components/CandidateForm';
 import ScoreModal from './components/ScoreModal';
 import HireModal from './components/HireModal';
+import InterviewScheduler from './components/InterviewScheduler';
 
 /**
  * Job Candidates View Component
@@ -42,6 +43,7 @@ const JobCandidatesView = () => {
   const [showCandidateForm, setShowCandidateForm] = useState(false);
   const [showScoreModal, setShowScoreModal] = useState(false);
   const [showHireModal, setShowHireModal] = useState(false);
+  const [showInterviewModal, setShowInterviewModal] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [editingCandidate, setEditingCandidate] = useState(null);
   
@@ -54,6 +56,7 @@ const JobCandidatesView = () => {
   const updateStageMutation = useUpdateCandidateStage();
   const setScoreMutation = useSetCandidateScore();
   const hireMutation = useHireCandidate();
+  const scheduleInterviewMutation = useScheduleInterview();
   
   // Computed values
   const filteredCandidates = useMemo(() => {
@@ -158,8 +161,20 @@ const JobCandidatesView = () => {
   };
   
   const handleScheduleInterview = (candidateId) => {
-    // TODO: Implement interview scheduling
-    console.log('Schedule interview for candidate:', candidateId);
+    const candidate = candidates.find(c => c.id === candidateId);
+    setSelectedCandidate(candidate);
+    setShowInterviewModal(true);
+  };
+  
+  const handleScheduleInterviewSubmit = async (interviewData) => {
+    try {
+      await scheduleInterviewMutation.mutateAsync(interviewData);
+      setShowInterviewModal(false);
+      setSelectedCandidate(null);
+      refetchCandidates();
+    } catch (error) {
+      console.error('Error scheduling interview:', error);
+    }
   };
   
   // Loading state
@@ -362,6 +377,18 @@ const JobCandidatesView = () => {
         candidate={selectedCandidate}
         jobPosting={jobPosting}
         isLoading={hireMutation.isPending}
+      />
+      
+      <InterviewScheduler
+        isOpen={showInterviewModal}
+        onClose={() => {
+          setShowInterviewModal(false);
+          setSelectedCandidate(null);
+        }}
+        onSubmit={handleScheduleInterviewSubmit}
+        candidate={selectedCandidate}
+        interviewers={[]} // TODO: Fetch available interviewers
+        isLoading={scheduleInterviewMutation.isPending}
       />
     </motion.div>
   );

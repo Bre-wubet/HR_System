@@ -46,23 +46,25 @@ const Sidebar = ({ user, navigationItems }) => {
           damping: 30 
         }}
         className={cn(
-          'fixed lg:relative inset-y-0 left-0 z-50',
+          'fixed inset-y-0 left-0 z-50',
           'bg-white border-r border-gray-200',
           'shadow-lg lg:shadow-none',
           'flex flex-col h-full'
         )}
       >
         {/* Sidebar Content */}
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full overflow-hidden">
           <SidebarLogo onClose={() => setSidebarOpen(false)} />
           
-          <SidebarNavigation 
-            navigationItems={navigationItems} 
-            currentPath={location.pathname}
-            onItemClick={() => shouldShowOverlay && setSidebarOpen(false)}
-          />
+          <div className="flex-1 overflow-y-auto modal-scroll">
+            <SidebarNavigation 
+              navigationItems={navigationItems} 
+              currentPath={location.pathname}
+              onItemClick={() => shouldShowOverlay && setSidebarOpen(false)}
+            />
+          </div>
           
-          <div className="mt-auto">
+          <div className="flex-shrink-0">
             <SidebarUserProfile user={user} />
           </div>
         </div>

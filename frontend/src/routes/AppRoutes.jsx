@@ -24,6 +24,7 @@ import EmployeeForm from '../pages/hr/EmployeeForm';
 import Attendance from '../pages/hr/Attendance';
 import RecruitmentList from '../pages/hr/RecruitmentList';
 import RecruitmentDetail from '../pages/hr/RecruitmentDetail';
+import JobCandidatesView from '../pages/hr/JobCandidatesView';
 
 // Loading Component
 const LoadingSpinner = () => (
@@ -207,6 +208,16 @@ function AppRoutes() {
           <ProtectedRoute requiredPermissions={['recruitment:read']}>
             <DashboardLayout>
               <RecruitmentDetail />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/recruitment/:id/candidates"
+        element={
+          <ProtectedRoute requiredPermissions={['recruitment:read']}>
+            <DashboardLayout>
+              <JobCandidatesView />
             </DashboardLayout>
           </ProtectedRoute>
         }

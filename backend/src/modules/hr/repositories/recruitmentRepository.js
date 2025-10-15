@@ -4,7 +4,19 @@ export function findJobPostings({ q, isActive } = {}) {
   const where = {
     AND: [q ? { title: { contains: q, mode: "insensitive" } } : {}, typeof isActive === "boolean" ? { isActive } : {}],
   };
-  return prisma.jobPosting.findMany({ where, orderBy: { createdAt: "desc" } });
+  return prisma.jobPosting.findMany({ 
+    where, 
+    orderBy: { createdAt: "desc" },
+    include: {
+      department: true,
+      candidates: true,
+      skills: {
+        include: {
+          skill: true
+        }
+      }
+    }
+  });
 }
 
 export function createJobPosting(data) {
@@ -126,7 +138,18 @@ export function findDepartmentById(id) {
 }
 
 export function findJobPostingByIdWithDept(id) {
-  return prisma.jobPosting.findUnique({ where: { id }, include: { department: true } });
+  return prisma.jobPosting.findUnique({ 
+    where: { id }, 
+    include: { 
+      department: true,
+      candidates: true,
+      skills: {
+        include: {
+          skill: true
+        }
+      }
+    } 
+  });
 }
 
 export function findCandidateById(id) {

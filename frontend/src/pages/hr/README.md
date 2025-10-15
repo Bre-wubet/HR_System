@@ -1,386 +1,411 @@
-# Employee Form Refactoring Documentation
+# Recruitment Management System
 
 ## Overview
 
-The `EmployeeForm.jsx` component has been completely refactored to follow modern React best practices, improve maintainability, and enhance user experience. The refactoring breaks down the monolithic form into modular, reusable components with proper separation of concerns.
+The Recruitment Management System is a comprehensive solution for managing job postings, candidate applications, interviews, and the entire hiring process. Built with React, TypeScript, and modern UI components, it provides a seamless experience for HR teams to manage recruitment workflows.
 
 ## Architecture
 
-### 🏗️ Component Structure
+### Backend Integration
 
+The system integrates with a robust backend API that includes:
+
+- **Job Postings**: Full CRUD operations for job postings
+- **Candidate Management**: Application tracking and stage progression
+- **Interview Scheduling**: Interview management and feedback
+- **Analytics**: KPIs and recruitment metrics
+- **Workflow Management**: Stage transitions and approval processes
+
+### Database Schema
+
+Key models from the Prisma schema:
+
+```prisma
+model JobPosting {
+  id           String       @id @default(uuid())
+  title        String
+  description  String
+  department   Department   @relation(fields: [departmentId], references: [id])
+  departmentId String
+  isActive     Boolean      @default(true)
+  candidates   Candidate[]
+  skills       JobPostingSkill[]
+  createdAt    DateTime     @default(now())
+}
+
+model Candidate {
+  id             String           @id @default(uuid())
+  firstName      String
+  lastName       String
+  email          String
+  phone          String?
+  resumeUrl      String?
+  stage          InterviewStage   @default(APPLIED)
+  score          Int?
+  feedback       String?
+  jobPosting     JobPosting       @relation(fields: [jobPostingId], references: [id])
+  jobPostingId   String
+  interviews     Interview[]
+  createdAt      DateTime         @default(now())
+}
+
+model Interview {
+  id           String     @id @default(uuid())
+  candidate    Candidate  @relation(fields: [candidateId], references: [candidateId])
+  candidateId  String
+  interviewer  Employee?  @relation("InterviewInterviewer", fields: [interviewerId], references: [id])
+  interviewerId String?
+  date         DateTime
+  feedback     String?
+  rating       Int?
+}
 ```
-frontend/src/pages/hr/
-├── EmployeeForm.jsx                    # Main form component
-├── components/forms/
-│   ├── PersonalInfoSection.jsx        # Personal information fields
-│   ├── EmploymentInfoSection.jsx      # Employment-related fields
-│   ├── AdditionalInfoSection.jsx       # Read-only employee info
-│   ├── DocumentsSection.jsx           # File upload management
-│   ├── FormStates.jsx                 # Loading, error, and status components
-│   └── index.js                       # Form components exports
-├── hooks/
-│   └── useEmployeeForm.js             # Custom hook for form logic
-├── schemas/
-│   └── employeeFormSchema.js          # Validation schema and constants
-└── index.js                           # Main exports
-```
 
-### 🔧 Key Components
+## Frontend Components
 
-#### 1. **EmployeeForm.jsx** (Main Component)
-- **Purpose**: Orchestrates the entire form experience
-- **Responsibilities**: 
-  - Renders form sections in proper order
-  - Handles form submission and navigation
-  - Manages loading and error states
-  - Provides form status feedback
+### Core Files
 
-#### 2. **Form Sections**
-- **PersonalInfoSection**: Handles personal details (name, email, phone, etc.)
-- **EmploymentInfoSection**: Manages employment data (job title, department, salary)
-- **AdditionalInfoSection**: Shows read-only information for edit mode
-- **DocumentsSection**: Handles file uploads and document management
+1. **`/api/recruitmentApi.js`** - API service layer
+2. **`/stores/useRecruitmentStore.js`** - Zustand state management
+3. **`/pages/hr/hooks/useRecruitment.js`** - React Query hooks
+4. **`/pages/hr/RecruitmentList.jsx`** - Job postings list page
+5. **`/pages/hr/RecruitmentDetail.jsx`** - Job posting detail with candidates
+6. **`/components/hr/RecruitmentComponents.jsx`** - Reusable components
 
-#### 3. **useEmployeeForm Hook**
-- **Purpose**: Encapsulates all form logic and state management
-- **Features**:
-  - Form validation with Zod schema
-  - Auto-save functionality
-  - Data fetching and submission
-  - File upload management
-  - Error handling
+### Key Features
 
-#### 4. **Form Field Components**
-- **FormField**: Reusable input field with icon and error handling
-- **SelectField**: Dropdown select with validation
-- **TextareaField**: Multi-line text input
-- **CheckboxField**: Boolean input with description
-- **FileUploadField**: Drag-and-drop file upload
+#### 1. Job Posting Management
 
-## Features
+- **Create/Edit Job Postings**: Full form with validation
+- **Job Status Management**: Active/Archived states
+- **Department Integration**: Links to department system
+- **Skills Requirements**: Job-specific skill requirements
 
-### ✨ Enhanced User Experience
+#### 2. Candidate Management
 
-1. **Auto-Save**: Form automatically saves changes every 2 seconds
-2. **Real-time Validation**: Immediate feedback on field errors
-3. **Loading States**: Skeleton loaders while data is being fetched
-4. **Error Handling**: Comprehensive error display and recovery
-5. **Form Status**: Visual indicators for save state and validation
-6. **Responsive Design**: Mobile-first approach with adaptive layouts
+- **Application Tracking**: Complete candidate lifecycle
+- **Stage Progression**: Visual progress tracking
+- **Scoring System**: Candidate evaluation and feedback
+- **Communication**: Email notifications and updates
 
-### 🔒 Validation & Security
+#### 3. Interview Management
 
-1. **Schema Validation**: Zod schema for type-safe validation
-2. **Field-level Validation**: Real-time validation with custom rules
-3. **File Upload Security**: File type and size validation
-4. **Data Sanitization**: Automatic cleanup of form data
+- **Scheduling**: Interview calendar integration
+- **Feedback Collection**: Structured interview feedback
+- **Rating System**: Candidate scoring and evaluation
+- **Interviewer Assignment**: Employee-based interviewer management
 
-### 🚀 Performance Optimizations
+#### 4. Analytics & Reporting
 
-1. **Modular Loading**: Components load independently
-2. **Memoization**: Optimized re-renders with React.memo
-3. **Lazy Loading**: Form sections load on demand
-4. **Debounced Auto-save**: Prevents excessive API calls
+- **Recruitment KPIs**: Key performance indicators
+- **Hiring Metrics**: Success rates and time-to-hire
+- **Activity Feeds**: Real-time recruitment updates
+- **Dashboard Integration**: HR dashboard widgets
 
-## Usage
+## Usage Examples
 
-### Basic Usage
+### Basic Job Posting Creation
 
 ```jsx
-import { EmployeeForm } from './pages/hr';
+import { useCreateJobPosting } from '../hooks/useRecruitment';
 
-// Create new employee
-<EmployeeForm />
-
-// Edit existing employee
-<EmployeeForm employeeId="123" />
-```
-
-### Using Form Sections Individually
-
-```jsx
-import { 
-  PersonalInfoSection, 
-  EmploymentInfoSection 
-} from './pages/hr/components/forms';
-
-const CustomForm = () => {
-  const { register, errors } = useForm();
+const CreateJobForm = () => {
+  const createJobMutation = useCreateJobPosting();
+  
+  const handleSubmit = (jobData) => {
+    createJobMutation.mutate(jobData);
+  };
   
   return (
-    <form>
-      <PersonalInfoSection 
-        register={register}
-        errors={errors}
-      />
-      <EmploymentInfoSection 
-        register={register}
-        errors={errors}
-        departments={departments}
-        managers={managers}
-      />
-    </form>
+    <JobPostingForm onSubmit={handleSubmit} />
   );
 };
 ```
 
-### Using Form Field Components
+### Candidate Management
 
 ```jsx
-import { FormField, SelectField } from './components/ui/FormField';
+import { useCandidatesForJob, useUpdateCandidateStage } from '../hooks/useRecruitment';
 
-const CustomField = ({ register, errors }) => (
-  <FormField
-    name="firstName"
-    label="First Name"
-    placeholder="Enter first name"
-    icon={User}
-    required
-    register={register}
-    error={errors.firstName?.message}
-  />
-);
+const CandidateList = ({ jobId }) => {
+  const { data: candidates } = useCandidatesForJob(jobId);
+  const updateStageMutation = useUpdateCandidateStage();
+  
+  const handleStageChange = (candidateId, stage) => {
+    updateStageMutation.mutate({ candidateId, stage });
+  };
+  
+  return (
+    <div>
+      {candidates?.map(candidate => (
+        <CandidateCard 
+          key={candidate.id}
+          candidate={candidate}
+          onStageChange={handleStageChange}
+        />
+      ))}
+    </div>
+  );
+};
 ```
 
-## API Reference
+### Interview Scheduling
 
-### useEmployeeForm Hook
+```jsx
+import { useScheduleInterview } from '../hooks/useRecruitment';
 
-```typescript
-interface UseEmployeeFormReturn {
-  // Form methods
-  register: UseFormRegister<EmployeeFormData>;
-  handleSubmit: UseFormHandleSubmit<EmployeeFormData>;
-  errors: FieldErrors<EmployeeFormData>;
-  formState: FormState;
-  formData: FormData;
+const InterviewScheduler = ({ candidateId }) => {
+  const scheduleInterviewMutation = useScheduleInterview();
+  
+  const handleSchedule = (interviewData) => {
+    scheduleInterviewMutation.mutate({
+      ...interviewData,
+      candidateId
+    });
+  };
+  
+  return (
+    <InterviewForm onSubmit={handleSchedule} />
+  );
+};
+```
+
+## API Endpoints
+
+### Job Postings
+
+- `GET /hr/recruitment/jobs` - List job postings
+- `POST /hr/recruitment/jobs` - Create job posting
+- `GET /hr/recruitment/jobs/:id` - Get job posting details
+- `PUT /hr/recruitment/jobs/:id` - Update job posting
+- `DELETE /hr/recruitment/jobs/:id` - Archive job posting
+
+### Candidates
+
+- `GET /hr/recruitment/jobs/:id/candidates` - List candidates for job
+- `POST /hr/recruitment/jobs/:id/candidates` - Add candidate
+- `PUT /hr/recruitment/candidates/:id/stage` - Update candidate stage
+- `PUT /hr/recruitment/candidates/:id/score` - Set candidate score
+- `POST /hr/recruitment/candidates/:id/hire` - Hire candidate
+
+### Interviews
+
+- `POST /hr/recruitment/interviews` - Schedule interview
+- `PUT /hr/recruitment/interviews/:id` - Update interview
+- `GET /hr/recruitment/candidates/:id/interviews` - List candidate interviews
+
+### Analytics
+
+- `GET /hr/recruitment/kpis` - Get recruitment KPIs
+
+## State Management
+
+### Zustand Store Structure
+
+```javascript
+const useRecruitmentStore = create((set, get) => ({
+  // State
+  jobPostings: [],
+  candidates: [],
+  interviews: [],
+  kpis: null,
+  selectedJobPosting: null,
+  selectedCandidate: null,
+  isLoading: false,
+  error: null,
   
   // Actions
-  onSubmit: (data: EmployeeFormData) => Promise<void>;
-  handleFileUpload: (files: File[]) => void;
-  handleRemoveFile: (fileId: string) => void;
-  handleCancel: () => void;
-  
-  // Settings
-  setAutoSaveEnabled: (enabled: boolean) => void;
-}
+  fetchJobPostings: async (params) => { /* ... */ },
+  createJobPosting: async (data) => { /* ... */ },
+  updateJobPosting: async (id, data) => { /* ... */ },
+  // ... more actions
+}));
 ```
 
-### Form State Interface
+### React Query Integration
 
-```typescript
-interface FormState {
-  isEdit: boolean;
-  isLoading: boolean;
-  isSubmitting: boolean;
-  isValid: boolean;
-  isDirty: boolean;
-  hasErrors: boolean;
-  submitError: string | null;
-  lastSaved: Date | null;
-  autoSaveEnabled: boolean;
-}
+```javascript
+// Query keys for consistent caching
+export const queryKeys = {
+  recruitment: {
+    jobPostings: {
+      all: ['recruitment', 'job-postings'],
+      list: (params) => ['recruitment', 'job-postings', 'list', params],
+      detail: (id) => ['recruitment', 'job-postings', 'detail', id],
+    },
+    candidates: {
+      list: (jobId) => ['recruitment', 'candidates', 'list', jobId],
+      detail: (id) => ['recruitment', 'candidates', 'detail', id],
+    },
+    // ... more keys
+  },
+};
 ```
 
-### Validation Schema
+## Component Library
 
-```typescript
-const employeeSchema = z.object({
-  firstName: z.string().min(2).max(50),
-  lastName: z.string().min(2).max(50),
-  email: z.string().email(),
-  phone: z.string().optional(),
-  gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
-  dob: z.string().optional(),
-  jobTitle: z.string().min(1).max(100),
-  jobType: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERN']),
-  departmentId: z.string().min(1),
-  managerId: z.string().optional(),
-  salary: z.number().positive().optional(),
-  status: z.enum(['ACTIVE', 'INACTIVE', 'PROBATION', 'TERMINATED', 'RESIGNED']).optional(),
-});
-```
+### Reusable Components
 
-## Configuration
+1. **RecruitmentStats** - KPI dashboard cards
+2. **CandidateStageProgress** - Visual progress tracking
+3. **InterviewSchedule** - Interview management
+4. **CandidateSearchFilter** - Search and filtering
+5. **RecruitmentActivityFeed** - Activity timeline
 
-### Auto-Save Settings
+### Usage
 
 ```jsx
-const { setAutoSaveEnabled } = useEmployeeForm(employeeId);
+import { 
+  RecruitmentStats, 
+  CandidateStageProgress,
+  InterviewSchedule 
+} from '../components/hr/RecruitmentComponents';
 
-// Disable auto-save
-setAutoSaveEnabled(false);
-
-// Enable auto-save (default)
-setAutoSaveEnabled(true);
+const RecruitmentDashboard = () => {
+  return (
+    <div className="space-y-6">
+      <RecruitmentStats kpis={kpis} />
+      <CandidateStageProgress candidate={candidate} />
+      <InterviewSchedule interviews={interviews} />
+    </div>
+  );
+};
 ```
 
-### File Upload Configuration
+## Validation & Error Handling
 
-```jsx
-<DocumentsSection 
-  uploadedFiles={files}
-  onFileUpload={handleFileUpload}
-  onRemoveFile={handleRemoveFile}
-  maxFileSize={10 * 1024 * 1024} // 10MB
-  acceptedTypes={['.pdf', '.doc', '.docx', '.jpg', '.png']}
-/>
+### Form Validation
+
+```javascript
+// Job posting validation
+export const validateJobPosting = (data) => {
+  const errors = {};
+  
+  if (!data.title?.trim()) {
+    errors.title = 'Job title is required';
+  }
+  
+  if (!data.description?.trim()) {
+    errors.description = 'Job description is required';
+  }
+  
+  if (!data.departmentId) {
+    errors.departmentId = 'Department is required';
+  }
+  
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
+};
 ```
 
-## Styling
+### Error Handling
 
-The form uses Tailwind CSS with a consistent design system:
-
-- **Colors**: Blue primary, gray neutrals, semantic colors for states
-- **Spacing**: Consistent spacing scale (4, 6, 8, 12, 16, 24)
-- **Typography**: Clear hierarchy with proper font weights
-- **Shadows**: Subtle shadows for depth and focus
-- **Animations**: Smooth transitions with Framer Motion
-
-## Accessibility
-
-### ARIA Support
-- Proper form labels and descriptions
-- Error announcements for screen readers
-- Keyboard navigation support
-- Focus management
-
-### Keyboard Navigation
-- Tab order follows logical form flow
-- Enter key submits form
-- Escape key cancels form
-- Arrow keys navigate select options
-
-## Testing
-
-### Unit Tests
-```jsx
-import { render, screen, fireEvent } from '@testing-library/react';
-import { EmployeeForm } from './EmployeeForm';
-
-test('renders form fields correctly', () => {
-  render(<EmployeeForm />);
-  
-  expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
-  expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-});
-
-test('validates required fields', async () => {
-  render(<EmployeeForm />);
-  
-  fireEvent.click(screen.getByRole('button', { name: /create employee/i }));
-  
-  expect(await screen.findByText(/first name is required/i)).toBeInTheDocument();
-});
+```javascript
+// API error handling
+const handleApiError = (error) => {
+  const errorMessage = error.response?.data?.message || 'An error occurred';
+  toast.error(errorMessage);
+  console.error('API Error:', error);
+};
 ```
 
-### Integration Tests
-```jsx
-test('submits form with valid data', async () => {
-  const mockSubmit = jest.fn();
-  render(<EmployeeForm onSubmit={mockSubmit} />);
-  
-  fireEvent.change(screen.getByLabelText(/first name/i), { 
-    target: { value: 'John' } 
-  });
-  fireEvent.change(screen.getByLabelText(/last name/i), { 
-    target: { value: 'Doe' } 
-  });
-  
-  fireEvent.click(screen.getByRole('button', { name: /create employee/i }));
-  
-  expect(mockSubmit).toHaveBeenCalledWith({
-    firstName: 'John',
-    lastName: 'Doe',
-    // ... other fields
-  });
-});
-```
+## Performance Optimizations
 
-## Migration Guide
+### React Query Caching
 
-### From Old EmployeeForm
+- **Stale Time**: 5 minutes for job postings, 2 minutes for candidates
+- **Cache Time**: 10 minutes for KPIs
+- **Background Refetch**: Automatic data updates
+- **Optimistic Updates**: Immediate UI updates
 
-1. **Import Changes**:
-   ```jsx
-   // Old
-   import EmployeeForm from './EmployeeForm';
-   
-   // New
-   import { EmployeeForm } from './pages/hr';
-   ```
+### Component Optimization
 
-2. **Props Changes**:
-   ```jsx
-   // Old
-   <EmployeeForm employeeId={id} />
-   
-   // New (same API)
-   <EmployeeForm employeeId={id} />
-   ```
+- **React.memo**: Prevent unnecessary re-renders
+- **useMemo**: Expensive calculations
+- **useCallback**: Event handler optimization
+- **Lazy Loading**: Code splitting for large components
 
-3. **Custom Form Sections**:
-   ```jsx
-   // New - Use individual sections
-   import { PersonalInfoSection } from './pages/hr/components/forms';
-   ```
+## Security & Permissions
+
+### Permission System
+
+The system integrates with the backend permission system:
+
+- `recruitment:read` - View job postings and candidates
+- `recruitment:create` - Create job postings and add candidates
+- `recruitment:update` - Update job postings and candidate stages
+- `recruitment:delete` - Archive job postings
+
+### Data Validation
+
+- **Frontend Validation**: Real-time form validation
+- **Backend Validation**: Server-side validation
+- **Type Safety**: TypeScript for compile-time checks
+- **Input Sanitization**: XSS protection
 
 ## Future Enhancements
 
 ### Planned Features
-1. **Form Templates**: Pre-configured form layouts for different employee types
-2. **Bulk Import**: CSV/Excel file import for multiple employees
-3. **Form Analytics**: Track form completion rates and field usage
-4. **Advanced Validation**: Cross-field validation and business rules
-5. **Offline Support**: Form works offline with sync when online
 
-### Performance Improvements
-1. **Virtual Scrolling**: For large department/manager lists
-2. **Form Caching**: Cache form data in localStorage
-3. **Progressive Loading**: Load form sections as needed
-4. **Bundle Splitting**: Separate bundles for form sections
+1. **Advanced Analytics**: More detailed reporting
+2. **Email Templates**: Automated communication
+3. **Document Management**: Resume and document handling
+4. **Integration**: ATS and HRIS integration
+5. **Mobile Support**: Responsive mobile interface
+6. **Workflow Automation**: Automated stage transitions
+7. **Collaboration**: Team-based recruitment
+8. **AI Integration**: Candidate matching and scoring
 
-## Troubleshooting
+### Technical Improvements
 
-### Common Issues
+1. **Real-time Updates**: WebSocket integration
+2. **Offline Support**: PWA capabilities
+3. **Performance**: Virtual scrolling for large lists
+4. **Accessibility**: Enhanced a11y support
+5. **Testing**: Comprehensive test coverage
+6. **Documentation**: API documentation
+7. **Monitoring**: Error tracking and analytics
 
-1. **Form Not Submitting**:
-   - Check validation errors
-   - Ensure all required fields are filled
-   - Verify network connection
+## Getting Started
 
-2. **Auto-save Not Working**:
-   - Check if auto-save is enabled
-   - Verify form is valid and dirty
-   - Check browser console for errors
+### Installation
 
-3. **File Upload Issues**:
-   - Verify file size limits
-   - Check accepted file types
-   - Ensure proper permissions
+```bash
+# Install dependencies
+npm install
 
-### Debug Mode
+# Start development server
+npm run dev
 
-```jsx
-// Enable debug mode
-const { formState } = useEmployeeForm(employeeId);
-console.log('Form State:', formState);
+# Build for production
+npm run build
 ```
 
-## Contributing
+### Environment Setup
 
-### Code Style
-- Use TypeScript for type safety
-- Follow React best practices
-- Write comprehensive tests
-- Document all public APIs
+```bash
+# Backend API URL
+VITE_API_URL=http://localhost:4000/api
 
-### Pull Request Process
-1. Create feature branch
-2. Write tests for new functionality
-3. Update documentation
-4. Submit PR with clear description
+# Authentication
+VITE_AUTH_ENABLED=true
+```
+
+### Usage
+
+1. **Navigate to Recruitment**: `/recruitment`
+2. **Create Job Posting**: Click "Create Job Posting"
+3. **Add Candidates**: Click "Add Candidate" on job detail page
+4. **Manage Stages**: Use stage progression buttons
+5. **Schedule Interviews**: Use interview scheduling
+6. **Track Progress**: Monitor candidate progress
+
+## Support
+
+For technical support or feature requests, please contact the development team or create an issue in the project repository.
 
 ---
 
-*This documentation is maintained alongside the codebase. Please update it when making changes to the form components.*
+*This documentation is maintained alongside the codebase and updated with each release.*

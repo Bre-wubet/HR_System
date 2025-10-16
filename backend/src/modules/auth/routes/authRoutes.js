@@ -30,6 +30,23 @@ router.post('/assign-role', requirePermission('admin:manage_users'), authControl
 router.post('/remove-role', requirePermission('admin:manage_users'), authController.removeRoleFromUser.bind(authController));
 router.post('/create-default-roles', requirePermission('admin:manage_system'), authController.createDefaultRolesAndPermissions.bind(authController));
 
+// User management routes (require admin permissions)
+router.get('/users', requirePermission('admin:manage_users'), authController.getAllUsers.bind(authController));
+router.put('/users/:userId/status', requirePermission('admin:manage_users'), authController.updateUserStatus.bind(authController));
+router.delete('/users/:userId', requirePermission('admin:manage_users'), authController.deleteUser.bind(authController));
+
+// Role management routes (require admin permissions)
+router.get('/roles', requirePermission('admin:manage_users'), authController.getAllRoles.bind(authController));
+router.post('/roles', requirePermission('admin:manage_users'), authController.createRole.bind(authController));
+router.put('/roles/:roleId', requirePermission('admin:manage_users'), authController.updateRole.bind(authController));
+router.delete('/roles/:roleId', requirePermission('admin:manage_users'), authController.deleteRole.bind(authController));
+
+// Permission management routes (require admin permissions)
+router.get('/permissions', requirePermission('admin:manage_users'), authController.getAllPermissions.bind(authController));
+router.post('/permissions', requirePermission('admin:manage_users'), authController.createPermission.bind(authController));
+router.post('/roles/:roleId/permissions', requirePermission('admin:manage_users'), authController.assignPermissionToRole.bind(authController));
+router.delete('/roles/:roleId/permissions', requirePermission('admin:manage_users'), authController.removePermissionFromRole.bind(authController));
+
 // Maintenance routes (require system admin permissions)
 router.post('/clean-expired-tokens', requirePermission('admin:manage_system'), authController.cleanExpiredTokens.bind(authController));
 

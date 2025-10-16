@@ -19,6 +19,7 @@ router.put("/jobs/:id", requirePermission("recruitment:update"), controller.upda
 router.delete("/jobs/:id", requirePermission("recruitment:delete"), controller.archiveJobPostingById);
 
 // Candidates - require recruitment permissions
+router.get("/candidates", requirePermission("recruitment:read"), controller.listAllCandidates);
 router.get("/jobs/:id/candidates", requirePermission("recruitment:read"), controller.listCandidatesForJob);
 router.post("/jobs/:id/candidates", requirePermission("recruitment:create"), controller.createCandidateForJob);
 router.put("/candidates/:candidateId/stage", requirePermission("recruitment:update"), controller.updateCandidateStage);
@@ -33,6 +34,7 @@ router.post("/candidates/:candidateId/notify", requirePermission("recruitment:up
 router.post("/candidates/:candidateId/status", requirePermission("recruitment:update"), controller.updateCandidateStatusWithReason);
 
 // Interviews - require recruitment permissions
+router.get("/interviews", requirePermission("recruitment:read"), controller.listAllInterviews);
 router.post("/interviews", requirePermission("recruitment:create"), controller.scheduleInterview);
 router.put("/interviews/:id", requirePermission("recruitment:update"), controller.updateInterview);
 router.get("/candidates/:candidateId/interviews", requirePermission("recruitment:read"), controller.listInterviewsForCandidate);

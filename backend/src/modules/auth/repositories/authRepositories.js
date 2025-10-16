@@ -215,6 +215,239 @@ export class AuthRepository {
   }
 
   /**
+   * Get all users (admin only)
+   */
+  async getAllUsers({ take = 50, skip = 0, search, status, roleId } = {}) {
+    const where = {
+      AND: [
+        search ? {
+          OR: [
+            { firstName: { contains: search, mode: 'insensitive' } },
+            { lastName: { contains: search, mode: 'insensitive' } },
+            { email: { contains: search, mode: 'insensitive' } },
+          ],
+        } : {},
+        status ? { isActive: status === 'active' } : {},
+        roleId ? { roles: { some: { roleId } } } : {},
+      ],
+    };
+
+    return await prisma.user.findMany({
+      where,
+      take: Number(take),
+      skip: Number(skip),
+      orderBy: { createdAt: 'desc' },
+      include: {
+        roles: {
+          include: {
+            role: true,
+          },
+        },
+        employee: {
+          include: {
+            department: true,
+          },
+        },
+      },
+    });
+  }
+
+  /**
+   * Get user count (admin only)
+   */
+  async getUserCount({ search, status, roleId } = {}) {
+    const where = {
+      AND: [
+        search ? {
+          OR: [
+            { firstName: { contains: search, mode: 'insensitive' } },
+            { lastName: { contains: search, mode: 'insensitive' } },
+            { email: { contains: search, mode: 'insensitive' } },
+          ],
+        } : {},
+        status ? { isActive: status === 'active' } : {},
+        roleId ? { roles: { some: { roleId } } } : {},
+      ],
+    };
+
+    return await prisma.user.count({ where });
+  }
+
+  /**
+   * Update user status (admin only)
+   */
+  async updateUserStatus(userId, isActive) {
+    return await prisma.user.update({
+      where: { id: userId },
+      data: { isActive },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        isActive: true,
+        emailVerified: true,
+        employeeId: true,
+        lastLoginAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
+
+  /**
+   * Delete user (admin only)
+   */
+  async deleteUser(userId) {
+    // First remove all refresh tokens
+    await prisma.refreshToken.deleteMany({
+      where: { userId },
+    });
+
+    // Then remove all user roles
+    await prisma.userRole.deleteMany({
+      where: { userId },
+    });
+
+    // Finally delete the user
+    return await prisma.user.delete({
+      where: { id: userId },
+    });
+  }
+
+  /**
+   * Create role (admin only)
+   */
+  async createRole(roleData) {
+    return await prisma.role.create({
+      data: roleData,
+      include: {
+        permissions: {
+          include: {
+            permission: true,
+          },
+        },
+      },
+    });
+  }
+
+  /**
+   * Update role (admin only)
+   */
+  async updateRole(roleId, roleData) {
+    return await prisma.role.update({
+      where: { id: roleId },
+      data: roleData,
+      include: {
+        permissions: {
+          include: {
+            permission: true,
+          },
+        },
+      },
+    });
+  }
+
+  /**
+   * Delete role (admin only)
+   */
+  async deleteRole(roleId) {
+    // First remove all role permissions
+    await prisma.rolePermission.deleteMany({
+      where: { roleId },
+    });
+
+    // Then remove all user roles
+    await prisma.userRole.deleteMany({
+      where: { roleId },
+    });
+
+    // Finally delete the role
+    return await prisma.role.delete({
+      where: { id: roleId },
+    });
+  }
+
+  /**
+   * Create permission (admin only)
+   */
+  async createPermission(permissionData) {
+    return await prisma.permission.create({
+      data: permissionData,
+    });
+  }
+
+  /**
+   * Assign permission to role (admin only)
+   */
+  async assignPermissionToRole(roleId, permissionId) {
+    return await prisma.rolePermission.create({
+      data: {
+        roleId,
+        permissionId,
+      },
+      include: {
+        permission: true,
+      },
+    });
+  }
+
+  /**
+   * Remove permission from role (admin only)
+   */
+  async removePermissionFromRole(roleId, permissionId) {
+    return await prisma.rolePermission.deleteMany({
+      where: {
+        roleId,
+        permissionId,
+      },
+    });
+  }
+
+  /**
+   * Find role by name
+   */
+  async findRoleByName(name) {
+    return await prisma.role.findUnique({
+      where: { name },
+    });
+  }
+
+  /**
+   * Find role by ID
+   */
+  async findRoleById(id) {
+    return await prisma.role.findUnique({
+      where: { id },
+      include: {
+        permissions: {
+          include: {
+            permission: true,
+          },
+        },
+      },
+    });
+  }
+
+  /**
+   * Find permission by name
+   */
+  async findPermissionByName(name) {
+    return await prisma.permission.findUnique({
+      where: { name },
+    });
+  }
+
+  /**
+   * Find permission by ID
+   */
+  async findPermissionById(id) {
+    return await prisma.permission.findUnique({
+      where: { id },
+    });
+  }
+
+  /**
    * Assign role to user
    */
   async assignRoleToUser(userId, roleId) {

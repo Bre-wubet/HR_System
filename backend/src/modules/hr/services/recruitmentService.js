@@ -24,6 +24,10 @@ export function listCandidatesForJob(jobId) {
   return repo.findCandidatesForJob(jobId);
 }
 
+export function listAllCandidates(query) {
+  return repo.findAllCandidates(query);
+}
+
 export function createCandidateForJob(jobId, data) {
   return repo.createCandidateForJob(jobId, data);
 }
@@ -61,6 +65,10 @@ export function updateInterview(id, payload) {
 
 export function listInterviewsForCandidate(candidateId) {
   return repo.listInterviewsForCandidate(candidateId);
+}
+
+export function listAllInterviews(query) {
+  return repo.findAllInterviews(query);
 }
 
 // KPIs

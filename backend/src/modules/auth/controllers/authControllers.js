@@ -309,4 +309,172 @@ export class AuthController {
       next(error);
     }
   }
+
+  /**
+   * Get all users (Admin only)
+   */
+  async getAllUsers(req, res, next) {
+    try {
+      const result = await authService.getAllUsers(req.query);
+      res.json(response.success(result, 'Users retrieved successfully'));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Update user status (Admin only)
+   */
+  async updateUserStatus(req, res, next) {
+    try {
+      const { userId } = req.params;
+      const { isActive } = req.body;
+
+      if (typeof isActive !== 'boolean') {
+        return res.status(400).json(response.error('isActive must be a boolean', 400));
+      }
+
+      const user = await authService.updateUserStatus(userId, isActive);
+      res.json(response.success(user, 'User status updated successfully'));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Delete user (Admin only)
+   */
+  async deleteUser(req, res, next) {
+    try {
+      const { userId } = req.params;
+      await authService.deleteUser(userId);
+      res.json(response.success(null, 'User deleted successfully'));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Get all roles (Admin only)
+   */
+  async getAllRoles(req, res, next) {
+    try {
+      const roles = await authService.getAllRoles();
+      res.json(response.success(roles, 'Roles retrieved successfully'));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Create role (Admin only)
+   */
+  async createRole(req, res, next) {
+    try {
+      const { name, description } = req.body;
+
+      if (!name || !description) {
+        return res.status(400).json(response.error('Name and description are required', 400));
+      }
+
+      const role = await authService.createRole({ name, description });
+      res.status(201).json(response.success(role, 'Role created successfully'));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Update role (Admin only)
+   */
+  async updateRole(req, res, next) {
+    try {
+      const { roleId } = req.params;
+      const updateData = req.body;
+
+      const role = await authService.updateRole(roleId, updateData);
+      res.json(response.success(role, 'Role updated successfully'));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Delete role (Admin only)
+   */
+  async deleteRole(req, res, next) {
+    try {
+      const { roleId } = req.params;
+      await authService.deleteRole(roleId);
+      res.json(response.success(null, 'Role deleted successfully'));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Get all permissions (Admin only)
+   */
+  async getAllPermissions(req, res, next) {
+    try {
+      const permissions = await authService.getAllPermissions();
+      res.json(response.success(permissions, 'Permissions retrieved successfully'));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Create permission (Admin only)
+   */
+  async createPermission(req, res, next) {
+    try {
+      const { name, description, resource, action } = req.body;
+
+      if (!name || !description || !resource || !action) {
+        return res.status(400).json(response.error('Name, description, resource, and action are required', 400));
+      }
+
+      const permission = await authService.createPermission({ name, description, resource, action });
+      res.status(201).json(response.success(permission, 'Permission created successfully'));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Assign permission to role (Admin only)
+   */
+  async assignPermissionToRole(req, res, next) {
+    try {
+      const { roleId, permissionId } = req.body;
+
+      if (!roleId || !permissionId) {
+        return res.status(400).json(response.error('Role ID and Permission ID are required', 400));
+      }
+
+      const result = await authService.assignPermissionToRole(roleId, permissionId);
+      res.json(response.success(result, 'Permission assigned to role successfully'));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Remove permission from role (Admin only)
+   */
+  async removePermissionFromRole(req, res, next) {
+    try {
+      const { roleId, permissionId } = req.body;
+
+      if (!roleId || !permissionId) {
+        return res.status(400).json(response.error('Role ID and Permission ID are required', 400));
+      }
+
+      await authService.removePermissionFromRole(roleId, permissionId);
+      res.json(response.success(null, 'Permission removed from role successfully'));
+    } catch (error) {
+      next(error);
+    }
+  }
 }

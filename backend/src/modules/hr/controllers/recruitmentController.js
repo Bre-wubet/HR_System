@@ -60,6 +60,15 @@ export async function listCandidatesForJob(req, res, next) {
   }
 }
 
+export async function listAllCandidates(req, res, next) {
+  try {
+    const candidates = await service.listAllCandidates(req.query);
+    res.json(response.success(candidates));
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function createCandidateForJob(req, res, next) {
   try {
     await validate(v.createCandidateSchema, { params: req.params, body: req.body });
@@ -146,6 +155,15 @@ export async function updateInterview(req, res, next) {
 export async function listInterviewsForCandidate(req, res, next) {
   try {
     const interviews = await service.listInterviewsForCandidate(req.params.candidateId);
+    res.json(response.success(interviews));
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function listAllInterviews(req, res, next) {
+  try {
+    const interviews = await service.listAllInterviews(req.query);
     res.json(response.success(interviews));
   } catch (err) {
     next(err);

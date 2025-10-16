@@ -1,4 +1,5 @@
 import { prisma } from "../../../config/db.js";
+import { dateRange } from "../../../utils/dateUtils.js";
 
 export async function findMany({ q, departmentId, status, take, skip }) {
   const where = {
@@ -602,7 +603,7 @@ export async function approveCareerProgression(progressionId, { approvedBy, stat
 export function getCareerProgressionAnalytics({ from, to, departmentId } = {}) {
   const where = {
     status: 'APPROVED',
-    ...(from && to && { effectiveDate: { gte: from, lte: to } }),
+    ...(from || to ? { effectiveDate: dateRange(from, to) } : {}),
     ...(departmentId && { 
       employee: { departmentId }
     })

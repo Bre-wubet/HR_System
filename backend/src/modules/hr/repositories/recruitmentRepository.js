@@ -39,6 +39,32 @@ export function findCandidatesForJob(jobId) {
   return prisma.candidate.findMany({ where: { jobPostingId: jobId }, orderBy: { createdAt: "desc" } });
 }
 
+export function findAllCandidates({ take = 50, skip = 0, status, stage, from, to } = {}) {
+  const where = {
+    AND: [
+      status ? { status } : {},
+      stage ? { stage } : {},
+      from || to ? { createdAt: { gte: from ? new Date(from) : undefined, lte: to ? new Date(to) : undefined } } : {}
+    ]
+  };
+
+  return prisma.candidate.findMany({
+    where,
+    take: Number(take),
+    skip: Number(skip),
+    orderBy: { createdAt: "desc" },
+    include: {
+      jobPosting: {
+        select: {
+          id: true,
+          title: true,
+          department: true
+        }
+      }
+    }
+  });
+}
+
 export function createCandidateForJob(jobId, data) {
   return prisma.candidate.create({ data: { ...data, jobPostingId: jobId } });
 }
@@ -81,6 +107,39 @@ export function updateInterview(id, { date, feedback, rating }) {
 
 export function listInterviewsForCandidate(candidateId) {
   return prisma.interview.findMany({ where: { candidateId }, orderBy: { date: "desc" } });
+}
+
+export function findAllInterviews({ take = 50, skip = 0, status, from, to } = {}) {
+  const where = {
+    AND: [
+      status ? { status } : {},
+      from || to ? { date: { gte: from ? new Date(from) : undefined, lte: to ? new Date(to) : undefined } } : {}
+    ]
+  };
+
+  return prisma.interview.findMany({
+    where,
+    take: Number(take),
+    skip: Number(skip),
+    orderBy: { date: "desc" },
+    include: {
+      candidate: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          jobPosting: {
+            select: {
+              id: true,
+              title: true,
+              department: true
+            }
+          }
+        }
+      }
+    }
+  });
 }
 
 // KPIs

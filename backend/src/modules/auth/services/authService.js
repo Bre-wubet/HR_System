@@ -413,4 +413,129 @@ export class AuthService {
 
     return { message: 'Default roles and permissions created successfully' };
   }
+
+  /**
+   * Get all users (admin only)
+   */
+  async getAllUsers(query) {
+    const { take, skip, search, status, roleId } = query || {};
+    const users = await authRepository.getAllUsers({ take, skip, search, status, roleId });
+    const total = await authRepository.getUserCount({ search, status, roleId });
+    
+    return {
+      users: users.map(user => this.sanitizeUser(user)),
+      total,
+      hasMore: (skip || 0) + users.length < total,
+    };
+  }
+
+  /**
+   * Update user status (admin only)
+   */
+  async updateUserStatus(userId, isActive) {
+    const user = await authRepository.findUserById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return await authRepository.updateUserStatus(userId, isActive);
+  }
+
+  /**
+   * Delete user (admin only)
+   */
+  async deleteUser(userId) {
+    const user = await authRepository.findUserById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return await authRepository.deleteUser(userId);
+  }
+
+  /**
+   * Create role (admin only)
+   */
+  async createRole(roleData) {
+    const existingRole = await authRepository.findRoleByName(roleData.name);
+    if (existingRole) {
+      throw new Error('Role with this name already exists');
+    }
+
+    return await authRepository.createRole(roleData);
+  }
+
+  /**
+   * Update role (admin only)
+   */
+  async updateRole(roleId, roleData) {
+    const role = await authRepository.findRoleById(roleId);
+    if (!role) {
+      throw new Error('Role not found');
+    }
+
+    return await authRepository.updateRole(roleId, roleData);
+  }
+
+  /**
+   * Delete role (admin only)
+   */
+  async deleteRole(roleId) {
+    const role = await authRepository.findRoleById(roleId);
+    if (!role) {
+      throw new Error('Role not found');
+    }
+
+    return await authRepository.deleteRole(roleId);
+  }
+
+  /**
+   * Create permission (admin only)
+   */
+  async createPermission(permissionData) {
+    const existingPermission = await authRepository.findPermissionByName(permissionData.name);
+    if (existingPermission) {
+      throw new Error('Permission with this name already exists');
+    }
+
+    return await authRepository.createPermission(permissionData);
+  }
+
+  /**
+   * Assign permission to role (admin only)
+   */
+  async assignPermissionToRole(roleId, permissionId) {
+    const role = await authRepository.findRoleById(roleId);
+    if (!role) {
+      throw new Error('Role not found');
+    }
+
+    const permission = await authRepository.findPermissionById(permissionId);
+    if (!permission) {
+      throw new Error('Permission not found');
+    }
+
+    return await authRepository.assignPermissionToRole(roleId, permissionId);
+  }
+
+  /**
+   * Remove permission from role (admin only)
+   */
+  async removePermissionFromRole(roleId, permissionId) {
+    return await authRepository.removePermissionFromRole(roleId, permissionId);
+  }
+
+  /**
+   * Get all roles (admin only)
+   */
+  async getAllRoles() {
+    return await authRepository.getAllRoles();
+  }
+
+  /**
+   * Get all permissions (admin only)
+   */
+  async getAllPermissions() {
+    return await authRepository.getAllPermissions();
+  }
 }

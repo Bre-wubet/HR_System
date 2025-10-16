@@ -71,6 +71,14 @@ export const recruitmentApi = {
     return apiClient.put(`/hr/recruitment/interviews/${interviewId}`, data);
   },
 
+  deleteInterview: (interviewId) => {
+    return apiClient.delete(`/hr/recruitment/interviews/${interviewId}`);
+  },
+
+  listAllInterviews: () => {
+    return apiClient.get('/hr/recruitment/interviews');
+  },
+
   listInterviewsForCandidate: (candidateId) => {
     return apiClient.get(`/hr/recruitment/candidates/${candidateId}/interviews`);
   },

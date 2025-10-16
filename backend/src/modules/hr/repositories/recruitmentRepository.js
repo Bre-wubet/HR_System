@@ -155,8 +155,34 @@ export function updateInterview(id, { date, feedback, rating }) {
   return prisma.interview.update({ where: { id }, data: { date: date ? new Date(date) : undefined, feedback, rating } });
 }
 
+export function deleteInterview(id) {
+  return prisma.interview.delete({ where: { id } });
+}
+
 export function listInterviewsForCandidate(candidateId) {
-  return prisma.interview.findMany({ where: { candidateId }, orderBy: { date: "desc" } });
+  return prisma.interview.findMany({ 
+    where: { candidateId }, 
+    orderBy: { date: "desc" },
+    include: {
+      interviewer: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          jobTitle: true
+        }
+      },
+      candidate: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true
+        }
+      }
+    }
+  });
 }
 
 export function findAllInterviews({ take = 50, skip = 0, status, from, to } = {}) {
@@ -186,6 +212,15 @@ export function findAllInterviews({ take = 50, skip = 0, status, from, to } = {}
               department: true
             }
           }
+        }
+      },
+      interviewer: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          jobTitle: true
         }
       }
     }

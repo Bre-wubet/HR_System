@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import useEmployeeStore from '../../../stores/useEmployeeStore';
+import { queryKeys } from '../../../lib/react-query';
 import toast from 'react-hot-toast';
 
 /**
@@ -32,7 +33,7 @@ export const useEmployeeDetail = (employeeId) => {
     error: employeeError,
     refetch: refetchEmployee,
   } = useQuery({
-    queryKey: ['employee', employeeId],
+    queryKey: queryKeys.employees.detail(employeeId),
     queryFn: async () => {
       const result = await getEmployeeById(employeeId);
       return result.success ? result.data : null;
@@ -47,7 +48,7 @@ export const useEmployeeDetail = (employeeId) => {
     isLoading: isLoadingSkills,
     refetch: refetchSkills,
   } = useQuery({
-    queryKey: ['employee-skills', employeeId],
+    queryKey: queryKeys.employees.skills(employeeId),
     queryFn: async () => {
       const result = await fetchEmployeeSkills(employeeId);
       return result.success ? result.data : [];
@@ -60,7 +61,7 @@ export const useEmployeeDetail = (employeeId) => {
     data: availableSkills = [],
     isLoading: isLoadingAvailableSkills,
   } = useQuery({
-    queryKey: ['available-skills'],
+    queryKey: queryKeys.skills.all,
     queryFn: async () => {
       const result = await getAllSkills();
       return result.success ? result.data : [];
@@ -74,7 +75,7 @@ export const useEmployeeDetail = (employeeId) => {
     isLoading: isLoadingCertifications,
     refetch: refetchCertifications,
   } = useQuery({
-    queryKey: ['employee-certifications', employeeId],
+    queryKey: queryKeys.employees.certifications(employeeId),
     queryFn: async () => {
       const result = await fetchEmployeeCertifications(employeeId);
       return result.success ? result.data : [];
@@ -88,7 +89,7 @@ export const useEmployeeDetail = (employeeId) => {
     isLoading: isLoadingEvaluations,
     refetch: refetchEvaluations,
   } = useQuery({
-    queryKey: ['employee-evaluations', employeeId],
+    queryKey: queryKeys.employees.evaluations(employeeId),
     queryFn: async () => {
       const result = await fetchEmployeeEvaluations(employeeId);
       return result.success ? result.data : [];
@@ -102,7 +103,7 @@ export const useEmployeeDetail = (employeeId) => {
     isLoading: isLoadingCareerHistory,
     refetch: refetchCareerHistory,
   } = useQuery({
-    queryKey: ['employee-career-history', employeeId],
+    queryKey: queryKeys.employees.careerHistory(employeeId),
     queryFn: async () => {
       const result = await fetchCareerProgressionHistory(employeeId);
       return result.success ? result.data : [];
@@ -116,7 +117,7 @@ export const useEmployeeDetail = (employeeId) => {
     isLoading: isLoadingDocuments,
     refetch: refetchDocuments,
   } = useQuery({
-    queryKey: ['employee-documents', employeeId],
+    queryKey: queryKeys.employees.documents(employeeId),
     queryFn: async () => {
       const result = await fetchEmployeeDocuments(employeeId);
       return result.success ? result.data : [];

@@ -75,6 +75,10 @@ export function listAllInterviews(query) {
   return repo.findAllInterviews(query);
 }
 
+export function deleteInterview(id) {
+  return repo.deleteInterview(id);
+}
+
 // KPIs
 export function getRecruitmentKpis(query) {
   return repo.getRecruitmentKpis(query);

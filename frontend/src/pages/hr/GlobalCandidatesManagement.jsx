@@ -22,6 +22,7 @@ import { Modal } from '../../components/ui/Modal';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/axiosClient';
 import employeeApi from '../../api/employeeApi';
+import { queryKeys } from '../../lib/react-query';
 import { cn } from '../../lib/utils';
 import CandidateCard from './components/recuirementComponents/CandidateCard';
 import CandidateForm from './components/recuirementComponents/CandidateForm';
@@ -48,7 +49,7 @@ const GlobalCandidatesManagement = () => {
 
   // Fetch all candidates across all jobs by getting all job postings and their candidates
   const { data: candidates = [], isLoading: isLoadingCandidates, error: candidatesError } = useQuery({
-    queryKey: ['candidates', 'global'],
+    queryKey: queryKeys.recruitment.candidates.all,
     queryFn: async () => {
       // First get all job postings
       const jobsResponse = await apiClient.get('/hr/recruitment/jobs');
@@ -76,7 +77,7 @@ const GlobalCandidatesManagement = () => {
 
   // Fetch all job postings for filtering
   const { data: jobPostings = [] } = useQuery({
-    queryKey: ['jobPostings'],
+    queryKey: queryKeys.recruitment.jobPostings.all,
     queryFn: async () => {
       const response = await apiClient.get('/hr/recruitment/jobs');
       return response.data.data;
@@ -85,7 +86,7 @@ const GlobalCandidatesManagement = () => {
 
   // Fetch available interviewers
   const { data: interviewers = [] } = useQuery({
-    queryKey: ['interviewers'],
+    queryKey: queryKeys.employees.managers,
     queryFn: async () => {
       const response = await employeeApi.listManagers();
       return response.data.data || [];
@@ -100,7 +101,7 @@ const GlobalCandidatesManagement = () => {
       return response.data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['candidates'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.recruitment.candidates.all });
       setShowCandidateForm(false);
     },
   });
@@ -111,7 +112,7 @@ const GlobalCandidatesManagement = () => {
       return response.data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['candidates'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.recruitment.candidates.all });
     },
   });
 
@@ -121,7 +122,7 @@ const GlobalCandidatesManagement = () => {
       return response.data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['candidates'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.recruitment.candidates.all });
       setShowScoreModal(false);
       setSelectedCandidate(null);
     },
@@ -133,7 +134,7 @@ const GlobalCandidatesManagement = () => {
       return response.data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['candidates'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.recruitment.candidates.all });
       setShowHireModal(false);
       setSelectedCandidate(null);
     },
@@ -145,7 +146,7 @@ const GlobalCandidatesManagement = () => {
       return response.data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['candidates'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.recruitment.candidates.all });
       setShowInterviewModal(false);
       setSelectedCandidate(null);
     },

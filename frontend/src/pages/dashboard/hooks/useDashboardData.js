@@ -1,6 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '../../../api/axiosClient';
+import { queryKeys } from '../../../lib/react-query';
 import useAuthStore from '../../../stores/useAuthStore';
 
 /**
@@ -12,7 +13,7 @@ export const useDashboardData = () => {
 
   // Main dashboard data query
   const dashboardQuery = useQuery({
-    queryKey: ['dashboard', 'overview'],
+    queryKey: queryKeys.dashboard.overview,
     enabled: isAuthenticated && !!user,
     queryFn: async () => {
       try {
@@ -46,7 +47,7 @@ export const useDashboardData = () => {
 
   // Recent activities query
   const activitiesQuery = useQuery({
-    queryKey: ['dashboard', 'recent-activities'],
+    queryKey: queryKeys.dashboard.recentActivities,
     enabled: isAuthenticated && !!user,
     queryFn: async () => {
       try {

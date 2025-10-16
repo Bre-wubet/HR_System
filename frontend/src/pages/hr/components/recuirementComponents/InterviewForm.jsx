@@ -44,6 +44,9 @@ const InterviewForm = ({
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  const candidatesToUse = candidates;
+  const interviewersToUse = interviewers;
+  
   const isEdit = !!interview;
   
   useEffect(() => {
@@ -230,7 +233,7 @@ const InterviewForm = ({
                 disabled={isSubmitting}
               >
                 <option value="">Select a candidate</option>
-                {candidates.map(candidate => (
+                {candidatesToUse.map(candidate => (
                   <option key={candidate.id} value={candidate.id}>
                     {candidate.firstName} {candidate.lastName} - {candidate.jobPosting?.title}
                   </option>
@@ -255,7 +258,7 @@ const InterviewForm = ({
                 disabled={isSubmitting}
               >
                 <option value="">Select an interviewer</option>
-                {interviewers.map(interviewer => (
+                {interviewersToUse.map(interviewer => (
                   <option key={interviewer.id} value={interviewer.id}>
                     {interviewer.firstName} {interviewer.lastName} - {interviewer.jobTitle}
                   </option>
@@ -326,7 +329,6 @@ const InterviewForm = ({
           </div>
         </div>
         
-        {/* Form Actions */}
         <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
           <Button 
             variant="outline" 

@@ -38,6 +38,7 @@ router.post("/candidates/:candidateId/status", requirePermission("recruitment:up
 router.get("/interviews", requirePermission("recruitment:read"), controller.listAllInterviews);
 router.post("/interviews", requirePermission("recruitment:create"), controller.scheduleInterview);
 router.put("/interviews/:id", requirePermission("recruitment:update"), controller.updateInterview);
+router.delete("/interviews/:id", requirePermission("recruitment:delete"), controller.deleteInterview);
 router.get("/candidates/:candidateId/interviews", requirePermission("recruitment:read"), controller.listInterviewsForCandidate);
 
 // KPIs - require recruitment read permission

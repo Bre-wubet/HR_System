@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { queryKeys } from '../../lib/react-query';
 import {
   Search,
   Filter,
@@ -150,7 +151,7 @@ const EmployeeList = () => {
 
   // Fetch employees
   const { data: employeesData, isLoading } = useQuery({
-    queryKey: ['employees', 'list', { search: searchTerm, status: statusFilter, department: departmentFilter }],
+    queryKey: queryKeys.employees.list({ search: searchTerm, status: statusFilter, department: departmentFilter }),
     enabled: isAuthenticated && !!user,
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -165,7 +166,7 @@ const EmployeeList = () => {
 
   // Fetch departments for filter
   const { data: departments } = useQuery({
-    queryKey: ['departments', 'list'],
+    queryKey: queryKeys.departments.list,
     enabled: isAuthenticated && !!user,
     queryFn: async () => {
       const response = await apiClient.get('/hr/employees/departments');
@@ -179,7 +180,7 @@ const EmployeeList = () => {
       await apiClient.delete(`/hr/employees/${employeeId}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.employees.list() });
       toast.success('Employee deleted successfully');
       setShowDeleteModal(false);
       setSelectedEmployee(null);

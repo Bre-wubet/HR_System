@@ -71,6 +71,7 @@ export const queryKeys = {
       detail: (id) => ['recruitment', 'job-postings', 'detail', id],
     },
     candidates: {
+      all: ['recruitment', 'candidates', 'all'],
       list: (jobId) => ['recruitment', 'candidates', 'list', jobId],
       detail: (id) => ['recruitment', 'candidates', 'detail', id],
       interviews: (candidateId) => ['recruitment', 'candidates', candidateId, 'interviews'],

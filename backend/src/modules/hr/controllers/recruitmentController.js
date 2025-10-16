@@ -179,6 +179,15 @@ export async function listAllInterviews(req, res, next) {
   }
 }
 
+export async function deleteInterview(req, res, next) {
+  try {
+    await service.deleteInterview(req.params.id);
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+}
+
 // KPIs
 export async function getRecruitmentKpis(req, res, next) {
   try {

@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 
 import apiClient from '../../../api/axiosClient';
 import employeeApi from '../../../api/employeeApi';
+import { recruitmentApi } from '../../../api/recruitmentApi';
 import { queryKeys } from '../../../lib/react-query';
 
 /**
@@ -10,45 +11,10 @@ import { queryKeys } from '../../../lib/react-query';
  */
 export const useAllInterviews = () => {
   return useQuery({
-    queryKey: queryKeys.recruitment.interviews.all,
+    queryKey: queryKeys.recruitment.interviews.list,
     queryFn: async () => {
-      // First get all job postings
-      const jobsResponse = await apiClient.get('/hr/recruitment/jobs');
-      const jobs = jobsResponse.data.data;
-      
-      // Then get candidates for each job
-      const allCandidates = [];
-      for (const job of jobs) {
-        try {
-          const candidatesResponse = await apiClient.get(`/hr/recruitment/jobs/${job.id}/candidates`);
-          const jobCandidates = candidatesResponse.data.data.map(candidate => ({
-            ...candidate,
-            jobPosting: job,
-            jobPostingId: job.id
-          }));
-          allCandidates.push(...jobCandidates);
-        } catch (error) {
-          console.warn(`Failed to fetch candidates for job ${job.id}:`, error);
-        }
-      }
-      
-      // Then get interviews for each candidate
-      const allInterviews = [];
-      for (const candidate of allCandidates) {
-        try {
-          const interviewsResponse = await apiClient.get(`/hr/recruitment/candidates/${candidate.id}/interviews`);
-          const candidateInterviews = interviewsResponse.data.data.map(interview => ({
-            ...interview,
-            candidate: candidate,
-            candidateId: candidate.id
-          }));
-          allInterviews.push(...candidateInterviews);
-        } catch (error) {
-          console.warn(`Failed to fetch interviews for candidate ${candidate.id}:`, error);
-        }
-      }
-      
-      return allInterviews;
+      const response = await recruitmentApi.listAllInterviews();
+      return response.data.data || [];
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
@@ -109,11 +75,11 @@ export const useScheduleInterview = () => {
   
   return useMutation({
     mutationFn: async (interviewData) => {
-      const response = await apiClient.post('/hr/recruitment/interviews', interviewData);
+      const response = await recruitmentApi.scheduleInterview(interviewData);
       return response.data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.recruitment.interviews.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.recruitment.interviews.list });
       toast.success('Interview scheduled successfully');
     },
     onError: (error) => {
@@ -130,11 +96,11 @@ export const useUpdateInterview = () => {
   
   return useMutation({
     mutationFn: async ({ id, data }) => {
-      const response = await apiClient.put(`/hr/recruitment/interviews/${id}`, data);
+      const response = await recruitmentApi.updateInterview(id, data);
       return response.data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.recruitment.interviews.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.recruitment.interviews.list });
       toast.success('Interview updated successfully');
     },
     onError: (error) => {
@@ -151,11 +117,11 @@ export const useDeleteInterview = () => {
   
   return useMutation({
     mutationFn: async (id) => {
-      const response = await apiClient.delete(`/hr/recruitment/interviews/${id}`);
+      const response = await recruitmentApi.deleteInterview(id);
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.recruitment.interviews.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.recruitment.interviews.list });
       toast.success('Interview deleted successfully');
     },
     onError: (error) => {

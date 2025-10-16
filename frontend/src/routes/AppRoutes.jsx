@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import useAuthStore from '../stores/useAuthStore';
 import apiClient from '../api/axiosClient';
+import { queryKeys } from '../lib/react-query';
 
 // Layout Components
 import AuthLayout from '../components/layout/AuthLayout';
@@ -99,7 +100,7 @@ function AppRoutes() {
 
   // Fetch user profile if authenticated but user data is missing
   const { isLoading: isLoadingProfile } = useQuery({
-    queryKey: ['auth', 'profile'],
+    queryKey: queryKeys.auth.profile,
     queryFn: async () => {
       const response = await apiClient.get('/auth/profile');
       return response.data.data;

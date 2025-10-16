@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 
 import { Button } from '../../components/ui/Button';
 import { useJobPostings, useCreateJobPosting, useArchiveJobPosting } from './hooks/useRecruitment';
@@ -12,6 +13,8 @@ import {
   EmptyState,
   JobPostingForm
 } from './components/recuirementComponents';
+import employeeApi from '../../api/employeeApi';
+import { queryKeys } from '../../lib/react-query';
 
 /**
  * Main Recruitment List Component
@@ -30,6 +33,14 @@ const RecruitmentList = () => {
   const { data: jobPostings = [], isLoading, error, refetch } = useJobPostings({
     search: searchTerm,
     status: statusFilter === 'all' ? undefined : statusFilter === 'active',
+  });
+  const { data: departments = [] } = useQuery({
+    queryKey: queryKeys.departments.list,
+    queryFn: async () => {
+      const res = await employeeApi.listDepartments();
+      return res.data.data || [];
+    },
+    staleTime: 5 * 60 * 1000,
   });
   
   // Mutations
@@ -169,7 +180,7 @@ const RecruitmentList = () => {
         onClose={handleCloseJobForm}
         onSubmit={handleCreateJob}
         jobPosting={editingJob}
-        departments={[]} // TODO: Fetch departments from API
+        departments={departments}
         isLoading={createJobMutation.isPending}
       />
     </motion.div>

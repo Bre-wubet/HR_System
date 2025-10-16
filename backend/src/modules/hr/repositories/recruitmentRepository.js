@@ -23,12 +23,51 @@ export function createJobPosting(data) {
   return prisma.jobPosting.create({ data });
 }
 
+export function createJobPostingWithSkills({ title, description, departmentId, isActive = true, skills = [] }) {
+  return prisma.jobPosting.create({
+    data: {
+      title,
+      description,
+      departmentId,
+      isActive,
+      skills: skills && skills.length > 0 ? {
+        create: skills.map((s) => ({ skillId: s.skillId, required: Boolean(s.required), minLevel: Number(s.minLevel) || 1 }))
+      } : undefined,
+    },
+    include: {
+      department: true,
+      skills: { include: { skill: true } },
+    }
+  });
+}
+
 export function findJobPostingById(id) {
   return prisma.jobPosting.findUnique({ where: { id } });
 }
 
 export function updateJobPostingById(id, data) {
   return prisma.jobPosting.update({ where: { id }, data });
+}
+
+export async function updateJobPostingByIdWithSkills(id, { title, description, departmentId, isActive, skills }) {
+  return prisma.$transaction(async (tx) => {
+    const updated = await tx.jobPosting.update({
+      where: { id },
+      data: { title, description, departmentId, isActive },
+    });
+    if (Array.isArray(skills)) {
+      await tx.jobPostingSkill.deleteMany({ where: { jobPostingId: id } });
+      if (skills.length > 0) {
+        await tx.jobPostingSkill.createMany({
+          data: skills.map((s) => ({ jobPostingId: id, skillId: s.skillId, required: Boolean(s.required), minLevel: Number(s.minLevel) || 1 })),
+        });
+      }
+    }
+    return tx.jobPosting.findUnique({
+      where: { id },
+      include: { department: true, skills: { include: { skill: true } }, candidates: true },
+    });
+  });
 }
 
 export function archiveJobPostingById(id) {

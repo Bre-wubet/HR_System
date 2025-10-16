@@ -25,6 +25,7 @@ import {
   isCertificationExpired,
   isCertificationExpiringSoon 
 } from '../../api/employeeApi';
+import employeeApi from '../../api/employeeApi';
 
 // Skills Management Component
 export const SkillsManager = ({ 
@@ -292,6 +293,20 @@ export const CertificationsManager = ({
     credentialId: '',
     documentUrl: '',
   });
+  const [uploading, setUploading] = useState(false);
+
+  const handleCertFileSelected = async (file) => {
+    if (!file) return;
+    try {
+      setUploading(true);
+      const { data } = await employeeApi.uploadEmployeeCertificationFile(employeeId, file);
+      setCertificationData((prev) => ({ ...prev, documentUrl: data?.data?.fileUrl || '' }));
+    } catch (e) {
+      console.error('Certification upload failed', e);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleAddCertification = async () => {
     if (!certificationData.name || !certificationData.issuedAt) return;
@@ -496,6 +511,21 @@ export const CertificationsManager = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               placeholder="https://..."
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Or upload certificate file
+            </label>
+            <input
+              type="file"
+              onChange={(e) => handleCertFileSelected(e.target.files?.[0])}
+              className="w-full"
+              disabled={uploading}
+            />
+            {uploading && (
+              <p className="text-xs text-gray-500 mt-1">Uploading...</p>
+            )}
           </div>
 
           <div className="flex justify-end space-x-3">

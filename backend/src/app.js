@@ -3,6 +3,8 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import path from "path";
+import fs from "fs";
 
 import { env } from "./config/env.js";
 import { logger } from "./config/logger.js";
@@ -23,6 +25,13 @@ app.use(helmet());
 app.use(cookieParser());
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: false }));
+
+// Ensure uploads directory exists, then serve it statically
+const uploadsDir = path.resolve(process.cwd(), "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+app.use("/uploads", express.static(uploadsDir));
 
 if (env.nodeEnv !== "production") {
   app.use(morgan("dev"));

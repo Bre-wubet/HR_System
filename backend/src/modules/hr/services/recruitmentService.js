@@ -5,7 +5,7 @@ export function listJobPostings(query) {
 }
 
 export function createJobPosting(data) {
-  return repo.createJobPosting(data);
+  return repo.createJobPostingWithSkills(data);
 }
 
 export function getJobPostingById(id) {
@@ -13,7 +13,7 @@ export function getJobPostingById(id) {
 }
 
 export function updateJobPostingById(id, data) {
-  return repo.updateJobPostingById(id, data);
+  return repo.updateJobPostingByIdWithSkills(id, data);
 }
 
 export function archiveJobPostingById(id) {
@@ -99,7 +99,7 @@ export async function createJobPostingWithGuards(data) {
     error.code = 'DEPARTMENT_NOT_FOUND';
     throw error;
   }
-  return repo.createJobPosting(data);
+  return repo.createJobPostingWithSkills(data);
 }
 
 export async function createCandidateForJobWithGuards(jobId, data) {

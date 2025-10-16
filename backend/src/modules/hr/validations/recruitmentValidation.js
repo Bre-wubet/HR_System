@@ -6,6 +6,11 @@ export const createJobSchema = Joi.object({
     description: Joi.string().min(10).required(),
     departmentId: Joi.string().uuid().required(),
     isActive: Joi.boolean().optional(),
+    skills: Joi.array().items(Joi.object({
+      skillId: Joi.string().uuid().required(),
+      required: Joi.boolean().default(true),
+      minLevel: Joi.number().integer().min(1).max(5).default(1),
+    })).optional(),
   }).required(),
 });
 
@@ -27,6 +32,11 @@ export const updateJobSchema = Joi.object({
     description: Joi.string().min(10).optional(),
     departmentId: Joi.string().uuid().optional(),
     isActive: Joi.boolean().optional(),
+    skills: Joi.array().items(Joi.object({
+      skillId: Joi.string().uuid().required(),
+      required: Joi.boolean().default(true),
+      minLevel: Joi.number().integer().min(1).max(5).default(1),
+    })).optional(),
   }).min(1).required(),
 });
 

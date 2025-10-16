@@ -87,6 +87,13 @@ export const employeeApi = {
   removeEmployeeCertification: (employeeId, certId) => {
     return apiClient.delete(`/hr/employees/${employeeId}/certifications/${certId}`);
   },
+  uploadEmployeeCertificationFile: (employeeId, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post(`/hr/employees/${employeeId}/certifications/upload`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 
   // Documents Operations
   getEmployeeDocuments: (employeeId) => {
@@ -99,6 +106,15 @@ export const employeeApi = {
 
   removeEmployeeDocument: (employeeId, docId) => {
     return apiClient.delete(`/hr/employees/${employeeId}/documents/${docId}`);
+  },
+  
+  // Document file upload
+  uploadEmployeeDocumentFile: (employeeId, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post(`/hr/employees/${employeeId}/documents/upload`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
   },
 
   // Evaluations Operations

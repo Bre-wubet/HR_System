@@ -21,7 +21,13 @@ export async function findMany({ q, departmentId, status, take, skip }) {
 }
 
 export function findById(id) {
-  return prisma.employee.findUnique({ where: { id } });
+  return prisma.employee.findUnique({ 
+    where: { id },
+    include: {
+      department: { select: { id: true, name: true } },
+      manager: { select: { id: true, firstName: true, lastName: true } }
+    }
+  });
 }
 
 export function findDepartmentById(id) {

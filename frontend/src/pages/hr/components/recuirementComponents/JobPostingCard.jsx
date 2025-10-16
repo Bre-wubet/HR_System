@@ -63,9 +63,22 @@ const JobPostingCard = ({
           </div>
           
           {/* Job Description */}
-          <p className="text-gray-700 text-sm line-clamp-2 mb-4">
+          <p className="text-gray-700 text-sm line-clamp-2 mb-2">
             {jobPosting.description}
           </p>
+          {/* Required Skills */}
+          {Array.isArray(jobPosting.skills) && jobPosting.skills.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-2">
+              {jobPosting.skills.slice(0, 6).map((js) => (
+                <span key={js.id} className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">
+                  {js.skill?.name || 'Skill'} • L{js.minLevel}{js.required ? '' : ' (nice-to-have)'}
+                </span>
+              ))}
+              {jobPosting.skills.length > 6 && (
+                <span className="text-xs text-gray-500">+{jobPosting.skills.length - 6} more</span>
+              )}
+            </div>
+          )}
         </div>
       </div>
       

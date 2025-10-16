@@ -5,16 +5,12 @@ import {
   Download, 
   Eye, 
   Trash2, 
-  Upload,
-  Plus,
-  AlertCircle,
-  CheckCircle,
-  Clock
+  Plus
 } from 'lucide-react';
 import { Button } from '../../../../../components/ui/Button';
 import { Modal } from '../../../../../components/ui/Modal';
-import { cn, formatDate } from '../../../../../lib/utils';
-import { formatDateTime } from '../../../../../api/employeeApi';
+import { formatDate } from '../../../../../lib/utils';
+import employeeApi from '../../../../../api/employeeApi';
 
 /**
  * Employee Documents Component
@@ -30,25 +26,35 @@ const EmployeeDocuments = ({
   const [showAddModal, setShowAddModal] = React.useState(false);
   const [documentData, setDocumentData] = React.useState({
     name: '',
-    type: '',
-    description: '',
-    file: null,
+    fileUrl: '', // optional, backend supports fileUrl
   });
+  const [uploading, setUploading] = React.useState(false);
+
+  const handleFileSelected = async (file) => {
+    if (!file) return;
+    try {
+      setUploading(true);
+      const { data } = await employeeApi.uploadEmployeeDocumentFile(employeeId, file);
+      setDocumentData((prev) => ({ ...prev, fileUrl: data?.data?.fileUrl || '' }));
+    } catch (e) {
+      console.error('Upload failed', e);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleAddDocument = async () => {
-    if (!documentData.name || !documentData.type) return;
-    
-    console.log('Adding document with data:', documentData);
-    
-    const result = await onAddDocument(employeeId, documentData);
+    if (!documentData.name) return;
+
+    const payload = {
+      name: documentData.name,
+      ...(documentData.fileUrl ? { fileUrl: documentData.fileUrl } : {}),
+    };
+
+    const result = await onAddDocument(employeeId, payload);
     if (result?.success) {
       setShowAddModal(false);
-      setDocumentData({
-        name: '',
-        type: '',
-        description: '',
-        file: null,
-      });
+      setDocumentData({ name: '', fileUrl: '' });
     } else {
       console.error('Failed to add document:', result?.error);
     }
@@ -60,30 +66,7 @@ const EmployeeDocuments = ({
     }
   };
 
-  const getDocumentIcon = (type) => {
-    switch (type?.toLowerCase()) {
-      case 'contract':
-        return <FileText className="h-5 w-5 text-blue-600" />;
-      case 'id':
-        return <CheckCircle className="h-5 w-5 text-green-600" />;
-      case 'certificate':
-        return <CheckCircle className="h-5 w-5 text-purple-600" />;
-      case 'resume':
-        return <FileText className="h-5 w-5 text-orange-600" />;
-      default:
-        return <FileText className="h-5 w-5 text-gray-600" />;
-    }
-  };
-
-  const getDocumentStatus = (document) => {
-    if (document.isVerified) {
-      return { status: 'verified', color: 'text-green-600', icon: CheckCircle };
-    }
-    if (document.isPending) {
-      return { status: 'pending', color: 'text-yellow-600', icon: Clock };
-    }
-    return { status: 'unverified', color: 'text-gray-600', icon: AlertCircle };
-  };
+  const getDocumentIcon = () => <FileText className="h-5 w-5 text-gray-600" />;
 
   return (
     <div className="space-y-4">
@@ -106,64 +89,51 @@ const EmployeeDocuments = ({
         </div>
       ) : (
         <div className="grid gap-4">
-          {documents.map((document) => {
-            const status = getDocumentStatus(document);
-            const StatusIcon = status.icon;
-            
+          {documents.map((doc) => {
             return (
               <motion.div
-                key={document.id}
+                key={doc.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-white rounded-lg border border-gray-200 p-4"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-3 flex-1">
-                    {getDocumentIcon(document.type)}
+                    {getDocumentIcon()}
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2 mb-1">
                         <h4 className="font-medium text-gray-900 truncate">
-                          {document.name}
+                          {doc.name}
                         </h4>
-                        <StatusIcon className={cn('h-4 w-4', status.color)} />
                       </div>
                       
-                      <p className="text-sm text-gray-600 mb-2">
-                        {document.description || 'No description provided'}
-                      </p>
-                      
                       <div className="flex items-center space-x-4 text-xs text-gray-500">
-                        <span>Type: {document.type}</span>
-                        <span>Size: {document.fileSize || 'Unknown'}</span>
-                        <span>Uploaded: {formatDate(document.uploadedAt)}</span>
-                        {document.uploadedBy && (
-                          <span>By: {document.uploadedBy.firstName} {document.uploadedBy.lastName}</span>
-                        )}
+                        <span>Uploaded: {formatDate(doc.uploadedAt)}</span>
                       </div>
                     </div>
                   </div>
                   
                   <div className="flex items-center space-x-2">
-                    {document.fileUrl && (
+                    {doc.fileUrl && (
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => window.open(document.fileUrl, '_blank')}
+                        onClick={() => window.open(doc.fileUrl, '_blank')}
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
                     )}
                     
-                    {document.fileUrl && (
+                    {doc.fileUrl && (
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          const link = document.createElement('a');
-                          link.href = document.fileUrl;
-                          link.download = document.name;
-                          link.click();
+                          const a = window.document.createElement('a');
+                          a.href = doc.fileUrl;
+                          a.download = doc.name;
+                          a.click();
                         }}
                       >
                         <Download className="h-4 w-4" />
@@ -173,7 +143,7 @@ const EmployeeDocuments = ({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleRemoveDocument(document.id)}
+                      onClick={() => handleRemoveDocument(doc.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -205,64 +175,32 @@ const EmployeeDocuments = ({
               placeholder="e.g., Employment Contract"
             />
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Document Type *
+              File URL (optional)
             </label>
-            <select
-              value={documentData.type}
-              onChange={(e) => setDocumentData({ ...documentData, type: e.target.value })}
+            <input
+              type="url"
+              value={documentData.fileUrl}
+              onChange={(e) => setDocumentData({ ...documentData, fileUrl: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Select document type</option>
-              <option value="contract">Employment Contract</option>
-              <option value="id">ID Document</option>
-              <option value="certificate">Certificate</option>
-              <option value="resume">Resume</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
-            </label>
-            <textarea
-              value={documentData.description}
-              onChange={(e) => setDocumentData({ ...documentData, description: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              rows={3}
-              placeholder="Brief description of the document..."
+              placeholder="https://..."
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Upload File
+              Or upload a file
             </label>
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
-              <div className="space-y-1 text-center">
-                <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                <div className="flex text-sm text-gray-600">
-                  <label
-                    htmlFor="file-upload"
-                    className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
-                  >
-                    <span>Upload a file</span>
-                    <input
-                      id="file-upload"
-                      name="file-upload"
-                      type="file"
-                      className="sr-only"
-                      onChange={(e) => setDocumentData({ ...documentData, file: e.target.files[0] })}
-                    />
-                  </label>
-                  <p className="pl-1">or drag and drop</p>
-                </div>
-                <p className="text-xs text-gray-500">PNG, JPG, PDF up to 10MB</p>
-              </div>
-            </div>
+            <input
+              type="file"
+              onChange={(e) => handleFileSelected(e.target.files?.[0])}
+              className="w-full"
+              disabled={uploading}
+            />
+            {uploading && (
+              <p className="text-xs text-gray-500 mt-1">Uploading...</p>
+            )}
           </div>
 
           <div className="flex justify-end space-x-3">
@@ -271,7 +209,7 @@ const EmployeeDocuments = ({
             </Button>
             <Button 
               onClick={handleAddDocument}
-              disabled={!documentData.name || !documentData.type}
+              disabled={!documentData.name}
             >
               Add Document
             </Button>

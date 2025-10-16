@@ -1,5 +1,7 @@
 import { Router } from "express";
 import * as controller from "../controllers/employeeController.js";
+import multer from "multer";
+import path from "path";
 import { 
   authenticateToken, 
   requirePermission, 
@@ -8,6 +10,17 @@ import {
 } from "../../../middlewares/authMiddleware.js";
 
 const router = Router();
+
+// Multer setup for simple disk storage
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, path.resolve(process.cwd(), "uploads")),
+  filename: (_req, file, cb) => {
+    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname) || "";
+    cb(null, `${unique}${ext}`);
+  },
+});
+const upload = multer({ storage });
 
 // Apply authentication to all routes
 router.use(authenticateToken);
@@ -58,10 +71,20 @@ router.get("/:id/skill-recommendations", requireEmployeeAccess(), controller.get
 router.get("/:id/certifications", requireEmployeeAccess(), controller.listEmployeeCertifications);
 router.post("/:id/certifications", requireAnyPermission(["employee:update"]), requireEmployeeAccess(), controller.addEmployeeCertification);
 router.delete("/:id/certifications/:certId", requireAnyPermission(["employee:update"]), requireEmployeeAccess(), controller.removeEmployeeCertification);
+// Upload certification document: returns { fileUrl }
+router.post("/:id/certifications/upload", requireAnyPermission(["employee:update"]), requireEmployeeAccess(), upload.single("file"), (req, res) => {
+  const filePath = `/uploads/${req.file.filename}`;
+  res.json({ success: true, data: { fileUrl: filePath, originalName: req.file.originalname } });
+});
 
 // Documents - require employee access
 router.get("/:id/documents", requireEmployeeAccess(), controller.listEmployeeDocuments);
 router.post("/:id/documents", requireAnyPermission(["employee:update"]), requireEmployeeAccess(), controller.addEmployeeDocument);
+// Upload endpoint: returns { fileUrl }
+router.post("/:id/documents/upload", requireAnyPermission(["employee:update"]), requireEmployeeAccess(), upload.single("file"), (req, res) => {
+  const filePath = `/uploads/${req.file.filename}`;
+  res.json({ success: true, data: { fileUrl: filePath, originalName: req.file.originalname } });
+});
 router.delete("/:id/documents/:docId", requireAnyPermission(["employee:update"]), requireEmployeeAccess(), controller.removeEmployeeDocument);
 
 // Evaluations (incl. probation-related) - require employee access

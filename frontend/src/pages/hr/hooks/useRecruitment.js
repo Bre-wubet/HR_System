@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { recruitmentApi } from '../../../api/recruitmentApi';
+import employeeApi from '../../../api/employeeApi';
 import { queryKeys } from '../../../lib/react-query';
 import toast from 'react-hot-toast';
 
@@ -84,6 +85,38 @@ export const useArchiveJobPosting = () => {
     onError: (error) => {
       toast.error(error.response?.data?.message || 'Failed to archive job posting');
     },
+  });
+};
+
+/**
+ * Hook for deleting a job posting
+ */
+export const useDeleteJobPosting = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: recruitmentApi.deleteJobPosting,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.recruitment.jobPostings.all });
+      toast.success('Job posting deleted successfully');
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to delete job posting');
+    },
+  });
+};
+
+/**
+ * Hook for fetching available interviewers
+ */
+export const useInterviewers = () => {
+  return useQuery({
+    queryKey: queryKeys.employees.managers,
+    queryFn: async () => {
+      const res = await employeeApi.listManagers();
+      return res.data.data || [];
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
 
@@ -310,6 +343,9 @@ export const useRecruitmentDetail = (jobId) => {
   // Fetch candidates for this job
   const { data: candidates, isLoading: isLoadingCandidates, error: candidatesError } = useCandidatesForJob(jobId);
   
+  // Fetch available interviewers
+  const { data: interviewers = [] } = useInterviewers();
+  
   // Mutations
   const createCandidateMutation = useCreateCandidate();
   const updateStageMutation = useUpdateCandidateStage();
@@ -329,6 +365,7 @@ export const useRecruitmentDetail = (jobId) => {
     // Data
     jobPosting,
     candidates: candidates || [],
+    interviewers,
     
     // Loading states
     isLoading,

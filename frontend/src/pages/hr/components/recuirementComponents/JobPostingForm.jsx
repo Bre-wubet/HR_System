@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Building, FileText, Save, X, Plus, Trash2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 
 import { Button } from '../../../../components/ui/Button';
 import { Modal } from '../../../../components/ui/Modal';
 import { Input } from '../../../../components/ui/Input';
 import { recruitmentUtils } from '../../../../api/recruitmentApi';
+import employeeApi from '../../../../api/employeeApi';
+import { queryKeys } from '../../../../lib/react-query';
 import { cn } from '../../../../lib/utils';
 
 /**
@@ -32,6 +35,16 @@ const JobPostingForm = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const isEdit = !!jobPosting;
+  
+  // Fetch available skills
+  const { data: availableSkills = [], isLoading: skillsLoading } = useQuery({
+    queryKey: queryKeys.skills.all,
+    queryFn: async () => {
+      const res = await employeeApi.getAllSkills();
+      return res.data.data || [];
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
   
   useEffect(() => {
     if (isOpen) {
@@ -73,7 +86,9 @@ const JobPostingForm = ({
     
     setIsSubmitting(true);
     try {
-      await onSubmit({ ...formData, skills: skills.map(s => ({ skillId: s.skillId, required: s.required, minLevel: s.minLevel })) });
+      // Filter out skills with empty skillId
+      const validSkills = skills.filter(s => s.skillId && s.skillId.trim() !== '');
+      await onSubmit({ ...formData, skills: validSkills.map(s => ({ skillId: s.skillId, required: s.required, minLevel: s.minLevel })) });
       onClose();
     } catch (error) {
       console.error('Error submitting job posting:', error);
@@ -95,7 +110,7 @@ const JobPostingForm = ({
     }
   };
 
-  const addEmptySkill = () => setSkills(prev => [...prev, { skillId: '', required: true, minLevel: 1, name: '' }]);
+  const addEmptySkill = () => setSkills(prev => [...prev, { skillId: '', required: true, minLevel: 1 }]);
   const updateSkill = (index, field, value) => {
     setSkills(prev => prev.map((s, i) => i === index ? { ...s, [field]: value } : s));
   };
@@ -198,13 +213,20 @@ const JobPostingForm = ({
             {skills.map((s, idx) => (
               <div key={idx} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
                 <div className="md:col-span-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Skill ID</label>
-                  <Input
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Skill</label>
+                  <select
                     value={s.skillId}
                     onChange={(e) => updateSkill(idx, 'skillId', e.target.value)}
-                    placeholder="Skill UUID"
-                    disabled={isSubmitting}
-                  />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    disabled={isSubmitting || skillsLoading}
+                  >
+                    <option value="">Select a skill...</option>
+                    {availableSkills.map(skill => (
+                      <option key={skill.id} value={skill.id}>
+                        {skill.name} {skill.category && `(${skill.category})`}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className="md:col-span-3">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Min Level</label>

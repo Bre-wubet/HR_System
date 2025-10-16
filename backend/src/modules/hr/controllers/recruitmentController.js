@@ -51,6 +51,15 @@ export async function archiveJobPostingById(req, res, next) {
   }
 }
 
+export async function deleteJobPostingById(req, res, next) {
+  try {
+    await service.deleteJobPostingById(req.params.id);
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function listCandidatesForJob(req, res, next) {
   try {
     const candidates = await service.listCandidatesForJob(req.params.id);

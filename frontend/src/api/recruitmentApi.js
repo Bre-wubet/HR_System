@@ -20,6 +20,10 @@ export const recruitmentApi = {
   },
 
   archiveJobPosting: (id) => {
+    return apiClient.patch(`/hr/recruitment/jobs/${id}/archive`);
+  },
+
+  deleteJobPosting: (id) => {
     return apiClient.delete(`/hr/recruitment/jobs/${id}`);
   },
 

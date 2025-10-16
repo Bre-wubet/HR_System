@@ -20,6 +20,10 @@ export function archiveJobPostingById(id) {
   return repo.archiveJobPostingById(id);
 }
 
+export function deleteJobPostingById(id) {
+  return repo.deleteJobPostingById(id);
+}
+
 export function listCandidatesForJob(jobId) {
   return repo.findCandidatesForJob(jobId);
 }

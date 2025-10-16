@@ -4,6 +4,7 @@ import {
   Eye, 
   Edit, 
   Archive, 
+  Trash2,
   Users, 
   Calendar,
   Building,
@@ -24,6 +25,7 @@ const JobPostingCard = ({
   onView, 
   onEdit, 
   onArchive, 
+  onDelete,
   onViewCandidates,
   onAddCandidate,
   isLoading = false 
@@ -111,7 +113,7 @@ const JobPostingCard = ({
         </div>
         
         {/* Action Buttons */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-0">
           <Button
             variant="ghost"
             size="sm"
@@ -159,6 +161,19 @@ const JobPostingCard = ({
           >
             <Archive className="h-4 w-4" />
           </Button>
+          
+          {onDelete && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onDelete(jobPosting.id)}
+              disabled={isLoading}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              title="Delete Job Posting"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
     </motion.div>

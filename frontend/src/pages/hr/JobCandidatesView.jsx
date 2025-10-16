@@ -20,7 +20,7 @@ import {
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
-import { useJobPosting, useCandidatesForJob, useCreateCandidate, useUpdateCandidateStage, useSetCandidateScore, useHireCandidate, useScheduleInterview } from './hooks/useRecruitment';
+import { useJobPosting, useCandidatesForJob, useCreateCandidate, useUpdateCandidateStage, useSetCandidateScore, useHireCandidate, useScheduleInterview, useInterviewers } from './hooks/useRecruitment';
 import { recruitmentUtils } from '../../api/recruitmentApi';
 import { cn } from '../../lib/utils';
 import CandidateCard from './components/recuirementComponents/CandidateCard';
@@ -50,6 +50,7 @@ const JobCandidatesView = () => {
   // Data fetching
   const { data: jobPosting, isLoading: isLoadingJob, error: jobError } = useJobPosting(id);
   const { data: candidates = [], isLoading: isLoadingCandidates, error: candidatesError, refetch: refetchCandidates } = useCandidatesForJob(id);
+  const { data: interviewers = [] } = useInterviewers();
   
   // Mutations
   const createCandidateMutation = useCreateCandidate();
@@ -387,7 +388,7 @@ const JobCandidatesView = () => {
         }}
         onSubmit={handleScheduleInterviewSubmit}
         candidate={selectedCandidate}
-        interviewers={[]} // TODO: Fetch available interviewers
+        interviewers={interviewers}
         isLoading={scheduleInterviewMutation.isPending}
       />
     </motion.div>

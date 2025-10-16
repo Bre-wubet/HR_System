@@ -13,6 +13,7 @@ const JobPostingsGrid = ({
   onView, 
   onEdit, 
   onArchive, 
+  onDelete,
   onViewCandidates,
   onAddCandidate,
   isLoading = false 
@@ -58,7 +59,7 @@ const JobPostingsGrid = ({
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
+    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-2">
       <AnimatePresence>
         {jobPostings.map((jobPosting, index) => (
           <motion.div
@@ -74,6 +75,7 @@ const JobPostingsGrid = ({
               onView={onView}
               onEdit={onEdit}
               onArchive={onArchive}
+              onDelete={onDelete}
               onViewCandidates={onViewCandidates}
               onAddCandidate={onAddCandidate}
               isLoading={isLoading}

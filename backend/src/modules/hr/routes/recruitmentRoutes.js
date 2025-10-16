@@ -16,7 +16,8 @@ router.get("/jobs", requirePermission("recruitment:read"), controller.listJobPos
 router.post("/jobs", requirePermission("recruitment:create"), controller.createJobPosting);
 router.get("/jobs/:id", requirePermission("recruitment:read"), controller.getJobPostingById);
 router.put("/jobs/:id", requirePermission("recruitment:update"), controller.updateJobPostingById);
-router.delete("/jobs/:id", requirePermission("recruitment:delete"), controller.archiveJobPostingById);
+router.patch("/jobs/:id/archive", requirePermission("recruitment:update"), controller.archiveJobPostingById);
+router.delete("/jobs/:id", requirePermission("recruitment:delete"), controller.deleteJobPostingById);
 
 // Candidates - require recruitment permissions
 router.get("/candidates", requirePermission("recruitment:read"), controller.listAllCandidates);

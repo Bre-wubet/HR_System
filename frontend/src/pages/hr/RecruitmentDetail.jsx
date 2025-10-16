@@ -37,6 +37,7 @@ const RecruitmentDetail = () => {
   const {
     jobPosting,
     candidates,
+    interviewers,
     isLoading,
     hasError,
     refetchAll,
@@ -269,7 +270,7 @@ const RecruitmentDetail = () => {
         }}
         onSubmit={handleInterviewSubmit}
         candidate={selectedCandidate}
-        interviewers={[]} // TODO: Fetch interviewers
+        interviewers={interviewers}
         isLoading={isSchedulingInterview}
       />
       

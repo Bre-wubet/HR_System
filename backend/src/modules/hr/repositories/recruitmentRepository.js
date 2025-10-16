@@ -74,6 +74,17 @@ export function archiveJobPostingById(id) {
   return prisma.jobPosting.update({ where: { id }, data: { isActive: false } });
 }
 
+export function deleteJobPostingById(id) {
+  return prisma.$transaction(async (tx) => {
+    // First delete all related records
+    await tx.jobPostingSkill.deleteMany({ where: { jobPostingId: id } });
+    await tx.candidate.deleteMany({ where: { jobPostingId: id } });
+    
+    // Then delete the job posting itself
+    return tx.jobPosting.delete({ where: { id } });
+  });
+}
+
 export function findCandidatesForJob(jobId) {
   return prisma.candidate.findMany({ where: { jobPostingId: jobId }, orderBy: { createdAt: "desc" } });
 }

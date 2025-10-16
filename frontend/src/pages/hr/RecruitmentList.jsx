@@ -1,11 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Archive, Trash2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 
 import { Button } from '../../components/ui/Button';
-import { useJobPostings, useCreateJobPosting, useArchiveJobPosting } from './hooks/useRecruitment';
+import ConfirmationModal from '../../components/ui/ConfirmationModal';
+import { useJobPostings, useCreateJobPosting, useUpdateJobPosting, useArchiveJobPosting, useDeleteJobPosting } from './hooks/useRecruitment';
 import { 
   JobPostingsHeader,
   JobPostingsFilters,
@@ -28,6 +30,12 @@ const RecruitmentList = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [showJobForm, setShowJobForm] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState({
+    isOpen: false,
+    jobId: null,
+    jobTitle: '',
+    action: 'archive', // 'archive' or 'delete'
+  });
   
   // Data fetching
   const { data: jobPostings = [], isLoading, error, refetch } = useJobPostings({
@@ -45,7 +53,9 @@ const RecruitmentList = () => {
   
   // Mutations
   const createJobMutation = useCreateJobPosting();
+  const updateJobMutation = useUpdateJobPosting();
   const archiveJobMutation = useArchiveJobPosting();
+  const deleteJobMutation = useDeleteJobPosting();
   
   // Computed values
   const filteredJobPostings = useMemo(() => {
@@ -78,21 +88,71 @@ const RecruitmentList = () => {
     }
   };
   
+  const handleUpdateJob = async (jobData) => {
+    try {
+      await updateJobMutation.mutateAsync({ id: editingJob.id, data: jobData });
+      setShowJobForm(false);
+      setEditingJob(null);
+      refetch();
+    } catch (error) {
+      console.error('Error updating job posting:', error);
+    }
+  };
+  
   const handleEditJob = (jobId) => {
     const job = jobPostings.find(j => j.id === jobId);
     setEditingJob(job);
     setShowJobForm(true);
   };
   
-  const handleArchiveJob = async (jobId) => {
-    if (window.confirm('Are you sure you want to archive this job posting?')) {
-      try {
+  const handleArchiveJob = (jobId) => {
+    const job = jobPostings.find(j => j.id === jobId);
+    if (!job) return;
+    
+    setDeleteConfirmation({
+      isOpen: true,
+      jobId,
+      jobTitle: job.title,
+      action: 'archive',
+    });
+  };
+
+  const handleDeleteJob = (jobId) => {
+    const job = jobPostings.find(j => j.id === jobId);
+    if (!job) return;
+    
+    setDeleteConfirmation({
+      isOpen: true,
+      jobId,
+      jobTitle: job.title,
+      action: 'delete',
+    });
+  };
+
+  const confirmJobAction = async () => {
+    const { jobId, action } = deleteConfirmation;
+    
+    try {
+      if (action === 'archive') {
         await archiveJobMutation.mutateAsync(jobId);
-        refetch();
-      } catch (error) {
-        console.error('Error archiving job posting:', error);
+      } else if (action === 'delete') {
+        await deleteJobMutation.mutateAsync(jobId);
       }
+      
+      refetch();
+      setDeleteConfirmation({ isOpen: false, jobId: null, jobTitle: '', action: 'archive' });
+    } catch (error) {
+      console.error(`Error ${deleteConfirmation.action}ing job posting:`, error);
+      
+      const errorMessage = error.response?.data?.message || 
+        `Failed to ${deleteConfirmation.action} job posting`;
+      
+      toast.error(errorMessage);
     }
+  };
+
+  const cancelJobAction = () => {
+    setDeleteConfirmation({ isOpen: false, jobId: null, jobTitle: '', action: 'archive' });
   };
   
   const handleViewJob = (jobId) => {
@@ -168,6 +228,7 @@ const RecruitmentList = () => {
           onView={handleViewJob}
           onEdit={handleEditJob}
           onArchive={handleArchiveJob}
+          onDelete={handleDeleteJob}
           onViewCandidates={handleViewCandidates}
           onAddCandidate={handleAddCandidate}
           isLoading={isLoading}
@@ -178,10 +239,28 @@ const RecruitmentList = () => {
       <JobPostingForm
         isOpen={showJobForm}
         onClose={handleCloseJobForm}
-        onSubmit={handleCreateJob}
+        onSubmit={editingJob ? handleUpdateJob : handleCreateJob}
         jobPosting={editingJob}
         departments={departments}
-        isLoading={createJobMutation.isPending}
+        isLoading={editingJob ? updateJobMutation.isPending : createJobMutation.isPending}
+      />
+      
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={deleteConfirmation.isOpen}
+        onClose={cancelJobAction}
+        onConfirm={confirmJobAction}
+        title={deleteConfirmation.action === 'archive' ? 'Archive Job Posting' : 'Delete Job Posting'}
+        message={
+          deleteConfirmation.action === 'archive' 
+            ? `Are you sure you want to archive "${deleteConfirmation.jobTitle}"? This will hide it from active job postings but preserve all data.`
+            : `Are you sure you want to permanently delete "${deleteConfirmation.jobTitle}"? This action cannot be undone and will remove all associated data including candidates and applications.`
+        }
+        confirmText={deleteConfirmation.action === 'archive' ? 'Archive' : 'Delete'}
+        cancelText="Cancel"
+        type={deleteConfirmation.action === 'archive' ? 'warning' : 'danger'}
+        isLoading={deleteConfirmation.action === 'archive' ? archiveJobMutation.isPending : deleteJobMutation.isPending}
+        icon={deleteConfirmation.action === 'archive' ? Archive : Trash2}
       />
     </motion.div>
   );

@@ -21,6 +21,7 @@ import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/axiosClient';
+import employeeApi from '../../api/employeeApi';
 import { cn } from '../../lib/utils';
 import CandidateCard from './components/recuirementComponents/CandidateCard';
 import CandidateForm from './components/recuirementComponents/CandidateForm';
@@ -80,6 +81,16 @@ const GlobalCandidatesManagement = () => {
       const response = await apiClient.get('/hr/recruitment/jobs');
       return response.data.data;
     },
+  });
+
+  // Fetch available interviewers
+  const { data: interviewers = [] } = useQuery({
+    queryKey: ['interviewers'],
+    queryFn: async () => {
+      const response = await employeeApi.listManagers();
+      return response.data.data || [];
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Mutations
@@ -426,7 +437,7 @@ const GlobalCandidatesManagement = () => {
         }}
         onSubmit={handleScheduleInterview}
         candidate={selectedCandidate}
-        interviewers={[]} // TODO: Fetch interviewers
+        interviewers={interviewers}
         isLoading={scheduleInterviewMutation.isPending}
       />
     </motion.div>

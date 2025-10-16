@@ -36,11 +36,13 @@ import AttendanceAnalytics from '../pages/analytics/AttendanceAnalytics';
 import RecruitmentAnalytics from '../pages/analytics/RecruitmentAnalytics';
 
 // Reports Pages
+import ReportsDashboard from '../pages/reports/ReportsDashboard';
 import EmployeeReports from '../pages/reports/EmployeeReports';
 import AttendanceReports from '../pages/reports/AttendanceReports';
 import RecruitmentReports from '../pages/reports/RecruitmentReports';
 
 // Admin Pages
+import AdminDashboard from '../pages/admin/AdminDashboard';
 import UserManagement from '../pages/admin/UserManagement';
 import RolePermissions from '../pages/admin/RolePermissions';
 import SystemSettings from '../pages/admin/SystemSettings';
@@ -318,12 +320,9 @@ function AppRoutes() {
       <Route
         path="/reports"
         element={
-          <ProtectedRoute requiredPermissions={['employee:read']}>
+          <ProtectedRoute requiredPermissions={['attendance:read', 'employee:read', 'recruitment:read']}>
             <DashboardLayout>
-              <div className="p-6">
-                <h1 className="text-2xl font-bold text-gray-900 mb-4">Reports Dashboard</h1>
-                <p className="text-gray-600">Choose a report category to generate and download reports</p>
-              </div>
+              <ReportsDashboard />
             </DashboardLayout>
           </ProtectedRoute>
         }
@@ -363,12 +362,9 @@ function AppRoutes() {
       <Route
         path="/admin"
         element={
-          <ProtectedRoute requiredPermissions={['admin:manage_users']}>
+          <ProtectedRoute requiredPermissions={['admin:manage_users', 'admin:manage_system']}>
             <DashboardLayout>
-              <div className="p-6">
-                <h1 className="text-2xl font-bold text-gray-900 mb-4">Administration Dashboard</h1>
-                <p className="text-gray-600">System administration and user management</p>
-              </div>
+              <AdminDashboard />
             </DashboardLayout>
           </ProtectedRoute>
         }

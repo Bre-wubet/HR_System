@@ -243,14 +243,43 @@ export class AuthService {
       throw new Error('User not found');
     }
 
-    return await authRepository.assignRoleToUser(userId, roleId);
+    const role = await authRepository.findRoleById(roleId);
+    if (!role) {
+      throw new Error('Role not found');
+    }
+
+    try {
+      return await authRepository.assignRoleToUser(userId, roleId);
+    } catch (error) {
+      if (error.message.includes('already has role')) {
+        throw new Error(`User already has the role "${role.name}"`);
+      }
+      throw error;
+    }
   }
 
   /**
    * Remove role from user
    */
   async removeRoleFromUser(userId, roleId) {
-    return await authRepository.removeRoleFromUser(userId, roleId);
+    const user = await authRepository.findUserById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const role = await authRepository.findRoleById(roleId);
+    if (!role) {
+      throw new Error('Role not found');
+    }
+
+    try {
+      return await authRepository.removeRoleFromUser(userId, roleId);
+    } catch (error) {
+      if (error.message.includes('User role relationship not found')) {
+        throw new Error(`User does not have the role "${role.name}"`);
+      }
+      throw error;
+    }
   }
 
   /**

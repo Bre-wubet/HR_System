@@ -221,6 +221,16 @@ export class AuthController {
 
       res.json(response.success(result, 'Role assigned successfully'));
     } catch (error) {
+      // Handle specific error cases
+      if (error.message.includes('User not found')) {
+        return res.status(404).json(response.error('User not found', 404));
+      }
+      if (error.message.includes('Role not found')) {
+        return res.status(404).json(response.error('Role not found', 404));
+      }
+      if (error.message.includes('already has the role')) {
+        return res.status(409).json(response.error(error.message, 409));
+      }
       next(error);
     }
   }
@@ -241,6 +251,16 @@ export class AuthController {
 
       res.json(response.success(null, 'Role removed successfully'));
     } catch (error) {
+      // Handle specific error cases
+      if (error.message.includes('User not found')) {
+        return res.status(404).json(response.error('User not found', 404));
+      }
+      if (error.message.includes('Role not found')) {
+        return res.status(404).json(response.error('Role not found', 404));
+      }
+      if (error.message.includes('does not have the role')) {
+        return res.status(404).json(response.error(error.message, 404));
+      }
       next(error);
     }
   }

@@ -336,7 +336,7 @@ const EmployeeReports = () => {
       )}
 
       {/* Reports Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {reports.map((report, index) => (
           <motion.div
             key={report.id}
@@ -345,9 +345,9 @@ const EmployeeReports = () => {
             transition={{ delay: index * 0.1 }}
             className="bg-white rounded-xl shadow-soft p-6 hover:shadow-medium transition-shadow"
           >
-            <div className="flex items-start space-x-4">
+            <div className="flex items-start space-x-2">
               <div className="p-3 bg-blue-50 rounded-lg">
-                <report.icon className="h-6 w-6 text-blue-600" />
+                <report.icon className="h-3 w-3 text-blue-600" />
               </div>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{report.title}</h3>

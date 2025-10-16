@@ -451,6 +451,20 @@ export class AuthRepository {
    * Assign role to user
    */
   async assignRoleToUser(userId, roleId) {
+    // First check if the user-role relationship already exists
+    const existingUserRole = await prisma.userRole.findUnique({
+      where: {
+        userId_roleId: {
+          userId,
+          roleId,
+        },
+      },
+    });
+
+    if (existingUserRole) {
+      throw new Error(`User already has role ${roleId}`);
+    }
+
     return await prisma.userRole.create({
       data: {
         userId,
@@ -474,6 +488,20 @@ export class AuthRepository {
    * Remove role from user
    */
   async removeRoleFromUser(userId, roleId) {
+    // First check if the user-role relationship exists
+    const existingUserRole = await prisma.userRole.findUnique({
+      where: {
+        userId_roleId: {
+          userId,
+          roleId,
+        },
+      },
+    });
+
+    if (!existingUserRole) {
+      throw new Error(`User role relationship not found for user ${userId} and role ${roleId}`);
+    }
+
     return await prisma.userRole.delete({
       where: {
         userId_roleId: {

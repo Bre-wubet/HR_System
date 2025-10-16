@@ -55,7 +55,7 @@ export const protectedRoutes = [
 // Rate limiting configuration
 export const rateLimitConfig = {
   windowMs: 15 * 60 * 1000, // 15 minutes
-  maxRequests: 100, // limit each IP to 100 requests per windowMs
+  maxRequests: 200, // limit each IP to 200 requests per windowMs (increased for reports dashboard)
   keyGenerator: (req) => {
     // Use user ID if authenticated, otherwise use IP
     return req.user?.userId || req.ip;
@@ -102,7 +102,7 @@ export const serviceMiddlewares = {
   hr: {
     rateLimit: {
       windowMs: 15 * 60 * 1000, // 15 minutes
-      maxRequests: 200, // Higher limit for HR operations
+      maxRequests: 300, // Higher limit for HR operations (increased for reports dashboard)
     },
   },
 };

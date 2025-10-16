@@ -249,8 +249,8 @@ export const CheckInOutCard = ({ employeeId, currentAttendance, onCheckIn, onChe
     >
       <div className="text-center">
         <div className="mb-4">
-          <Clock className="h-12 w-12 mx-auto text-blue-600 mb-2" />
-          <h3 className="text-lg font-semibold text-gray-900">Today's Attendance</h3>
+          <Clock className="h-4 w-4 mx-auto text-blue-600 mb-2" />
+          <h3 className="text-sm font-semibold text-gray-900">Today's Attendance</h3>
           <p className="text-sm text-gray-600">{formatDate(new Date())}</p>
         </div>
 

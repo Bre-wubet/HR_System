@@ -210,7 +210,7 @@ const AttendanceReports = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Records</p>
-                <p className="text-2xl font-bold text-gray-900">{attendanceSummary.total || 0}</p>
+                <p className="text-xl font-bold text-gray-900">{attendanceSummary.total || 0}</p>
               </div>
               <Users className="h-8 w-8 text-blue-500" />
             </div>
@@ -224,7 +224,7 @@ const AttendanceReports = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Present</p>
-                <p className="text-2xl font-bold text-green-600">{attendanceSummary.present || 0}</p>
+                <p className="text-xl font-bold text-green-600">{attendanceSummary.present || 0}</p>
               </div>
               <TrendingUp className="h-8 w-8 text-green-500" />
             </div>
@@ -238,7 +238,7 @@ const AttendanceReports = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Absent</p>
-                <p className="text-2xl font-bold text-red-600">{attendanceSummary.absent || 0}</p>
+                <p className="text-xl font-bold text-red-600">{attendanceSummary.absent || 0}</p>
               </div>
               <AlertCircle className="h-8 w-8 text-red-500" />
             </div>
@@ -252,7 +252,7 @@ const AttendanceReports = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Late</p>
-                <p className="text-2xl font-bold text-yellow-600">{attendanceSummary.late || 0}</p>
+                <p className="text-xl font-bold text-yellow-600">{attendanceSummary.late || 0}</p>
               </div>
               <Clock className="h-8 w-8 text-yellow-500" />
             </div>
@@ -326,19 +326,19 @@ const AttendanceReports = () => {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Summary Preview</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-2xl font-bold text-gray-900">{attendanceSummary.total || 0}</p>
+              <p className="text-xl font-bold text-gray-900">{attendanceSummary.total || 0}</p>
               <p className="text-sm text-gray-600">Total</p>
             </div>
             <div className="text-center p-4 bg-green-50 rounded-lg">
-              <p className="text-2xl font-bold text-green-600">{attendanceSummary.present || 0}</p>
+              <p className="text-xl font-bold text-green-600">{attendanceSummary.present || 0}</p>
               <p className="text-sm text-gray-600">Present</p>
             </div>
             <div className="text-center p-4 bg-red-50 rounded-lg">
-              <p className="text-2xl font-bold text-red-600">{attendanceSummary.absent || 0}</p>
+              <p className="text-xl font-bold text-red-600">{attendanceSummary.absent || 0}</p>
               <p className="text-sm text-gray-600">Absent</p>
             </div>
             <div className="text-center p-4 bg-yellow-50 rounded-lg">
-              <p className="text-2xl font-bold text-yellow-600">{attendanceSummary.late || 0}</p>
+              <p className="text-xl font-bold text-yellow-600">{attendanceSummary.late || 0}</p>
               <p className="text-sm text-gray-600">Late</p>
             </div>
           </div>

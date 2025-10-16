@@ -6,11 +6,29 @@ import { verifyDatabaseConnection } from "./config/db.js";
 const start = async () => {
   try {
     await verifyDatabaseConnection();
-    app.listen(env.port, () => {
+    const server = app.listen(env.port, () => {
       logger.info(`HR System API listening on port ${env.port}`);
     });
+    
+    // Keep the process alive
+    process.on('SIGTERM', () => {
+      logger.info('SIGTERM received, shutting down gracefully');
+      server.close(() => {
+        logger.info('Server closed');
+        process.exit(0);
+      });
+    });
+    
+    process.on('SIGINT', () => {
+      logger.info('SIGINT received, shutting down gracefully');
+      server.close(() => {
+        logger.info('Server closed');
+        process.exit(0);
+      });
+    });
+    
   } catch (error) {
-    logger.error("Failed to start server");
+    logger.error("Failed to start server", error);
     process.exit(1);
   }
 };

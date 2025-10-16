@@ -30,6 +30,7 @@ import GlobalCandidatesManagement from '../pages/hr/GlobalCandidatesManagement';
 import InterviewsManagement from '../pages/hr/InterviewsManagement';
 
 // Analytics Pages
+import AnalyticsDashboard from '../pages/analytics/AnalyticsDashboard';
 import EmployeeAnalytics from '../pages/analytics/EmployeeAnalytics';
 import AttendanceAnalytics from '../pages/analytics/AttendanceAnalytics';
 import RecruitmentAnalytics from '../pages/analytics/RecruitmentAnalytics';
@@ -275,12 +276,9 @@ function AppRoutes() {
       <Route
         path="/analytics"
         element={
-          <ProtectedRoute requiredPermissions={['employee:read']}>
+          <ProtectedRoute requiredPermissions={['employee:read', 'attendance:read', 'recruitment:read']}>
             <DashboardLayout>
-              <div className="p-6">
-                <h1 className="text-2xl font-bold text-gray-900 mb-4">Analytics Dashboard</h1>
-                <p className="text-gray-600">Choose an analytics category to view detailed insights</p>
-              </div>
+              <AnalyticsDashboard />
             </DashboardLayout>
           </ProtectedRoute>
         }

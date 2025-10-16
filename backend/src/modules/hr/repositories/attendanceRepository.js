@@ -53,7 +53,17 @@ export function listLeaveRequests({ employeeId, status, from, to, take = 50, ski
   const where = {
     AND: [employeeId ? { employeeId } : {}, status ? { status } : {}, from || to ? { appliedAt: dateRange(from, to) } : {}],
   };
-  return prisma.leaveRequest.findMany({ where, take, skip, orderBy: { appliedAt: "desc" } });
+  
+  // Convert string parameters to integers
+  const takeInt = parseInt(take, 10);
+  const skipInt = parseInt(skip, 10);
+  
+  return prisma.leaveRequest.findMany({ 
+    where, 
+    take: takeInt, 
+    skip: skipInt, 
+    orderBy: { appliedAt: "desc" } 
+  });
 }
 
 // Analytics

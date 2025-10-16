@@ -47,7 +47,6 @@ export const publicRoutes = [
 
 // Protected routes that explicitly require authentication
 export const protectedRoutes = [
-  '/api/hr',
   '/api/auth/profile',
   '/api/auth/change-password',
   '/api/auth/roles-permissions',
@@ -86,7 +85,7 @@ export const setupApiGateway = (app) => {
     publicRoutes,
     protectedRoutes,
     serviceRoutes: serviceConfig,
-    defaultAuth: true,
+    defaultAuth: false, // Let individual routes handle their own authentication
   }));
 
   return app;

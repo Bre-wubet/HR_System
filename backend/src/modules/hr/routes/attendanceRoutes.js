@@ -25,7 +25,7 @@ router.post("/employee/:employeeId/check-out", requireAnyPermission(["attendance
 
 // Leave requests - require attendance permissions
 router.post("/leave", requirePermission("attendance:create"), validate(v.createLeaveSchema), controller.createLeaveRequest);
-router.put("/leave/:id/status", requirePermission("attendance:update"), validate(v.updateLeaveStatusSchema), controller.updateLeaveStatus);
+router.put("/leave/:id/status", requireAnyPermission(["admin:manage_users", "admin:manage_system"]), validate(v.updateLeaveStatusSchema), controller.updateLeaveStatus);
 router.get("/leave", requirePermission("attendance:read"), validate(v.listLeaveRequestsSchema), controller.listLeaveRequests);
 
 // Analytics - require attendance read permission

@@ -44,6 +44,10 @@ export const recruitmentApi = {
     return apiClient.put(`/hr/recruitment/candidates/${candidateId}/score`, { score, feedback });
   },
 
+  deleteCandidate: (candidateId) => {
+    return apiClient.delete(`/hr/recruitment/candidates/${candidateId}`);
+  },
+
   hireCandidate: (candidateId, data) => {
     return apiClient.post(`/hr/recruitment/candidates/${candidateId}/hire`, data);
   },

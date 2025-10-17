@@ -83,6 +83,11 @@ export const scheduleInterviewSchema = Joi.object({
     candidateId: Joi.string().uuid().required(),
     interviewerId: Joi.string().uuid().allow(null).optional(),
     date: Joi.date().required(),
+    duration: Joi.number().integer().min(15).max(480).optional(), // 15 minutes to 8 hours
+    type: Joi.string().valid('IN_PERSON', 'VIDEO', 'PHONE').optional(),
+    location: Joi.string().allow("").optional(),
+    meetingLink: Joi.string().allow("").optional(),
+    notes: Joi.string().allow("").optional(),
     feedback: Joi.string().allow("").optional(),
     rating: Joi.number().integer().min(1).max(10).optional(),
   }).required(),
@@ -92,8 +97,14 @@ export const updateInterviewSchema = Joi.object({
   params: Joi.object({ id: Joi.string().uuid().required() }).required(),
   body: Joi.object({
     date: Joi.date().optional(),
+    duration: Joi.number().integer().min(15).max(480).optional(),
+    type: Joi.string().valid('IN_PERSON', 'VIDEO', 'PHONE').optional(),
+    location: Joi.string().allow("").optional(),
+    meetingLink: Joi.string().allow("").optional(),
+    notes: Joi.string().allow("").optional(),
     feedback: Joi.string().allow("").optional(),
     rating: Joi.number().integer().min(1).max(10).optional(),
+    status: Joi.string().valid('SCHEDULED', 'COMPLETED', 'CANCELLED', 'RESCHEDULED').optional(),
   }).min(1).required(),
 });
 
@@ -126,6 +137,10 @@ export const onboardingChecklistSchema = Joi.object({
       dueDate: Joi.date().optional(),
     })).default([]),
   }).required(),
+});
+
+export const deleteCandidateSchema = Joi.object({
+  params: Joi.object({ candidateId: Joi.string().uuid().required() }).required(),
 });
 
 export const hireCandidateSchema = Joi.object({

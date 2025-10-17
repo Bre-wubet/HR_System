@@ -20,6 +20,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useDeleteCandidate } from './hooks/useRecruitment';
 import apiClient from '../../api/axiosClient';
 import employeeApi from '../../api/employeeApi';
 import { queryKeys } from '../../lib/react-query';
@@ -229,9 +230,12 @@ const GlobalCandidatesManagement = () => {
     setShowCandidateForm(true);
   };
 
+  const deleteCandidateMutation = useDeleteCandidate();
+
   const handleDeleteCandidate = async (candidateId) => {
-    // TODO: Implement delete candidate functionality
-    console.log('Delete candidate:', candidateId);
+    if (window.confirm('Are you sure you want to delete this candidate? This action cannot be undone.')) {
+      deleteCandidateMutation.mutate(candidateId);
+    }
   };
 
   return (

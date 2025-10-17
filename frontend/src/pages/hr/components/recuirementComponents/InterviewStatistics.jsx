@@ -45,7 +45,7 @@ const InterviewStatistics = ({ stats }) => {
           <div key={index} className="bg-white rounded-xl shadow-soft p-6">
             <div className="flex items-center space-x-3">
               <div className={`p-2 ${stat.bgColor} rounded-lg`}>
-                <Icon className={`h-6 w-6 ${stat.color}`} />
+                <Icon className={`h-4 w-4 ${stat.color}`} />
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-gray-900">{stat.label}</h3>

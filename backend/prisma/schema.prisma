@@ -69,6 +69,19 @@ enum InterviewStage {
   REJECTED
 }
 
+enum InterviewType {
+  IN_PERSON
+  VIDEO
+  PHONE
+}
+
+enum InterviewStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
+}
+
 // -----------------------------------------
 // HR MODELS
 // -----------------------------------------
@@ -279,8 +292,14 @@ model Interview {
   interviewer  Employee?  @relation("InterviewInterviewer", fields: [interviewerId], references: [id])
   interviewerId String?
   date         DateTime
+  duration     Int?       // Duration in minutes
+  type         InterviewType @default(IN_PERSON)
+  location     String?    // For in-person interviews
+  meetingLink  String?    // For video/phone interviews
+  notes        String?    // Additional notes
   feedback     String?
   rating       Int?
+  status       InterviewStatus @default(SCHEDULED)
 }
 
 // -----------------------------------------

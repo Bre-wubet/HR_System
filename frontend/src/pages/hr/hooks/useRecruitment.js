@@ -194,6 +194,22 @@ export const useSetCandidateScore = () => {
 /**
  * Hook for hiring a candidate
  */
+export const useDeleteCandidate = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (candidateId) => recruitmentApi.deleteCandidate(candidateId),
+    onSuccess: (data, candidateId) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.recruitment.candidates.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.recruitment.kpis });
+      toast.success('Candidate deleted successfully');
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to delete candidate');
+    },
+  });
+};
+
 export const useHireCandidate = () => {
   const queryClient = useQueryClient();
   
@@ -202,7 +218,9 @@ export const useHireCandidate = () => {
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.recruitment.candidates.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.recruitment.kpis });
-      toast.success('Candidate hired successfully');
+      queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.employees.list() });
+      toast.success('Candidate hired successfully and added to employee list');
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || 'Failed to hire candidate');

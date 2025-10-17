@@ -20,7 +20,7 @@ import {
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
-import { useJobPosting, useCandidatesForJob, useCreateCandidate, useUpdateCandidateStage, useSetCandidateScore, useHireCandidate, useScheduleInterview, useInterviewers } from './hooks/useRecruitment';
+import { useJobPosting, useCandidatesForJob, useCreateCandidate, useUpdateCandidateStage, useSetCandidateScore, useHireCandidate, useScheduleInterview, useInterviewers, useDeleteCandidate } from './hooks/useRecruitment';
 import { recruitmentUtils } from '../../api/recruitmentApi';
 import { cn } from '../../lib/utils';
 import CandidateCard from './components/recuirementComponents/CandidateCard';
@@ -154,10 +154,11 @@ const JobCandidatesView = () => {
     setShowCandidateForm(true);
   };
   
+  const deleteCandidateMutation = useDeleteCandidate();
+
   const handleDeleteCandidate = async (candidateId) => {
-    if (window.confirm('Are you sure you want to delete this candidate?')) {
-      // TODO: Implement delete candidate mutation
-      console.log('Delete candidate:', candidateId);
+    if (window.confirm('Are you sure you want to delete this candidate? This action cannot be undone.')) {
+      deleteCandidateMutation.mutate(candidateId);
     }
   };
   
@@ -336,7 +337,7 @@ const JobCandidatesView = () => {
                 onScheduleInterview={handleScheduleInterview}
                 onHire={handleHire}
                 onEditCandidate={handleEditCandidate}
-                onDeleteCandidate={handleDeleteCandidate}
+                onDelete={handleDeleteCandidate}
                 isLoading={isLoading}
               />
             ))}

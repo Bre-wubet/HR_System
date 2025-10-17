@@ -24,6 +24,7 @@ router.get("/candidates", requirePermission("recruitment:read"), controller.list
 router.get("/jobs/:id/candidates", requirePermission("recruitment:read"), controller.listCandidatesForJob);
 router.post("/jobs/:id/candidates", requirePermission("recruitment:create"), controller.createCandidateForJob);
 router.put("/candidates/:candidateId/stage", requirePermission("recruitment:update"), controller.updateCandidateStage);
+router.delete("/candidates/:candidateId", requirePermission("recruitment:delete"), controller.deleteCandidate);
 router.post("/candidates/:candidateId/hire", requirePermission("recruitment:update"), controller.hireCandidate);
 
 // Shortlist and scoring - require recruitment update permission

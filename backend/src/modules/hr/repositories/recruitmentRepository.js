@@ -147,12 +147,38 @@ export function updateCandidateStatusWithReason(candidateId, stage, reason) {
 }
 
 // Interviews
-export function scheduleInterview({ candidateId, interviewerId, date, feedback, rating }) {
-  return prisma.interview.create({ data: { candidateId, interviewerId, date: new Date(date), feedback: feedback || null, rating: rating || null } });
+export function scheduleInterview({ candidateId, interviewerId, date, duration, type, location, meetingLink, notes, feedback, rating }) {
+  return prisma.interview.create({ 
+    data: { 
+      candidateId, 
+      interviewerId, 
+      date: new Date(date), 
+      duration,
+      type,
+      location,
+      meetingLink,
+      notes,
+      feedback: feedback || null, 
+      rating: rating || null 
+    } 
+  });
 }
 
-export function updateInterview(id, { date, feedback, rating }) {
-  return prisma.interview.update({ where: { id }, data: { date: date ? new Date(date) : undefined, feedback, rating } });
+export function updateInterview(id, { date, duration, type, location, meetingLink, notes, feedback, rating, status }) {
+  return prisma.interview.update({ 
+    where: { id }, 
+    data: { 
+      date: date ? new Date(date) : undefined, 
+      duration,
+      type,
+      location,
+      meetingLink,
+      notes,
+      feedback, 
+      rating,
+      status
+    } 
+  });
 }
 
 export function deleteInterview(id) {
@@ -309,6 +335,36 @@ export function findEmployeeById(id) {
 }
 
 // Hire transaction: create employee, update candidate to HIRED, optional contract
+export async function deleteCandidateById(candidateId) {
+  return prisma.$transaction(async (tx) => {
+    const candidate = await tx.candidate.findUnique({ 
+      where: { id: candidateId },
+      include: { interviews: true }
+    });
+    
+    if (!candidate) {
+      const error = new Error("Candidate not found");
+      error.statusCode = 404;
+      error.code = 'CANDIDATE_NOT_FOUND';
+      throw error;
+    }
+
+    // Delete associated interviews first
+    if (candidate.interviews.length > 0) {
+      await tx.interview.deleteMany({
+        where: { candidateId: candidateId }
+      });
+    }
+
+    // Delete the candidate
+    await tx.candidate.delete({
+      where: { id: candidateId }
+    });
+
+    return { success: true, message: 'Candidate deleted successfully' };
+  });
+}
+
 export async function hireCandidate(candidateId, { jobType, salary, managerId, startDate }) {
   return prisma.$transaction(async (tx) => {
     const candidate = await tx.candidate.findUnique({ where: { id: candidateId }, include: { jobPosting: true } });
@@ -349,6 +405,15 @@ export async function hireCandidate(candidateId, { jobType, salary, managerId, s
         error.code = 'MANAGER_NOT_FOUND';
         throw error;
       }
+    }
+
+    // Check if candidate email already exists as an employee
+    const existingEmployee = await tx.employee.findUnique({ where: { email: candidate.email } });
+    if (existingEmployee) {
+      const error = new Error(`Candidate email ${candidate.email} already exists as an employee (${existingEmployee.firstName} ${existingEmployee.lastName})`);
+      error.statusCode = 400;
+      error.code = 'EMAIL_ALREADY_EXISTS';
+      throw error;
     }
 
     const employee = await tx.employee.create({

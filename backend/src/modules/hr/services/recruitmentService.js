@@ -175,6 +175,10 @@ export async function updateCandidateStageWithGuards(candidateId, nextStage) {
   return repo.updateCandidateStage(candidateId, nextStage);
 }
 
+export function deleteCandidateById(candidateId) {
+  return repo.deleteCandidateById(candidateId);
+}
+
 export function hireCandidate(candidateId, data) {
   return repo.hireCandidate(candidateId, data);
 }

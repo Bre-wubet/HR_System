@@ -33,6 +33,14 @@ export const queryKeys = {
     roles: ['auth', 'roles'],
   },
   
+  // Dashboard
+  dashboard: {
+    overview: ['dashboard', 'overview'],
+    recentActivities: ['dashboard', 'recent-activities'],
+    analytics: ['dashboard', 'analytics'],
+    kpis: ['dashboard', 'kpis'],
+  },
+  
   // Employees
   employees: {
     all: ['employees'],

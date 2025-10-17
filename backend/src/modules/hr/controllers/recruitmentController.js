@@ -231,6 +231,16 @@ export async function createOnboardingChecklist(req, res, next) {
 }
 
 // Hiring endpoint
+export async function deleteCandidate(req, res, next) {
+  try {
+    await validate(v.deleteCandidateSchema, { params: req.params });
+    const result = await service.deleteCandidateById(req.params.candidateId);
+    res.status(200).json(response.success(result));
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function hireCandidate(req, res, next) {
   try {
     await validate(v.hireCandidateSchema, { params: req.params, body: req.body });

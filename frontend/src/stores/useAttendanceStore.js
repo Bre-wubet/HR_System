@@ -13,17 +13,26 @@ const useAttendanceStore = create(
       loading: false,
       error: null,
       currentEmployeeAttendance: null,
+      lastUpdate: null,
+      isOnline: navigator.onLine,
+      notifications: [],
 
       // Actions
       setLoading: (loading) => set({ loading }),
       setError: (error) => set({ error }),
+      setOnlineStatus: (isOnline) => set({ isOnline }),
+      setLastUpdate: (lastUpdate) => set({ lastUpdate }),
 
-      // Attendance Actions
+      // Enhanced Attendance Actions
       fetchAttendance: async (params = {}) => {
         try {
           set({ loading: true, error: null });
           const response = await attendanceApi.listAttendance(params);
-          set({ attendance: response.data.data, loading: false });
+          set({ 
+            attendance: response.data.data, 
+            loading: false,
+            lastUpdate: new Date()
+          });
           return response.data.data;
         } catch (error) {
           set({ error: error.message, loading: false });
@@ -35,7 +44,11 @@ const useAttendanceStore = create(
         try {
           set({ loading: true, error: null });
           const response = await attendanceApi.getAttendanceByEmployee(employeeId, params);
-          set({ currentEmployeeAttendance: response.data.data, loading: false });
+          set({ 
+            currentEmployeeAttendance: response.data.data, 
+            loading: false,
+            lastUpdate: new Date()
+          });
           return response.data.data;
         } catch (error) {
           set({ error: error.message, loading: false });
@@ -49,7 +62,7 @@ const useAttendanceStore = create(
           const response = await attendanceApi.recordAttendance(data);
           // Refresh attendance list
           await get().fetchAttendance();
-          set({ loading: false });
+          set({ loading: false, lastUpdate: new Date() });
           return response.data.data;
         } catch (error) {
           set({ error: error.message, loading: false });
@@ -60,14 +73,26 @@ const useAttendanceStore = create(
       checkIn: async (employeeId, data = {}) => {
         try {
           set({ loading: true, error: null });
-          const response = await attendanceApi.checkIn(employeeId, data);
-          // Refresh current employee attendance
-          if (get().currentEmployeeAttendance) {
-            await get().fetchEmployeeAttendance(employeeId);
-          }
-          // Refresh attendance list
-          await get().fetchAttendance();
-          set({ loading: false });
+          const response = await attendanceApi.checkIn(employeeId, {
+            timestamp: new Date().toISOString(),
+            location: data.location || null,
+            device: data.device || 'web',
+            ...data
+          });
+          
+          // Add notification
+          const notifications = get().notifications;
+          set({ 
+            notifications: [...notifications, {
+              id: Date.now(),
+              type: 'success',
+              message: 'Checked in successfully',
+              timestamp: new Date()
+            }],
+            loading: false,
+            lastUpdate: new Date()
+          });
+          
           return response.data.data;
         } catch (error) {
           set({ error: error.message, loading: false });
@@ -78,14 +103,26 @@ const useAttendanceStore = create(
       checkOut: async (employeeId, data = {}) => {
         try {
           set({ loading: true, error: null });
-          const response = await attendanceApi.checkOut(employeeId, data);
-          // Refresh current employee attendance
-          if (get().currentEmployeeAttendance) {
-            await get().fetchEmployeeAttendance(employeeId);
-          }
-          // Refresh attendance list
-          await get().fetchAttendance();
-          set({ loading: false });
+          const response = await attendanceApi.checkOut(employeeId, {
+            timestamp: new Date().toISOString(),
+            location: data.location || null,
+            device: data.device || 'web',
+            ...data
+          });
+          
+          // Add notification
+          const notifications = get().notifications;
+          set({ 
+            notifications: [...notifications, {
+              id: Date.now(),
+              type: 'success',
+              message: 'Checked out successfully',
+              timestamp: new Date()
+            }],
+            loading: false,
+            lastUpdate: new Date()
+          });
+          
           return response.data.data;
         } catch (error) {
           set({ error: error.message, loading: false });
@@ -110,7 +147,6 @@ const useAttendanceStore = create(
         try {
           set({ loading: true, error: null });
           const response = await attendanceApi.createLeaveRequest(data);
-          // Refresh leave requests list
           await get().fetchLeaveRequests();
           set({ loading: false });
           return response.data.data;
@@ -120,11 +156,10 @@ const useAttendanceStore = create(
         }
       },
 
-      updateLeaveStatus: async (leaveId, data) => {
+      updateLeaveStatus: async (leaveId, status, approvedById) => {
         try {
           set({ loading: true, error: null });
-          const response = await attendanceApi.updateLeaveStatus(leaveId, data);
-          // Refresh leave requests list
+          const response = await attendanceApi.updateLeaveStatus(leaveId, { status, approvedById });
           await get().fetchLeaveRequests();
           set({ loading: false });
           return response.data.data;
@@ -159,7 +194,7 @@ const useAttendanceStore = create(
         }
       },
 
-      // Utility Actions
+      // Enhanced Utility Actions
       getTodayAttendance: () => {
         const today = new Date().toDateString();
         return get().attendance.filter(record => 
@@ -201,6 +236,56 @@ const useAttendanceStore = create(
         );
       },
 
+      // Real-time features
+      addNotification: (notification) => {
+        const notifications = get().notifications;
+        set({ 
+          notifications: [...notifications, {
+            id: Date.now(),
+            timestamp: new Date(),
+            ...notification
+          }]
+        });
+      },
+
+      removeNotification: (notificationId) => {
+        const notifications = get().notifications;
+        set({ 
+          notifications: notifications.filter(n => n.id !== notificationId)
+        });
+      },
+
+      clearNotifications: () => set({ notifications: [] }),
+
+      // Enhanced statistics
+      getAttendanceStats: () => {
+        const attendance = get().attendance;
+        const todayAttendance = get().getTodayAttendance();
+        const weekAttendance = get().getCurrentWeekAttendance();
+        const monthAttendance = get().getCurrentMonthAttendance();
+
+        return {
+          total: attendance.length,
+          presentToday: todayAttendance.filter(a => a.status === 'PRESENT').length,
+          absentToday: todayAttendance.filter(a => a.status === 'ABSENT').length,
+          lateToday: todayAttendance.filter(a => a.status === 'LATE').length,
+          onLeaveToday: todayAttendance.filter(a => a.status === 'ON_LEAVE').length,
+          attendanceRate: attendance.length > 0 ? 
+            Math.round((attendance.filter(a => a.status === 'PRESENT').length / attendance.length) * 100) : 0,
+          punctualityRate: weekAttendance.length > 0 ?
+            Math.round((weekAttendance.filter(a => a.status === 'PRESENT').length / weekAttendance.length) * 100) : 0,
+          avgWorkHours: monthAttendance.length > 0 ? 
+            monthAttendance.reduce((sum, a) => {
+              if (a.checkIn && a.checkOut) {
+                const diffMs = new Date(a.checkOut).getTime() - new Date(a.checkIn).getTime();
+                return sum + (diffMs / (1000 * 60 * 60));
+              }
+              return sum;
+            }, 0) / monthAttendance.length : 0,
+          overtimeHours: monthAttendance.reduce((sum, a) => sum + (a.overtime || 0), 0)
+        };
+      },
+
       // Reset actions
       resetAttendance: () => set({ attendance: [], currentEmployeeAttendance: null }),
       resetLeaveRequests: () => set({ leaveRequests: [] }),
@@ -212,7 +297,9 @@ const useAttendanceStore = create(
         absenceAnalytics: null,
         currentEmployeeAttendance: null,
         loading: false,
-        error: null
+        error: null,
+        notifications: [],
+        lastUpdate: null
       }),
     }),
     {

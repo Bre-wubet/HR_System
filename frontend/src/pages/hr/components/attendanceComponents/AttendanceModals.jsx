@@ -1,0 +1,120 @@
+import React from 'react';
+import { Modal } from '../../../../components/ui/Modal';
+import { Button } from '../../../../components/ui/Button';
+import AttendanceEditForm from './AttendanceEditForm';
+
+/**
+ * AttendanceModals Component
+ * Contains all modal dialogs for attendance management
+ */
+export const AttendanceModals = ({ 
+  showRecordModal, 
+  showAnalyticsModal, 
+  showEditModal,
+  editingRecord,
+  onCloseRecordModal, 
+  onCloseAnalyticsModal, 
+  onCloseEditModal,
+  onEditAttendance,
+  isEditing,
+  stats 
+}) => {
+  return (
+    <>
+      {/* Record Attendance Modal */}
+      <Modal
+        isOpen={showRecordModal}
+        onClose={onCloseRecordModal}
+        title="Record Attendance"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">
+            This feature will be implemented to allow manual attendance recording.
+          </p>
+          <div className="flex items-center justify-end space-x-3 pt-4">
+            <Button
+              variant="outline"
+              onClick={onCloseRecordModal}
+            >
+              Close
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Analytics Modal */}
+      <Modal
+        isOpen={showAnalyticsModal}
+        onClose={onCloseAnalyticsModal}
+        title="Attendance Analytics"
+        size="lg"
+      >
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-3">This Month</h4>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Total Employees:</span>
+                  <span className="text-sm font-medium">{stats.totalEmployees}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Present Today:</span>
+                  <span className="text-sm font-medium">{stats.presentToday}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Absent Today:</span>
+                  <span className="text-sm font-medium">{stats.absentToday}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Late Today:</span>
+                  <span className="text-sm font-medium">{stats.lateToday}</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-3">Performance</h4>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Attendance Rate:</span>
+                  <span className="text-sm font-medium">{stats.attendanceRate}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Punctuality Rate:</span>
+                  <span className="text-sm font-medium">{stats.punctualityRate}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Avg Work Hours:</span>
+                  <span className="text-sm font-medium">{stats.avgWorkHours.toFixed(1)}h</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Overtime Hours:</span>
+                  <span className="text-sm font-medium">{stats.overtimeHours.toFixed(1)}h</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center justify-end space-x-3 pt-4">
+            <Button
+              variant="outline"
+              onClick={onCloseAnalyticsModal}
+            >
+              Close
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Edit Attendance Modal */}
+      <AttendanceEditForm
+        isOpen={showEditModal}
+        onClose={onCloseEditModal}
+        onSubmit={onEditAttendance}
+        attendanceRecord={editingRecord}
+        isLoading={isEditing}
+      />
+    </>
+  );
+};
+
+export default AttendanceModals;

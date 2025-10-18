@@ -1,6 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Clock, Calendar, CheckCircle, XCircle, AlertCircle, User } from 'lucide-react';
+import { 
+  Clock, 
+  Calendar, 
+  CheckCircle, 
+  XCircle, 
+  AlertCircle, 
+  User,
+  MapPin,
+  Smartphone,
+  Wifi,
+  WifiOff,
+  TrendingUp,
+  TrendingDown,
+  Activity,
+  Zap
+} from 'lucide-react';
 import { Button } from '../../../../components/ui/Button';
 import { Input } from '../../../../components/ui/Input';
 import { Modal } from '../../../../components/ui/Modal';
@@ -14,8 +29,230 @@ import {
 } from '../../../../api/attendanceApi';
 
 /**
- * AttendanceCard Component
- * Displays attendance information for a single day
+ * Enhanced CheckInOutCard Component
+ * Quick check-in/out interface with location and device tracking
+ */
+export const CheckInOutCard = ({ employeeId, currentAttendance, onCheckIn, onCheckOut, loading }) => {
+  const [isCheckingIn, setIsCheckingIn] = useState(false);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [location, setLocation] = useState(null);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    // Get user's location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy
+          });
+        },
+        (error) => {
+          console.log('Location access denied or unavailable:', error);
+        }
+      );
+    }
+
+    // Monitor network status
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  const handleCheckIn = async () => {
+    setIsCheckingIn(true);
+    try {
+      await onCheckIn(employeeId, { 
+        timestamp: new Date().toISOString(),
+        location,
+        device: 'web',
+        userAgent: navigator.userAgent
+      });
+    } finally {
+      setIsCheckingIn(false);
+    }
+  };
+
+  const handleCheckOut = async () => {
+    setIsCheckingOut(true);
+    try {
+      await onCheckOut(employeeId, { 
+        timestamp: new Date().toISOString(),
+        location,
+        device: 'web',
+        userAgent: navigator.userAgent
+      });
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
+
+  const isCheckedIn = currentAttendance?.checkIn && !currentAttendance?.checkOut;
+  const isCheckedOut = currentAttendance?.checkOut;
+  const workHours = calculateWorkHours(currentAttendance?.checkIn, currentAttendance?.checkOut);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-white rounded-xl shadow-soft p-6 border border-gray-200"
+    >
+      <div className="text-center">
+        <div className="mb-4">
+          <div className="flex items-center justify-center space-x-2 mb-2">
+            <Clock className="h-5 w-5 text-blue-600" />
+            {isOnline ? (
+              <Wifi className="h-4 w-4 text-green-600" />
+            ) : (
+              <WifiOff className="h-4 w-4 text-red-600" />
+            )}
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900">Today's Attendance</h3>
+          <p className="text-sm text-gray-600">{formatDate(new Date())}</p>
+        </div>
+
+        <div className="space-y-3">
+          {!isCheckedIn && !isCheckedOut && (
+            <div className="space-y-3">
+              <Button
+                onClick={handleCheckIn}
+                disabled={loading || isCheckingIn || !isOnline}
+                className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400"
+              >
+                {isCheckingIn ? 'Checking In...' : 'Check In'}
+              </Button>
+              {!isOnline && (
+                <p className="text-xs text-red-600">Offline - Check-in unavailable</p>
+              )}
+            </div>
+          )}
+
+          {isCheckedIn && (
+            <div className="space-y-3">
+              <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                <div className="flex items-center justify-center space-x-2 mb-1">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span className="text-sm font-medium text-green-800">Checked In</span>
+                </div>
+                <p className="text-sm text-green-700">
+                  {formatTime(currentAttendance.checkIn)}
+                </p>
+                {location && (
+                  <div className="flex items-center justify-center space-x-1 mt-1">
+                    <MapPin className="h-3 w-3 text-green-600" />
+                    <span className="text-xs text-green-600">Location tracked</span>
+                  </div>
+                )}
+              </div>
+              <Button
+                onClick={handleCheckOut}
+                disabled={loading || isCheckingOut || !isOnline}
+                className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400"
+              >
+                {isCheckingOut ? 'Checking Out...' : 'Check Out'}
+              </Button>
+            </div>
+          )}
+
+          {isCheckedOut && (
+            <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center justify-center space-x-2 mb-2">
+                <XCircle className="h-4 w-4 text-gray-600" />
+                <span className="text-sm font-medium text-gray-800">Checked Out</span>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-700">
+                  In: {formatTime(currentAttendance.checkIn)}
+                </p>
+                <p className="text-sm text-gray-700">
+                  Out: {formatTime(currentAttendance.checkOut)}
+                </p>
+                <div className="flex items-center justify-center space-x-2 pt-1 border-t border-gray-200">
+                  <Activity className="h-3 w-3 text-blue-600" />
+                  <span className="text-xs font-medium text-blue-600">
+                    {workHours.toFixed(2)}h worked
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+/**
+ * Enhanced AttendanceStatsCard Component
+ * Displays attendance statistics with trends and animations
+ */
+export const AttendanceStatsCard = ({ title, value, icon: Icon, color = 'blue', trend = null, subtitle = null }) => {
+  const colorClasses = {
+    blue: 'text-blue-600 bg-blue-50 border-blue-200',
+    green: 'text-green-600 bg-green-50 border-green-200',
+    yellow: 'text-yellow-600 bg-yellow-50 border-yellow-200',
+    red: 'text-red-600 bg-red-50 border-red-200',
+    purple: 'text-purple-600 bg-purple-50 border-purple-200',
+    orange: 'text-orange-600 bg-orange-50 border-orange-200',
+  };
+
+  const getTrendIcon = () => {
+    if (trend === null) return null;
+    if (trend > 0) return <TrendingUp className="h-3 w-3 text-green-600" />;
+    if (trend < 0) return <TrendingDown className="h-3 w-3 text-red-600" />;
+    return <Activity className="h-3 w-3 text-gray-600" />;
+  };
+
+  const getTrendColor = () => {
+    if (trend === null) return 'text-gray-600';
+    if (trend > 0) return 'text-green-600';
+    if (trend < 0) return 'text-red-600';
+    return 'text-gray-600';
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.02 }}
+      className="bg-white rounded-xl shadow-soft p-6 border border-gray-200 hover:shadow-medium transition-all duration-200"
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex-1">
+          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
+          <p className="text-2xl font-bold text-gray-900 mb-1">{value}</p>
+          {subtitle && (
+            <p className="text-xs text-gray-500 mb-2">{subtitle}</p>
+          )}
+          {trend !== null && (
+            <div className="flex items-center space-x-1">
+              {getTrendIcon()}
+              <p className={`text-xs font-medium ${getTrendColor()}`}>
+                {trend > 0 ? '+' : ''}{trend}% from last period
+              </p>
+            </div>
+          )}
+        </div>
+        <div className={`p-3 rounded-lg border ${colorClasses[color]}`}>
+          <Icon className="h-6 w-6" />
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+/**
+ * Enhanced AttendanceCard Component
+ * Displays attendance information with improved design and functionality
  */
 export const AttendanceCard = ({ attendance, onEdit, showActions = true }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -69,7 +306,8 @@ export const AttendanceCard = ({ attendance, onEdit, showActions = true }) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-xl shadow-soft p-6 border border-gray-200 hover:shadow-medium transition-shadow"
+        whileHover={{ scale: 1.02 }}
+        className="bg-white rounded-xl shadow-soft p-6 border border-gray-200 hover:shadow-medium transition-all duration-200"
       >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
@@ -116,7 +354,7 @@ export const AttendanceCard = ({ attendance, onEdit, showActions = true }) => {
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
-                <Clock className="h-4 w-4 text-gray-400" />
+                <Activity className="h-4 w-4 text-gray-400" />
                 <span className="text-sm text-gray-600">Work Hours:</span>
               </div>
               <p className="text-sm font-medium text-gray-900">
@@ -126,7 +364,7 @@ export const AttendanceCard = ({ attendance, onEdit, showActions = true }) => {
             {overtime > 0 && (
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
-                  <AlertCircle className="h-4 w-4 text-orange-400" />
+                  <Zap className="h-4 w-4 text-orange-400" />
                   <span className="text-sm text-gray-600">Overtime:</span>
                 </div>
                 <p className="text-sm font-medium text-orange-600">
@@ -209,129 +447,6 @@ export const AttendanceCard = ({ attendance, onEdit, showActions = true }) => {
         </div>
       </Modal>
     </>
-  );
-};
-
-/**
- * CheckInOutCard Component
- * Quick check-in/out interface for current user
- */
-export const CheckInOutCard = ({ employeeId, currentAttendance, onCheckIn, onCheckOut, loading }) => {
-  const [isCheckingIn, setIsCheckingIn] = useState(false);
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
-
-  const handleCheckIn = async () => {
-    setIsCheckingIn(true);
-    try {
-      await onCheckIn(employeeId, { timestamp: new Date().toISOString() });
-    } finally {
-      setIsCheckingIn(false);
-    }
-  };
-
-  const handleCheckOut = async () => {
-    setIsCheckingOut(true);
-    try {
-      await onCheckOut(employeeId, { timestamp: new Date().toISOString() });
-    } finally {
-      setIsCheckingOut(false);
-    }
-  };
-
-  const isCheckedIn = currentAttendance?.checkIn && !currentAttendance?.checkOut;
-  const isCheckedOut = currentAttendance?.checkOut;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-xl shadow-soft p-6 border border-gray-200"
-    >
-      <div className="text-center">
-        <div className="mb-4">
-          <Clock className="h-4 w-4 mx-auto text-blue-600 mb-2" />
-          <h3 className="text-sm font-semibold text-gray-900">Today's Attendance</h3>
-          <p className="text-sm text-gray-600">{formatDate(new Date())}</p>
-        </div>
-
-        <div className="space-y-3">
-          {!isCheckedIn && !isCheckedOut && (
-            <Button
-              onClick={handleCheckIn}
-              disabled={loading || isCheckingIn}
-              className="w-full bg-green-600 hover:bg-green-700"
-            >
-              {isCheckingIn ? 'Checking In...' : 'Check In'}
-            </Button>
-          )}
-
-          {isCheckedIn && (
-            <div className="space-y-3">
-              <div className="p-3 bg-green-50 rounded-lg">
-                <p className="text-sm text-green-800 font-medium">
-                  Checked in at {formatTime(currentAttendance.checkIn)}
-                </p>
-              </div>
-              <Button
-                onClick={handleCheckOut}
-                disabled={loading || isCheckingOut}
-                className="w-full bg-red-600 hover:bg-red-700"
-              >
-                {isCheckingOut ? 'Checking Out...' : 'Check Out'}
-              </Button>
-            </div>
-          )}
-
-          {isCheckedOut && (
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-800 font-medium">
-                Checked out at {formatTime(currentAttendance.checkOut)}
-              </p>
-              <p className="text-xs text-gray-600 mt-1">
-                Work hours: {calculateWorkHours(currentAttendance.checkIn, currentAttendance.checkOut).toFixed(2)}h
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
-/**
- * AttendanceStatsCard Component
- * Displays attendance statistics
- */
-export const AttendanceStatsCard = ({ title, value, icon: Icon, color = 'blue', trend = null }) => {
-  const colorClasses = {
-    blue: 'text-blue-600 bg-blue-50',
-    green: 'text-green-600 bg-green-50',
-    yellow: 'text-yellow-600 bg-yellow-50',
-    red: 'text-red-600 bg-red-50',
-    purple: 'text-purple-600 bg-purple-50',
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-xl shadow-soft p-6 border border-gray-200"
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
-          {trend && (
-            <p className={`text-sm ${trend > 0 ? 'text-green-600' : trend < 0 ? 'text-red-600' : 'text-gray-600'}`}>
-              {trend > 0 ? '+' : ''}{trend}% from last period
-            </p>
-          )}
-        </div>
-        <div className={`p-3 rounded-lg ${colorClasses[color]}`}>
-          <Icon className="h-6 w-6" />
-        </div>
-      </div>
-    </motion.div>
   );
 };
 

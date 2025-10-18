@@ -29,6 +29,10 @@ export const recordAttendanceSchema = Joi.object({
     status: Joi.string().valid("PRESENT", "ABSENT", "LATE", "ON_LEAVE").required(),
     checkIn: Joi.date().optional(),
     checkOut: Joi.date().optional(),
+    notes: Joi.string().allow("").optional(),
+    location: Joi.string().allow("").optional(),
+    overtime: Joi.number().min(0).optional(),
+    workHours: Joi.number().min(0).optional(),
   }).required(),
 });
 

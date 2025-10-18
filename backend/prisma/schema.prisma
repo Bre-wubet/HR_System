@@ -314,6 +314,9 @@ model Attendance {
   checkIn     DateTime?
   checkOut    DateTime?
   overtime    Float?           // hours
+  workHours   Float?           // calculated work hours
+  notes       String?          // additional notes
+  location    String?          // work location
 }
 
 model LeaveRequest {

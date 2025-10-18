@@ -9,6 +9,10 @@ export function recordAttendance(data) {
   return repo.createAttendance(data);
 }
 
+export function updateAttendance(id, data) {
+  return repo.updateAttendance(id, data);
+}
+
 export function checkIn(employeeId, data) {
   return repo.checkIn(employeeId, data);
 }
@@ -55,6 +59,36 @@ export async function recordAttendanceWithGuards(payload) {
     throw error;
   }
   return repo.createAttendance(payload);
+}
+
+export async function updateAttendanceWithGuards(id, payload) {
+  // Check if attendance record exists
+  const existingRecord = await repo.findById(id);
+  if (!existingRecord) {
+    const error = new Error(`Attendance record with ID ${id} not found`);
+    error.statusCode = 404;
+    error.code = 'ATTENDANCE_NOT_FOUND';
+    throw error;
+  }
+
+  // If employeeId is being updated, validate the new employee
+  if (payload.employeeId) {
+    const employee = await employeeRepo.findById(payload.employeeId);
+    if (!employee) {
+      const error = new Error(`Employee with ID ${payload.employeeId} not found`);
+      error.statusCode = 404;
+      error.code = 'EMPLOYEE_NOT_FOUND';
+      throw error;
+    }
+    if (employee.status === 'TERMINATED' || employee.status === 'INACTIVE') {
+      const error = new Error(`Cannot update attendance for ${employee.status} employee`);
+      error.statusCode = 400;
+      error.code = 'EMPLOYEE_INACTIVE';
+      throw error;
+    }
+  }
+
+  return repo.updateAttendance(id, payload);
 }
 
 export async function checkInWithGuards(employeeId, data) {

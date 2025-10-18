@@ -37,6 +37,7 @@ export const useAttendanceLogic = () => {
     checkIn,
     checkOut,
     recordAttendance,
+    updateAttendance,
     getTodayAttendance,
     getCurrentWeekAttendance,
     getCurrentMonthAttendance
@@ -148,8 +149,7 @@ export const useAttendanceLogic = () => {
   const handleEditAttendance = async (data) => {
     try {
       setIsEditing(true);
-      await recordAttendance({
-        id: editingRecord.id,
+      await updateAttendance(editingRecord.id, {
         ...data,
         checkIn: data.checkIn ? new Date(data.checkIn).toISOString() : null,
         checkOut: data.checkOut ? new Date(data.checkOut).toISOString() : null,

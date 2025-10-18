@@ -36,6 +36,21 @@ export const recordAttendanceSchema = Joi.object({
   }).required(),
 });
 
+export const updateAttendanceSchema = Joi.object({
+  params: Joi.object({ id: Joi.string().uuid().required() }).required(),
+  body: Joi.object({
+    employeeId: Joi.string().uuid().optional(),
+    date: Joi.date().optional(),
+    status: Joi.string().valid("PRESENT", "ABSENT", "LATE", "ON_LEAVE").optional(),
+    checkIn: Joi.date().optional(),
+    checkOut: Joi.date().optional(),
+    notes: Joi.string().allow("").optional(),
+    location: Joi.string().allow("").optional(),
+    overtime: Joi.number().min(0).optional(),
+    workHours: Joi.number().min(0).optional(),
+  }).min(1).required(),
+});
+
 export const checkInSchema = Joi.object({
   params: Joi.object({ employeeId: Joi.string().uuid().required() }).required(),
   body: Joi.object({ timestamp: Joi.date().optional() }).required(),

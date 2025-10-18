@@ -16,6 +16,14 @@ export function createAttendance(data) {
   return prisma.attendance.create({ data });
 }
 
+export function updateAttendance(id, data) {
+  return prisma.attendance.update({ where: { id }, data });
+}
+
+export function findById(id) {
+  return prisma.attendance.findUnique({ where: { id } });
+}
+
 // Digital check-in/out with basic overtime calculation
 export async function checkIn(employeeId, { timestamp }) {
   const now = timestamp ? new Date(timestamp) : new Date();

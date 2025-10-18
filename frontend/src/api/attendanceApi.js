@@ -11,6 +11,10 @@ export const attendanceApi = {
     return apiClient.post('/hr/attendance', data);
   },
 
+  updateAttendance: (id, data) => {
+    return apiClient.put(`/hr/attendance/${id}`, data);
+  },
+
   getAttendanceByEmployee: (employeeId, params = {}) => {
     return apiClient.get(`/hr/attendance/employee/${employeeId}`, { params });
   },

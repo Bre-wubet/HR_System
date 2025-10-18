@@ -70,6 +70,20 @@ const useAttendanceStore = create(
         }
       },
 
+      updateAttendance: async (id, data) => {
+        try {
+          set({ loading: true, error: null });
+          const response = await attendanceApi.updateAttendance(id, data);
+          // Refresh attendance list
+          await get().fetchAttendance();
+          set({ loading: false, lastUpdate: new Date() });
+          return response.data.data;
+        } catch (error) {
+          set({ error: error.message, loading: false });
+          throw error;
+        }
+      },
+
       checkIn: async (employeeId, data = {}) => {
         try {
           set({ loading: true, error: null });

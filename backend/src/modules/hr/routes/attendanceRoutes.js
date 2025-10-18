@@ -17,6 +17,7 @@ router.use(authenticateToken);
 // Attendance records - require attendance permissions
 router.get("/", requirePermission("attendance:read"), validate(v.listAttendanceSchema), controller.listAttendance);
 router.post("/", requirePermission("attendance:create"), validate(v.recordAttendanceSchema), controller.recordAttendance);
+router.put("/:id", requirePermission("attendance:update"), validate(v.updateAttendanceSchema), controller.updateAttendance);
 router.get("/employee/:employeeId", requireEmployeeAccess(), validate(v.listAttendanceByEmployeeSchema), controller.listAttendanceByEmployee);
 
 // Check-in/out endpoints - require attendance create permission or own data

@@ -262,7 +262,7 @@ const GlobalCandidatesManagement = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl shadow-soft p-6">
           <div className="flex items-center space-x-3">
-            <Users className="h-8 w-8 text-blue-600" />
+            <Users className="h-4 w-4 text-blue-600" />
             <div>
               <h3 className="text-sm font-semibold text-gray-900">Total Candidates</h3>
               <p className="text-xl font-bold text-blue-600">{stats.total}</p>
@@ -272,7 +272,7 @@ const GlobalCandidatesManagement = () => {
 
         <div className="bg-white rounded-xl shadow-soft p-6">
           <div className="flex items-center space-x-3">
-            <Star className="h-8 w-8 text-yellow-600" />
+            <Star className="h-4 w-4 text-yellow-600" />
             <div>
               <h3 className="text-sm font-semibold text-gray-900">Scored</h3>
               <p className="text-xl font-bold text-yellow-600">{stats.scored}</p>
@@ -282,7 +282,7 @@ const GlobalCandidatesManagement = () => {
 
         <div className="bg-white rounded-xl shadow-soft p-6">
           <div className="flex items-center space-x-3">
-            <TrendingUp className="h-8 w-8 text-green-600" />
+            <TrendingUp className="h-4 w-4 text-green-600" />
             <div>
               <h3 className="text-sm font-semibold text-gray-900">Avg Score</h3>
               <p className="text-xl font-bold text-green-600">{stats.averageScore}</p>
@@ -292,7 +292,7 @@ const GlobalCandidatesManagement = () => {
 
         <div className="bg-white rounded-xl shadow-soft p-6">
           <div className="flex items-center space-x-3">
-            <CheckCircle className="h-8 w-8 text-purple-600" />
+            <CheckCircle className="h-4 w-4 text-purple-600" />
             <div>
               <h3 className="text-sm font-semibold text-gray-900">Hired</h3>
               <p className="text-xl font-bold text-purple-600">{stats.hired}</p>

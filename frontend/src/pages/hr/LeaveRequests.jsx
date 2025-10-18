@@ -210,10 +210,10 @@ const LeaveRequests = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Requests</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+              <p className="text-xl font-bold text-gray-900">{stats.total}</p>
             </div>
             <div className="p-3 bg-blue-50 rounded-lg">
-              <Users className="h-6 w-6 text-blue-600" />
+              <Users className="h-4 w-4 text-blue-600" />
             </div>
           </div>
         </div>
@@ -222,10 +222,10 @@ const LeaveRequests = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Pending</p>
-              <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+              <p className="text-xl font-bold text-yellow-600">{stats.pending}</p>
             </div>
             <div className="p-3 bg-yellow-50 rounded-lg">
-              <AlertCircle className="h-6 w-6 text-yellow-600" />
+              <AlertCircle className="h-4 w-4 text-yellow-600" />
             </div>
           </div>
         </div>
@@ -234,10 +234,10 @@ const LeaveRequests = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Approved</p>
-              <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
+              <p className="text-xl font-bold text-green-600">{stats.approved}</p>
             </div>
             <div className="p-3 bg-green-50 rounded-lg">
-              <CheckCircle className="h-6 w-6 text-green-600" />
+              <CheckCircle className="h-4 w-4 text-green-600" />
             </div>
           </div>
         </div>
@@ -246,10 +246,10 @@ const LeaveRequests = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Rejected</p>
-              <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
+              <p className="text-xl font-bold text-red-600">{stats.rejected}</p>
             </div>
             <div className="p-3 bg-red-50 rounded-lg">
-              <XCircle className="h-6 w-6 text-red-600" />
+              <XCircle className="h-4 w-4 text-red-600" />
             </div>
           </div>
         </div>
@@ -258,10 +258,10 @@ const LeaveRequests = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Approval Rate</p>
-              <p className="text-2xl font-bold text-blue-600">{stats.approvalRate}%</p>
+              <p className="text-xl font-bold text-blue-600">{stats.approvalRate}%</p>
             </div>
             <div className="p-3 bg-blue-50 rounded-lg">
-              <Calendar className="h-6 w-6 text-blue-600" />
+              <Calendar className="h-4 w-4 text-blue-600" />
             </div>
           </div>
         </div>

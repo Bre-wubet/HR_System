@@ -297,7 +297,7 @@ const EmployeeAnalytics = () => {
               <p className="text-xl font-bold text-blue-600">{analyticsData.totalEmployees}</p>
             </div>
             <div className="p-3 bg-blue-50 rounded-lg">
-              <Users className="h-6 w-6 text-blue-600" />
+              <Users className="h-4 w-4 text-blue-600" />
             </div>
           </div>
         </div>
@@ -309,7 +309,7 @@ const EmployeeAnalytics = () => {
               <p className="text-xl font-bold text-green-600">{analyticsData.activeEmployees}</p>
             </div>
             <div className="p-3 bg-green-50 rounded-lg">
-              <Activity className="h-6 w-6 text-green-600" />
+              <Activity className="h-4 w-4 text-green-600" />
             </div>
           </div>
         </div>
@@ -321,7 +321,7 @@ const EmployeeAnalytics = () => {
               <p className="text-xl font-bold text-purple-600">{analyticsData.newHires}</p>
             </div>
             <div className="p-3 bg-purple-50 rounded-lg">
-              <TrendingUp className="h-6 w-6 text-purple-600" />
+              <TrendingUp className="h-4 w-4 text-purple-600" />
             </div>
           </div>
         </div>
@@ -333,7 +333,7 @@ const EmployeeAnalytics = () => {
                 <p className="text-xl font-bold text-orange-600">{analyticsData.avgTenure} months</p>
             </div>
             <div className="p-3 bg-orange-50 rounded-lg">
-              <Clock className="h-6 w-6 text-orange-600" />
+              <Clock className="h-4 w-4 text-orange-600" />
             </div>
           </div>
         </div>

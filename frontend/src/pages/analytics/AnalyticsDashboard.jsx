@@ -287,10 +287,10 @@ const AnalyticsDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Employees</p>
-              <p className="text-2xl font-bold text-blue-600">{dashboardData.employeeMetrics.totalEmployees}</p>
+              <p className="text-xl font-bold text-blue-600">{dashboardData.employeeMetrics.totalEmployees}</p>
             </div>
             <div className="p-3 bg-blue-50 rounded-lg">
-              <Users className="h-6 w-6 text-blue-600" />
+              <Users className="h-4 w-4 text-blue-600" />
             </div>
           </div>
           <div className="mt-2">
@@ -305,10 +305,10 @@ const AnalyticsDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Present Today</p>
-              <p className="text-2xl font-bold text-green-600">{dashboardData.attendanceMetrics.presentToday}</p>
+              <p className="text-xl font-bold text-green-600">{dashboardData.attendanceMetrics.presentToday}</p>
             </div>
             <div className="p-3 bg-green-50 rounded-lg">
-              <CheckCircle className="h-6 w-6 text-green-600" />
+              <CheckCircle className="h-4 w-4 text-green-600" />
             </div>
           </div>
           <div className="mt-2">
@@ -323,10 +323,10 @@ const AnalyticsDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Active Jobs</p>
-              <p className="text-2xl font-bold text-purple-600">{dashboardData.recruitmentMetrics.activeJobs}</p>
+              <p className="text-xl font-bold text-purple-600">{dashboardData.recruitmentMetrics.activeJobs}</p>
             </div>
             <div className="p-3 bg-purple-50 rounded-lg">
-              <Briefcase className="h-6 w-6 text-purple-600" />
+              <Briefcase className="h-4 w-4 text-purple-600" />
             </div>
           </div>
           <div className="mt-2">
@@ -341,10 +341,10 @@ const AnalyticsDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Hire Rate</p>
-              <p className="text-2xl font-bold text-orange-600">{dashboardData.recruitmentMetrics.hireRate}%</p>
+              <p className="text-xl font-bold text-orange-600">{dashboardData.recruitmentMetrics.hireRate}%</p>
             </div>
             <div className="p-3 bg-orange-50 rounded-lg">
-              <Target className="h-6 w-6 text-orange-600" />
+              <Target className="h-4 w-4 text-orange-600" />
             </div>
           </div>
           <div className="mt-2">

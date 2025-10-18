@@ -32,15 +32,15 @@ export const AttendanceCard = ({ attendance, onEdit, showActions = true }) => {
   const getStatusIcon = (status) => {
     switch (status) {
       case ATTENDANCE_STATUS.PRESENT:
-        return <CheckCircle className="h-5 w-5 text-green-600" />;
+        return <CheckCircle className="h-4 w-4 text-green-600" />;
       case ATTENDANCE_STATUS.ABSENT:
-        return <XCircle className="h-5 w-5 text-red-600" />;
+        return <XCircle className="h-4 w-4 text-red-600" />;
       case ATTENDANCE_STATUS.LATE:
-        return <AlertCircle className="h-5 w-5 text-yellow-600" />;
+        return <AlertCircle className="h-4 w-4 text-yellow-600" />;
       case ATTENDANCE_STATUS.ON_LEAVE:
-        return <Calendar className="h-5 w-5 text-blue-600" />;
+        return <Calendar className="h-4 w-4 text-blue-600" />;
       default:
-        return <Clock className="h-5 w-5 text-gray-600" />;
+        return <Clock className="h-4 w-4 text-gray-600" />;
     }
   };
 

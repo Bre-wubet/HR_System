@@ -273,7 +273,7 @@ const AttendanceAnalytics = () => {
         <div className="bg-white rounded-xl shadow-soft p-6 border border-gray-200">
           <div className="flex items-center space-x-3">
             <div className="p-3 bg-green-50 rounded-lg">
-              <Users className="h-6 w-6 text-green-600" />
+              <Users className="h-4 w-4 text-green-600" />
             </div>
             <div>
               <h3 className="text-sm font-semibold text-gray-900">Present Today</h3>
@@ -286,11 +286,11 @@ const AttendanceAnalytics = () => {
         <div className="bg-white rounded-xl shadow-soft p-6 border border-gray-200">
           <div className="flex items-center space-x-3">
             <div className="p-3 bg-yellow-50 rounded-lg">
-              <Clock className="h-6 w-6 text-yellow-600" />
+              <Clock className="h-4 w-4 text-yellow-600" />
             </div>
             <div>
               <h3 className="text-sm font-semibold text-gray-900">Late Arrivals</h3>
-              <p className="text-2xl font-bold text-yellow-600">{stats.late}</p>
+              <p className="text-xl font-bold text-yellow-600">{stats.late}</p>
               <p className="text-sm text-gray-500">{stats.lateRate}% late rate</p>
             </div>
           </div>
@@ -299,7 +299,7 @@ const AttendanceAnalytics = () => {
         <div className="bg-white rounded-xl shadow-soft p-6 border border-gray-200">
           <div className="flex items-center space-x-3">
             <div className="p-3 bg-blue-50 rounded-lg">
-              <TrendingUp className="h-6 w-6 text-blue-600" />
+              <TrendingUp className="h-4 w-4 text-blue-600" />
             </div>
             <div>
               <h3 className="text-sm font-semibold text-gray-900">Avg. Work Hours</h3>
@@ -312,7 +312,7 @@ const AttendanceAnalytics = () => {
         <div className="bg-white rounded-xl shadow-soft p-6 border border-gray-200">
           <div className="flex items-center space-x-3">
             <div className="p-3 bg-purple-50 rounded-lg">
-              <BarChart3 className="h-6 w-6 text-purple-600" />
+              <BarChart3 className="h-4 w-4 text-purple-600" />
             </div>
             <div>
               <h3 className="text-sm font-semibold text-gray-900">Total Records</h3>

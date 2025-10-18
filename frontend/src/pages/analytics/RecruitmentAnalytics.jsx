@@ -342,7 +342,7 @@ const RecruitmentAnalytics = () => {
               <p className="text-xl font-bold text-blue-600">{analyticsData.totalJobs}</p>
             </div>
             <div className="p-3 bg-blue-50 rounded-lg">
-              <Briefcase className="h-6 w-6 text-blue-600" />
+              <Briefcase className="h-4 w-4 text-blue-600" />
             </div>
           </div>
         </div>
@@ -354,7 +354,7 @@ const RecruitmentAnalytics = () => {
               <p className="text-xl font-bold text-green-600">{analyticsData.activeJobs}</p>
             </div>
             <div className="p-3 bg-green-50 rounded-lg">
-              <Activity className="h-6 w-6 text-green-600" />
+              <Activity className="h-4 w-4 text-green-600" />
             </div>
           </div>
         </div>
@@ -366,7 +366,7 @@ const RecruitmentAnalytics = () => {
               <p className="text-xl font-bold text-purple-600">{analyticsData.totalCandidates}</p>
             </div>
             <div className="p-3 bg-purple-50 rounded-lg">
-              <Users className="h-6 w-6 text-purple-600" />
+              <Users className="h-4 w-4 text-purple-600" />
             </div>
           </div>
         </div>
@@ -378,7 +378,7 @@ const RecruitmentAnalytics = () => {
               <p className="text-xl font-bold text-orange-600">{analyticsData.hiredCandidates}</p>
             </div>
             <div className="p-3 bg-orange-50 rounded-lg">
-              <UserCheck className="h-6 w-6 text-orange-600" />
+              <UserCheck className="h-4 w-4 text-orange-600" />
             </div>
           </div>
         </div>
@@ -393,7 +393,7 @@ const RecruitmentAnalytics = () => {
               <p className="text-xl font-bold text-green-600">{analyticsData.hireRate}%</p>
             </div>
             <div className="p-3 bg-green-50 rounded-lg">
-              <Target className="h-6 w-6 text-green-600" />
+              <Target className="h-4 w-4 text-green-600" />
             </div>
           </div>
         </div>
@@ -405,7 +405,7 @@ const RecruitmentAnalytics = () => {
               <p className="text-xl font-bold text-blue-600">{analyticsData.avgTimeToHire} days</p>
             </div>
             <div className="p-3 bg-blue-50 rounded-lg">
-              <Timer className="h-6 w-6 text-blue-600" />
+              <Timer className="h-4 w-4 text-blue-600" />
             </div>
           </div>
         </div>
@@ -417,7 +417,7 @@ const RecruitmentAnalytics = () => {
               <p className="text-xl font-bold text-purple-600">{analyticsData.interviewMetrics.completionRate}%</p>
             </div>
             <div className="p-3 bg-purple-50 rounded-lg">
-              <CheckCircle className="h-6 w-6 text-purple-600" />
+              <CheckCircle className="h-4 w-4 text-purple-600" />
             </div>
           </div>
         </div>

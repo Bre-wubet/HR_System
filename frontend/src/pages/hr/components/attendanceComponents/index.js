@@ -11,6 +11,7 @@ export { default as AttendanceErrorState } from './AttendanceErrorState';
 export { default as AttendanceContent, RecentAttendanceCards } from './AttendanceContent';
 export { default as AttendanceModals } from './AttendanceModals';
 export { default as AttendanceEditForm } from './AttendanceEditForm';
+export { default as AttendanceRecordForm } from './AttendanceRecordForm';
 
 // Re-export individual components for easier imports
 export {

@@ -27,6 +27,7 @@ const Attendance = () => {
     showEditModal,
     editingRecord,
     isEditing,
+    isRecording,
     isOnline,
     lastUpdate,
     
@@ -36,6 +37,7 @@ const Attendance = () => {
     currentEmployeeAttendance,
     attendanceSummary,
     absenceAnalytics,
+    employees,
     loading,
     error,
     stats,
@@ -48,6 +50,7 @@ const Attendance = () => {
     handleCheckIn,
     handleCheckOut,
     handleEditAttendance,
+    handleRecordAttendance,
     handleOpenEditModal,
     handleCloseEditModal,
     handleDateClick,
@@ -116,11 +119,14 @@ const Attendance = () => {
         showAnalyticsModal={showAnalyticsModal}
         showEditModal={showEditModal}
         editingRecord={editingRecord}
+        employees={employees}
         onCloseRecordModal={() => setShowRecordModal(false)}
         onCloseAnalyticsModal={() => setShowAnalyticsModal(false)}
         onCloseEditModal={handleCloseEditModal}
         onEditAttendance={handleEditAttendance}
+        onRecordAttendance={handleRecordAttendance}
         isEditing={isEditing}
+        isRecording={isRecording}
         stats={stats}
       />
     </motion.div>

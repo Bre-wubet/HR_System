@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal } from '../../../../components/ui/Modal';
 import { Button } from '../../../../components/ui/Button';
 import AttendanceEditForm from './AttendanceEditForm';
+import AttendanceRecordForm from './AttendanceRecordForm';
 
 /**
  * AttendanceModals Component
@@ -12,35 +13,26 @@ export const AttendanceModals = ({
   showAnalyticsModal, 
   showEditModal,
   editingRecord,
+  employees,
   onCloseRecordModal, 
   onCloseAnalyticsModal, 
   onCloseEditModal,
   onEditAttendance,
+  onRecordAttendance,
   isEditing,
+  isRecording,
   stats 
 }) => {
   return (
     <>
       {/* Record Attendance Modal */}
-      <Modal
+      <AttendanceRecordForm
         isOpen={showRecordModal}
         onClose={onCloseRecordModal}
-        title="Record Attendance"
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-gray-600">
-            This feature will be implemented to allow manual attendance recording.
-          </p>
-          <div className="flex items-center justify-end space-x-3 pt-4">
-            <Button
-              variant="outline"
-              onClick={onCloseRecordModal}
-            >
-              Close
-            </Button>
-          </div>
-        </div>
-      </Modal>
+        onSubmit={onRecordAttendance}
+        employees={employees}
+        isLoading={isRecording}
+      />
 
       {/* Analytics Modal */}
       <Modal

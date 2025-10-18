@@ -3,6 +3,7 @@ import { toast } from 'react-hot-toast';
 import useAttendanceStore from '../../../stores/useAttendanceStore';
 import useAuthStore from '../../../stores/useAuthStore';
 import { ATTENDANCE_STATUS } from '../../../api/attendanceApi';
+import { employeeApi } from '../../../api/employeeApi';
 
 /**
  * Custom hook for attendance management logic
@@ -16,6 +17,8 @@ export const useAttendanceLogic = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [employees, setEmployees] = useState([]);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [lastUpdate, setLastUpdate] = useState(new Date());
 
@@ -69,7 +72,18 @@ export const useAttendanceLogic = () => {
   // Load data on component mount
   useEffect(() => {
     loadAttendanceData();
+    loadEmployees();
   }, []);
+
+  const loadEmployees = async () => {
+    try {
+      const response = await employeeApi.listEmployees();
+      setEmployees(response.data.data || []);
+    } catch (error) {
+      console.error('Error loading employees:', error);
+      toast.error('Failed to load employees');
+    }
+  };
 
   const loadAttendanceData = async () => {
     try {
@@ -163,6 +177,21 @@ export const useAttendanceLogic = () => {
     setIsEditing(false);
   };
 
+  const handleRecordAttendance = async (data) => {
+    try {
+      setIsRecording(true);
+      await recordAttendance(data);
+      await loadAttendanceData();
+      toast.success('Attendance recorded successfully!');
+      setShowRecordModal(false);
+    } catch (error) {
+      console.error('Error recording attendance:', error);
+      toast.error('Failed to record attendance');
+    } finally {
+      setIsRecording(false);
+    }
+  };
+
   const handleDateClick = (date, attendanceRecord) => {
     setSelectedDate(date);
     // You can implement additional logic here, like showing a modal with details
@@ -205,6 +234,7 @@ export const useAttendanceLogic = () => {
     showEditModal,
     editingRecord,
     isEditing,
+    isRecording,
     isOnline,
     lastUpdate,
     
@@ -214,6 +244,7 @@ export const useAttendanceLogic = () => {
     currentEmployeeAttendance,
     attendanceSummary,
     absenceAnalytics,
+    employees,
     loading,
     error,
     stats,
@@ -226,6 +257,7 @@ export const useAttendanceLogic = () => {
     handleCheckIn,
     handleCheckOut,
     handleEditAttendance,
+    handleRecordAttendance,
     handleOpenEditModal,
     handleCloseEditModal,
     handleDateClick,

@@ -102,11 +102,11 @@ const DocumentsSection = ({
       } else {
         validFiles.push({
           id: Date.now() + Math.random() + index,
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          file,
-          uploadedAt: new Date().toISOString(),
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      file,
+      uploadedAt: new Date().toISOString(),
           status: 'pending'
         });
       }
@@ -356,42 +356,42 @@ const DocumentsSection = ({
             )}
 
             {/* New Uploaded Files */}
-            {uploadedFiles.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-medium text-gray-700 flex items-center">
+        {uploadedFiles.length > 0 && (
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium text-gray-700 flex items-center">
                   <Upload className="h-4 w-4 mr-2 text-blue-600" />
                   New Files ({uploadedFiles.length})
-                </h3>
-                
-                <div className="space-y-2">
-                  {uploadedFiles.map((file) => (
-                    <motion.div
-                      key={file.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
+            </h3>
+            
+            <div className="space-y-2">
+              {uploadedFiles.map((file) => (
+                <motion.div
+                  key={file.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
                       className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg p-3"
-                    >
-                      <div className="flex items-center space-x-3 flex-1 min-w-0">
+                >
+                  <div className="flex items-center space-x-3 flex-1 min-w-0">
                         {getFileIcon(file.type, file.name)}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">
-                            {file.name}
-                          </p>
-                          <div className="flex items-center space-x-2 text-xs text-gray-500">
-                            <span>{formatFileSize(file.size)}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {file.name}
+                      </p>
+                      <div className="flex items-center space-x-2 text-xs text-gray-500">
+                        <span>{formatFileSize(file.size)}</span>
+                        <span>•</span>
+                        <span>{file.type}</span>
+                        {file.uploadedAt && (
+                          <>
                             <span>•</span>
-                            <span>{file.type}</span>
-                            {file.uploadedAt && (
-                              <>
-                                <span>•</span>
-                                <span>{new Date(file.uploadedAt).toLocaleDateString()}</span>
-                              </>
-                            )}
-                          </div>
-                        </div>
+                            <span>{new Date(file.uploadedAt).toLocaleDateString()}</span>
+                          </>
+                        )}
                       </div>
-                      
-                      <div className="flex items-center space-x-2">
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -408,19 +408,19 @@ const DocumentsSection = ({
                         >
                           <Download className="h-4 w-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onRemoveFile(file.id)}
-                          disabled={isLoading}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onRemoveFile(file.id)}
+                      disabled={isLoading}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
               </div>
             )}
           </div>

@@ -48,7 +48,7 @@ const EmployeeOverview = ({ employee, isLoading = false }) => {
       title: 'Employment Details',
       icon: Building,
       items: [
-        { label: 'Employee ID', value: employee.employeeId },
+        { label: 'Employee ID', value: employee.id },
         { label: 'Job Title', value: employee.jobTitle },
         { label: 'Department', value: employee.department?.name, icon: Building },
         { label: 'Manager', value: employee.manager ? `${employee.manager.firstName} ${employee.manager.lastName}` : 'Not assigned' },

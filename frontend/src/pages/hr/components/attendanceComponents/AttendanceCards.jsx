@@ -229,7 +229,7 @@ export const AttendanceStatsCard = ({ title, value, icon: Icon, color = 'blue', 
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 mb-1">{value}</p>
+          <p className="text-xl font-bold text-gray-900 mb-1">{value}</p>
           {subtitle && (
             <p className="text-xs text-gray-500 mb-2">{subtitle}</p>
           )}
@@ -243,7 +243,7 @@ export const AttendanceStatsCard = ({ title, value, icon: Icon, color = 'blue', 
           )}
         </div>
         <div className={`p-3 rounded-lg border ${colorClasses[color]}`}>
-          <Icon className="h-6 w-6" />
+          <Icon className="h-4 w-4" />
         </div>
       </div>
     </motion.div>

@@ -12,6 +12,21 @@ export const createEmployeeSchema = Joi.object({
     jobTitle: Joi.string().required(),
     departmentId: Joi.string().uuid().required(),
     managerId: Joi.string().uuid().allow(null).optional(),
+    salary: Joi.number().positive().optional(),
+    // File handling fields
+    files: Joi.object({
+      newFiles: Joi.array().items(Joi.object({
+        name: Joi.string().required(),
+        size: Joi.number().required(),
+        type: Joi.string().required(),
+        file: Joi.any().optional() // File object for multipart uploads
+      })).optional(),
+      removedFiles: Joi.array().items(Joi.string()).optional(),
+      existingFiles: Joi.array().items(Joi.object({
+        id: Joi.string().required(),
+        name: Joi.string().required()
+      })).optional()
+    }).optional()
   }).required(),
 });
 
@@ -28,6 +43,21 @@ export const updateEmployeeSchema = Joi.object({
     jobTitle: Joi.string().optional(),
     departmentId: Joi.string().uuid().optional(),
     managerId: Joi.string().uuid().allow(null).optional(),
+    salary: Joi.number().positive().optional(),
+    // File handling fields
+    files: Joi.object({
+      newFiles: Joi.array().items(Joi.object({
+        name: Joi.string().required(),
+        size: Joi.number().required(),
+        type: Joi.string().required(),
+        file: Joi.any().optional() // File object for multipart uploads
+      })).optional(),
+      removedFiles: Joi.array().items(Joi.string()).optional(),
+      existingFiles: Joi.array().items(Joi.object({
+        id: Joi.string().required(),
+        name: Joi.string().required()
+      })).optional()
+    }).optional()
   })
     .min(1)
     .required(),
@@ -67,7 +97,10 @@ export const addCertificationSchema = Joi.object({
 
 export const addDocumentSchema = Joi.object({
   params: Joi.object({ id: Joi.string().uuid().required() }).required(),
-  body: Joi.object({ name: Joi.string().required(), fileUrl: Joi.string().uri().required() }).required(),
+  body: Joi.object({ 
+    name: Joi.string().required(), 
+    fileUrl: Joi.string().uri().optional() 
+  }).required(),
 });
 
 export const addEvaluationSchema = Joi.object({

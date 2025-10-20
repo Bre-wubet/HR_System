@@ -183,4 +183,21 @@ export function hireCandidate(candidateId, data) {
   return repo.hireCandidate(candidateId, data);
 }
 
+// Candidate Document Management
+export function listCandidateDocuments(candidateId) {
+  return repo.listCandidateDocuments(candidateId);
+}
+
+export function addCandidateDocument(candidateId, data) {
+  return repo.addCandidateDocument(candidateId, data);
+}
+
+export function removeCandidateDocument(candidateId, docId) {
+  return repo.removeCandidateDocument(candidateId, docId);
+}
+
+export function getCandidateById(candidateId) {
+  return repo.getCandidateById(candidateId);
+}
+
 

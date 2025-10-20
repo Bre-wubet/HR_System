@@ -251,4 +251,44 @@ export async function hireCandidate(req, res, next) {
   }
 }
 
+// Candidate Document Management
+export async function listCandidateDocuments(req, res, next) {
+  try {
+    const documents = await service.listCandidateDocuments(req.params.candidateId);
+    res.json(response.success(documents));
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function addCandidateDocument(req, res, next) {
+  try {
+    const document = await service.addCandidateDocument(req.params.candidateId, req.body);
+    res.status(201).json(response.success(document));
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function removeCandidateDocument(req, res, next) {
+  try {
+    await service.removeCandidateDocument(req.params.candidateId, req.params.docId);
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getCandidateById(req, res, next) {
+  try {
+    const candidate = await service.getCandidateById(req.params.candidateId);
+    if (!candidate) {
+      return res.status(404).json(response.error("Candidate not found", 404));
+    }
+    res.json(response.success(candidate));
+  } catch (err) {
+    next(err);
+  }
+}
+
 

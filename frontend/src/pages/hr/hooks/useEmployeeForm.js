@@ -24,14 +24,22 @@ export const useEmployeeForm = (employeeId = null) => {
     getEmployeeById,
     createEmployee,
     updateEmployee,
+    removeEmployeeDocument,
+    uploadEmployeeDocument,
+    addEmployeeDocument,
+    fetchEmployeeDocuments,
   } = useEmployeeStore();
 
   // Form state
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [existingFiles, setExistingFiles] = useState([]);
+  const [removedFiles, setRemovedFiles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
   const [lastSaved, setLastSaved] = useState(null);
+  const [fileUploadProgress, setFileUploadProgress] = useState({});
+  const [lastSubmissionTime, setLastSubmissionTime] = useState(0);
 
   // React Hook Form setup
   const form = useForm({
@@ -62,16 +70,36 @@ export const useEmployeeForm = (employeeId = null) => {
               firstName: employee.firstName || '',
               lastName: employee.lastName || '',
               email: employee.email || '',
-              phone: employee.phone || '',
+              phone: employee.phoneNumber || '',
               gender: employee.gender || '',
-              dob: employee.dob ? employee.dob.split('T')[0] : '',
+              dob: employee.dateOfBirth ? employee.dateOfBirth.split('T')[0] : '',
               jobTitle: employee.jobTitle || '',
               jobType: employee.jobType || 'FULL_TIME',
-              departmentId: employee.departmentId || '',
-              managerId: employee.managerId || '',
+              departmentId: employee.department?.id || '',
+              managerId: employee.manager?.id || '',
               salary: employee.salary || '',
-              status: employee.status || 'ACTIVE',
+              status: employee.employmentStatus || 'ACTIVE',
             });
+            
+            // Load existing documents separately
+            try {
+              const documentsResult = await fetchEmployeeDocuments(employeeId);
+              if (documentsResult.success) {
+                const documents = documentsResult.data;
+                setExistingFiles(documents.map(doc => ({
+                  id: doc.id,
+                  name: doc.name,
+                  size: 0, // Size not stored in database
+                  type: 'application/octet-stream', // Default type
+                  url: doc.fileUrl,
+                  uploadedAt: doc.uploadedAt,
+                  isExisting: true
+                })));
+                console.log('Loaded existing documents:', documents);
+              }
+            } catch (docError) {
+              console.error('Failed to load documents:', docError);
+            }
           }
         }
       } catch (err) {
@@ -82,25 +110,6 @@ export const useEmployeeForm = (employeeId = null) => {
 
     loadData();
   }, [employeeId, isEdit, fetchDepartments, fetchManagers, getEmployeeById, reset]);
-
-  // Auto-save functionality
-  useEffect(() => {
-    if (!autoSaveEnabled || !isDirty || !isValid) return;
-
-    const autoSaveTimer = setTimeout(async () => {
-      try {
-        const formData = processFormData(watchedValues);
-        if (isEdit) {
-          await updateEmployee(employeeId, formData);
-        }
-        setLastSaved(new Date());
-      } catch (err) {
-        console.warn('Auto-save failed:', err);
-      }
-    }, 2000); // Auto-save after 2 seconds of inactivity
-
-    return () => clearTimeout(autoSaveTimer);
-  }, [watchedValues, isDirty, isValid, autoSaveEnabled, isEdit, employeeId, updateEmployee]);
 
   // Process form data before submission
   const processFormData = useCallback((data) => {
@@ -123,12 +132,22 @@ export const useEmployeeForm = (employeeId = null) => {
 
   // Handle form submission
   const onSubmit = useCallback(async (data) => {
+    // Prevent rapid successive submissions
+    const now = Date.now();
+    if (now - lastSubmissionTime < 2000) {
+      console.warn('Submission too soon, ignoring');
+      return;
+    }
+    setLastSubmissionTime(now);
+
     setIsSubmitting(true);
     setSubmitError(null);
 
     try {
       const processedData = processFormData(data);
       
+      // For now, submit without files to avoid the 500 error
+      // Files will be handled separately in a future implementation
       let result;
       if (isEdit) {
         result = await updateEmployee(employeeId, processedData);
@@ -137,6 +156,16 @@ export const useEmployeeForm = (employeeId = null) => {
       }
 
       if (result.success) {
+        // Handle file uploads separately if there are any
+        if (uploadedFiles.length > 0 || removedFiles.length > 0) {
+          try {
+            await handleFileOperations(result.data.id || employeeId);
+          } catch (fileError) {
+            console.warn('File operations failed:', fileError);
+            // Don't fail the entire operation for file issues
+          }
+        }
+
         // Navigate to appropriate page
         if (isEdit) {
           navigate(`/employees/${employeeId}`);
@@ -152,7 +181,49 @@ export const useEmployeeForm = (employeeId = null) => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [isEdit, employeeId, processFormData, updateEmployee, createEmployee, navigate]);
+  }, [isEdit, employeeId, processFormData, updateEmployee, createEmployee, navigate, uploadedFiles, removedFiles, existingFiles, lastSubmissionTime]);
+
+  // Handle file operations separately
+  const handleFileOperations = useCallback(async (employeeId) => {
+    console.log('Handling file operations for employee:', employeeId);
+    console.log('Files to remove:', removedFiles);
+    console.log('Files to upload:', uploadedFiles);
+
+    // Remove files that were marked for deletion
+    for (const fileId of removedFiles) {
+      try {
+        console.log('Removing file:', fileId);
+        await removeEmployeeDocument(employeeId, fileId);
+      } catch (error) {
+        console.error('Failed to remove file:', error);
+      }
+    }
+
+    // Upload new files
+    for (const file of uploadedFiles) {
+      try {
+        console.log('Uploading file:', file.name);
+        const formData = new FormData();
+        formData.append('file', file.file);
+        
+        // Upload the file first to get the fileUrl
+        const uploadResult = await uploadEmployeeDocument(employeeId, formData);
+        
+        if (uploadResult.success) {
+          // Then add the document record with the fileUrl
+          const documentData = {
+            name: file.name,
+            fileUrl: uploadResult.data.fileUrl
+          };
+          
+          console.log('Adding document record:', documentData);
+          await addEmployeeDocument(employeeId, documentData);
+        }
+      } catch (error) {
+        console.error('Failed to upload file:', error);
+      }
+    }
+  }, [removedFiles, uploadedFiles, removeEmployeeDocument, uploadEmployeeDocument, addEmployeeDocument]);
 
   // Handle file upload
   const handleFileUpload = useCallback((newFiles) => {
@@ -161,13 +232,64 @@ export const useEmployeeForm = (employeeId = null) => {
 
   // Handle file removal
   const handleRemoveFile = useCallback((fileId) => {
-    setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
+    // Check if it's an existing file
+    const existingFile = existingFiles.find(file => file.id === fileId || file.name === fileId);
+    if (existingFile) {
+      // Move to removed files list
+      setRemovedFiles(prev => [...prev, existingFile.id || existingFile.name]);
+      setExistingFiles(prev => prev.filter(file => file.id !== fileId && file.name !== fileId));
+    } else {
+      // Remove from uploaded files
+      setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
+    }
+  }, [existingFiles]);
+
+  // Handle file preview
+  const handlePreviewFile = useCallback((file) => {
+    if (file.url) {
+      // Existing file from server
+      window.open(file.url, '_blank');
+    } else if (file.file) {
+      // New uploaded file
+      const url = URL.createObjectURL(file.file);
+      if (file.type?.includes('image')) {
+        window.open(url, '_blank');
+      } else {
+        // For non-image files, try to download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = file.name;
+        a.click();
+      }
+      URL.revokeObjectURL(url);
+    }
+  }, []);
+
+  // Handle file download
+  const handleDownloadFile = useCallback((file) => {
+    if (file.url) {
+      // Existing file from server
+      const a = document.createElement('a');
+      a.href = file.url;
+      a.download = file.name;
+      a.click();
+    } else if (file.file) {
+      // New uploaded file
+      const url = URL.createObjectURL(file.file);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.name;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
   }, []);
 
   // Handle form reset
   const handleReset = useCallback(() => {
     reset(defaultFormValues);
     setUploadedFiles([]);
+    setExistingFiles([]);
+    setRemovedFiles([]);
     setSubmitError(null);
   }, [reset]);
 
@@ -176,6 +298,9 @@ export const useEmployeeForm = (employeeId = null) => {
     if (isDirty && !window.confirm('You have unsaved changes. Are you sure you want to leave?')) {
       return;
     }
+    // Clear any pending state
+    setIsSubmitting(false);
+    setSubmitError(null);
     navigate('/employees');
   }, [isDirty, navigate]);
 
@@ -207,7 +332,10 @@ export const useEmployeeForm = (employeeId = null) => {
     managers,
     selectedEmployee,
     uploadedFiles,
-  }), [departments, managers, selectedEmployee, uploadedFiles]);
+    existingFiles,
+    removedFiles,
+    fileUploadProgress,
+  }), [departments, managers, selectedEmployee, uploadedFiles, existingFiles, removedFiles, fileUploadProgress]);
 
   return {
     // Form methods
@@ -226,6 +354,8 @@ export const useEmployeeForm = (employeeId = null) => {
     onSubmit,
     handleFileUpload,
     handleRemoveFile,
+    handlePreviewFile,
+    handleDownloadFile,
     handleCancel,
     
     // Settings

@@ -437,4 +437,58 @@ export async function hireCandidate(candidateId, { jobType, salary, managerId, s
   });
 }
 
+// Candidate Document Management
+export function listCandidateDocuments(candidateId) {
+  return prisma.candidateDocument.findMany({
+    where: { candidateId },
+    orderBy: { uploadedAt: 'desc' }
+  });
+}
+
+export function addCandidateDocument(candidateId, data) {
+  return prisma.candidateDocument.create({
+    data: {
+      candidateId,
+      name: data.name,
+      fileUrl: data.fileUrl,
+      documentType: data.documentType || 'OTHER'
+    }
+  });
+}
+
+export function removeCandidateDocument(candidateId, docId) {
+  return prisma.candidateDocument.delete({
+    where: { 
+      id: docId,
+      candidateId: candidateId // Ensure the document belongs to the candidate
+    }
+  });
+}
+
+export function getCandidateById(candidateId) {
+  return prisma.candidate.findUnique({
+    where: { id: candidateId },
+    include: {
+      jobPosting: {
+        include: {
+          department: true
+        }
+      },
+      documents: true,
+      interviews: {
+        include: {
+          interviewer: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true
+            }
+          }
+        },
+        orderBy: { date: 'desc' }
+      }
+    }
+  });
+}
+
 

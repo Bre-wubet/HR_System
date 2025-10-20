@@ -275,6 +275,22 @@ const useEmployeeStore = create(
         }
       },
 
+      uploadEmployeeDocument: async (employeeId, formData) => {
+        try {
+          const response = await apiClient.post(`/hr/employees/${employeeId}/documents/upload`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+          const uploadData = response.data.data;
+          return { success: true, data: uploadData };
+        } catch (error) {
+          const errorMessage = error.response?.data?.message || 'Failed to upload document';
+          console.error('Upload error:', error);
+          return { success: false, error: errorMessage };
+        }
+      },
+
       removeEmployeeDocument: async (employeeId, docId) => {
         try {
           await apiClient.delete(`/hr/employees/${employeeId}/documents/${docId}`);

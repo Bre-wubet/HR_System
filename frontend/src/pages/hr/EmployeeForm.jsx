@@ -39,11 +39,13 @@ const EmployeeForm = () => {
     onSubmit,
     handleFileUpload,
     handleRemoveFile,
+    handlePreviewFile,
+    handleDownloadFile,
     handleCancel,
   } = useEmployeeForm(id);
 
   const { isEdit, isLoading, isSubmitting, submitError } = formState;
-  const { departments, managers, selectedEmployee, uploadedFiles } = formData;
+  const { departments, managers, selectedEmployee, uploadedFiles, existingFiles } = formData;
 
   // Show loading skeleton while data is being fetched
   if (isLoading) {
@@ -132,8 +134,11 @@ const EmployeeForm = () => {
 
         <DocumentsSection 
           uploadedFiles={uploadedFiles}
+          existingFiles={existingFiles}
           onFileUpload={handleFileUpload}
           onRemoveFile={handleRemoveFile}
+          onPreviewFile={handlePreviewFile}
+          onDownloadFile={handleDownloadFile}
           isLoading={isSubmitting}
         />
       </form>

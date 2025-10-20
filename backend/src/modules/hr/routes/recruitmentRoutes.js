@@ -52,6 +52,12 @@ router.post("/contracts/:candidateId", requirePermission("recruitment:create"), 
 // Onboarding linkage - require recruitment create permission
 router.post("/onboarding/:candidateId", requirePermission("recruitment:create"), controller.createOnboardingChecklist);
 
+// Candidate Document Management - require recruitment permissions
+router.get("/candidates/:candidateId", requirePermission("recruitment:read"), controller.getCandidateById);
+router.get("/candidates/:candidateId/documents", requirePermission("recruitment:read"), controller.listCandidateDocuments);
+router.post("/candidates/:candidateId/documents", requirePermission("recruitment:create"), controller.addCandidateDocument);
+router.delete("/candidates/:candidateId/documents/:docId", requirePermission("recruitment:delete"), controller.removeCandidateDocument);
+
 export default router;
 
 

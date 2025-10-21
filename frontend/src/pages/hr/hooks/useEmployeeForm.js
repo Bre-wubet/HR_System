@@ -78,6 +78,19 @@ export const useEmployeeForm = (employeeId = null) => {
               departmentId: employee.department?.id || '',
               managerId: employee.manager?.id || '',
               salary: employee.salary || '',
+              payFrequency: employee.payFrequency || '',
+              benefitsPackage: employee.benefitsPackage || '',
+              address: employee.address || '',
+              city: employee.city || '',
+              state: employee.state || '',
+              postalCode: employee.postalCode || '',
+              country: employee.country || '',
+              emergencyContact: employee.emergencyContact || {
+                name: '',
+                relationship: '',
+                phone: ''
+              },
+              notes: employee.notes || '',
               status: employee.employmentStatus || 'ACTIVE',
             });
             

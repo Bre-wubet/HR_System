@@ -13,6 +13,19 @@ export const createEmployeeSchema = Joi.object({
     departmentId: Joi.string().uuid().required(),
     managerId: Joi.string().uuid().allow(null).optional(),
     salary: Joi.number().positive().optional(),
+    payFrequency: Joi.string().optional(),
+    benefitsPackage: Joi.string().optional(),
+    address: Joi.string().optional(),
+    city: Joi.string().optional(),
+    state: Joi.string().optional(),
+    postalCode: Joi.string().optional(),
+    country: Joi.string().optional(),
+    emergencyContact: Joi.object({
+      name: Joi.string().required(),
+      relationship: Joi.string().required(),
+      phone: Joi.string().required()
+    }).optional(),
+    notes: Joi.string().optional(),
     // File handling fields
     files: Joi.object({
       newFiles: Joi.array().items(Joi.object({
@@ -44,6 +57,19 @@ export const updateEmployeeSchema = Joi.object({
     departmentId: Joi.string().uuid().optional(),
     managerId: Joi.string().uuid().allow(null).optional(),
     salary: Joi.number().positive().optional(),
+    payFrequency: Joi.string().optional(),
+    benefitsPackage: Joi.string().optional(),
+    address: Joi.string().optional(),
+    city: Joi.string().optional(),
+    state: Joi.string().optional(),
+    postalCode: Joi.string().optional(),
+    country: Joi.string().optional(),
+    emergencyContact: Joi.object({
+      name: Joi.string().required(),
+      relationship: Joi.string().required(),
+      phone: Joi.string().required()
+    }).optional(),
+    notes: Joi.string().optional(),
     // File handling fields
     files: Joi.object({
       newFiles: Joi.array().items(Joi.object({

@@ -9,6 +9,7 @@ import { useEmployeeForm } from './hooks/useEmployeeForm';
 // Modular form sections
 import PersonalInfoSection from './components/employeeComponents/forms/PersonalInfoSection';
 import EmploymentInfoSection from './components/employeeComponents/forms/EmploymentInfoSection';
+import ContactInfoSection from './components/employeeComponents/forms/ContactInfoSection';
 import AdditionalInfoSection from './components/employeeComponents/forms/AdditionalInfoSection';
 import DocumentsSection from './components/employeeComponents/forms/DocumentsSection';
 
@@ -123,6 +124,12 @@ const EmployeeForm = () => {
           departments={departments}
           managers={managers}
           isEdit={isEdit}
+        />
+
+        <ContactInfoSection 
+          register={register}
+          errors={errors}
+          watch={watch}
         />
 
         {isEdit && (

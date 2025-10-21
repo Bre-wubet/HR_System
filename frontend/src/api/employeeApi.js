@@ -72,7 +72,7 @@ export const employeeApi = {
   },
 
   getSkillRecommendations: (employeeId) => {
-    return apiClient.get(`/hr/employees/${employeeId}/skills/recommendations`);
+    return apiClient.get(`/hr/employees/${employeeId}/skill-recommendations`);
   },
 
   // Certifications Operations

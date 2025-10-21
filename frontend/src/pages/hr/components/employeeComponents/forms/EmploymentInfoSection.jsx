@@ -75,6 +75,25 @@ const EmploymentInfoSection = ({
           return !isNaN(Number(value)) || 'Please enter a valid number';
         }
       }
+    },
+    {
+      name: 'payFrequency',
+      label: 'Pay Frequency',
+      type: 'select',
+      options: [
+        { value: '', label: 'Select pay frequency' },
+        { value: 'MONTHLY', label: 'Monthly' },
+        { value: 'BIWEEKLY', label: 'Bi-weekly' },
+        { value: 'WEEKLY', label: 'Weekly' },
+        { value: 'ANNUAL', label: 'Annual' }
+      ]
+    },
+    {
+      name: 'benefitsPackage',
+      label: 'Benefits Package',
+      placeholder: 'Enter benefits package details',
+      type: 'textarea',
+      rows: 3
     }
   ];
 

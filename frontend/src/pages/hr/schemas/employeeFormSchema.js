@@ -67,13 +67,46 @@ export const employmentInfoSchema = z.object({
     .optional()
     .or(z.string().optional().transform((val) => val ? Number(val) : undefined)),
   
+  payFrequency: z.string()
+    .optional(),
+  
+  benefitsPackage: z.string()
+    .optional(),
+  
   status: z.enum(['ACTIVE', 'INACTIVE', 'PROBATION', 'TERMINATED', 'RESIGNED'], {
     errorMap: () => ({ message: 'Please select a valid employment status' })
   }).optional()
 });
 
+// Contact Information Schema
+export const contactInfoSchema = z.object({
+  address: z.string()
+    .optional(),
+  
+  city: z.string()
+    .optional(),
+  
+  state: z.string()
+    .optional(),
+  
+  postalCode: z.string()
+    .optional(),
+  
+  country: z.string()
+    .optional(),
+  
+  emergencyContact: z.object({
+    name: z.string().min(1, 'Emergency contact name is required'),
+    relationship: z.string().min(1, 'Relationship is required'),
+    phone: z.string().min(1, 'Emergency contact phone is required')
+  }).optional(),
+  
+  notes: z.string()
+    .optional()
+});
+
 // Complete Employee Schema
-export const employeeSchema = personalInfoSchema.merge(employmentInfoSchema);
+export const employeeSchema = personalInfoSchema.merge(employmentInfoSchema).merge(contactInfoSchema);
 
 // Form Default Values
 export const defaultFormValues = {
@@ -88,6 +121,19 @@ export const defaultFormValues = {
   departmentId: '',
   managerId: '',
   salary: '',
+  payFrequency: '',
+  benefitsPackage: '',
+  address: '',
+  city: '',
+  state: '',
+  postalCode: '',
+  country: '',
+  emergencyContact: {
+    name: '',
+    relationship: '',
+    phone: ''
+  },
+  notes: '',
   status: 'ACTIVE'
 };
 

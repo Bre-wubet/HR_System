@@ -57,19 +57,18 @@ export async function getEmployeeById(id) {
     jobType: e.jobType,
     jobTitle: e.jobTitle,
     salary: e.salary ?? null,
+    payFrequency: e.payFrequency || null,
+    benefitsPackage: e.benefitsPackage || null,
+    address: e.address || null,
+    city: e.city || null,
+    state: e.state || null,
+    postalCode: e.postalCode || null,
+    country: e.country || null,
+    emergencyContact: e.emergencyContact || null,
+    notes: e.notes || null,
     department: e.department ? { id: e.department.id, name: e.department.name } : null,
     manager: e.manager ? { id: e.manager.id, firstName: e.manager.firstName, lastName: e.manager.lastName } : null,
     gender: e.gender || null,
-    // Optional/Not yet in schema: provide nulls so UI shows "Not specified"
-    payFrequency: null,
-    benefitsPackage: null,
-    address: null,
-    city: null,
-    state: null,
-    postalCode: null,
-    country: null,
-    emergencyContact: null,
-    notes: null,
   };
 }
 

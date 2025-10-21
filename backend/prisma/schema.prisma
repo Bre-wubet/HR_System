@@ -100,6 +100,15 @@ model Employee {
   jobType         JobType
   jobTitle        String
   salary          Float?             // Current salary
+  payFrequency    String?            // Monthly, Weekly, Bi-weekly, etc.
+  benefitsPackage String?            // Benefits package description
+  address         String?            // Street address
+  city            String?            // City
+  state           String?            // State/Province
+  postalCode      String?            // Postal/ZIP code
+  country         String?            // Country
+  emergencyContact Json?             // Emergency contact information
+  notes           String?            // Additional notes
   department      Department         @relation(fields: [departmentId], references: [id])
   departmentId    String
   manager         Employee?          @relation("EmployeeManager", fields: [managerId], references: [id])

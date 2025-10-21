@@ -105,6 +105,31 @@ export const recruitmentApi = {
   createOnboardingChecklist: (candidateId, data) => {
     return apiClient.post(`/hr/recruitment/onboarding/${candidateId}`, data);
   },
+
+  // Candidate Document Operations
+  getCandidateDocuments: (candidateId) => {
+    return apiClient.get(`/hr/recruitment/candidates/${candidateId}/documents`);
+  },
+
+  uploadCandidateDocument: (candidateId, formData) => {
+    return apiClient.post(`/hr/recruitment/candidates/${candidateId}/documents/upload`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+
+  addCandidateDocument: (candidateId, data) => {
+    return apiClient.post(`/hr/recruitment/candidates/${candidateId}/documents`, data);
+  },
+
+  updateCandidateDocument: (candidateId, documentId, data) => {
+    return apiClient.put(`/hr/recruitment/candidates/${candidateId}/documents/${documentId}`, data);
+  },
+
+  removeCandidateDocument: (candidateId, documentId) => {
+    return apiClient.delete(`/hr/recruitment/candidates/${candidateId}/documents/${documentId}`);
+  },
 };
 
 // Utility functions for recruitment data

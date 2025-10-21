@@ -133,6 +133,22 @@ export const useEmployeeForm = (employeeId = null) => {
       processedData.salary = Number(processedData.salary);
     }
 
+    // Handle emergency contact object
+    if (processedData.emergencyContact) {
+      // Convert empty strings to null for emergency contact fields
+      Object.keys(processedData.emergencyContact).forEach(key => {
+        if (processedData.emergencyContact[key] === '') {
+          processedData.emergencyContact[key] = null;
+        }
+      });
+      
+      // If all emergency contact fields are null, set the whole object to null
+      const hasAnyValue = Object.values(processedData.emergencyContact).some(value => value !== null);
+      if (!hasAnyValue) {
+        processedData.emergencyContact = null;
+      }
+    }
+
     // Convert empty strings to null for optional fields
     Object.keys(processedData).forEach(key => {
       if (processedData[key] === '') {
@@ -158,6 +174,7 @@ export const useEmployeeForm = (employeeId = null) => {
 
     try {
       const processedData = processFormData(data);
+      console.log('Processed form data:', processedData);
       
       // For now, submit without files to avoid the 500 error
       // Files will be handled separately in a future implementation

@@ -9,7 +9,8 @@ import {
   Clock,
   Edit,
   Trash2,
-  User
+  User,
+  Eye
 } from 'lucide-react';
 
 import { Button } from '../../../../components/ui/Button';
@@ -28,6 +29,7 @@ const CandidateCard = ({
   onHire,
   onEdit,
   onDelete,
+  onView,
   isLoading = false 
 }) => {
   const stageInfo = recruitmentUtils.INTERVIEW_STAGES[candidate.stage];
@@ -129,6 +131,16 @@ const CandidateCard = ({
         
         {/* Action Buttons */}
         <div className="flex items-center space-x-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onView(candidate.id)}
+            disabled={isLoading}
+            title="View Details"
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
+          
           <Button
             variant="ghost"
             size="sm"

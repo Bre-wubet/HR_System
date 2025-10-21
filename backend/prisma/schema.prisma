@@ -291,7 +291,18 @@ model Candidate {
   jobPosting     JobPosting       @relation(fields: [jobPostingId], references: [id])
   jobPostingId   String
   interviews     Interview[]
+  documents      CandidateDocument[]
   createdAt      DateTime         @default(now())
+}
+
+model CandidateDocument {
+  id             String    @id @default(uuid())
+  candidate      Candidate @relation(fields: [candidateId], references: [id])
+  candidateId    String
+  name           String
+  fileUrl        String
+  documentType   String?   // RESUME, COVER_LETTER, PORTFOLIO, CERTIFICATE, OTHER
+  uploadedAt     DateTime  @default(now())
 }
 
 model Interview {

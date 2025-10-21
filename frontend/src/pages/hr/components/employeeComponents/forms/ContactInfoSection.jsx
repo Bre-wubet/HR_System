@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 import { MapPin, Home, Phone, User } from 'lucide-react';
 
 // UI Components
-import { FormField } from '../../../../components/ui/FormField';
-import { SelectField } from '../../../../components/ui/SelectField';
+import { FormField } from '../../../../../components/ui/FormField';
+import { SelectField } from '../../../../../components/ui/FormField';
 
 /**
  * Contact Information Section
@@ -34,68 +34,48 @@ const ContactInfoSection = ({ register, errors, watch }) => {
           </h3>
           
           <FormField
+            name="address"
             label="Street Address"
+            placeholder="Enter street address"
+            register={register}
             error={errors.address?.message}
             className="md:col-span-2"
-          >
-            <input
-              {...register('address')}
-              type="text"
-              placeholder="Enter street address"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </FormField>
+          />
 
           <div className="grid gap-4 md:grid-cols-2">
             <FormField
+              name="city"
               label="City"
+              placeholder="Enter city"
+              register={register}
               error={errors.city?.message}
-            >
-              <input
-                {...register('city')}
-                type="text"
-                placeholder="Enter city"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </FormField>
+            />
 
             <FormField
+              name="state"
               label="State/Province"
+              placeholder="Enter state/province"
+              register={register}
               error={errors.state?.message}
-            >
-              <input
-                {...register('state')}
-                type="text"
-                placeholder="Enter state/province"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </FormField>
+            />
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <FormField
+              name="postalCode"
               label="Postal Code"
+              placeholder="Enter postal code"
+              register={register}
               error={errors.postalCode?.message}
-            >
-              <input
-                {...register('postalCode')}
-                type="text"
-                placeholder="Enter postal code"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </FormField>
+            />
 
             <FormField
+              name="country"
               label="Country"
+              placeholder="Enter country"
+              register={register}
               error={errors.country?.message}
-            >
-              <input
-                {...register('country')}
-                type="text"
-                placeholder="Enter country"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </FormField>
+            />
           </div>
         </div>
 
@@ -107,60 +87,49 @@ const ContactInfoSection = ({ register, errors, watch }) => {
           </h3>
 
           <FormField
+            name="emergencyContact.name"
             label="Contact Name"
+            placeholder="Enter emergency contact name"
+            register={register}
             error={errors.emergencyContact?.name?.message}
-          >
-            <input
-              {...register('emergencyContact.name')}
-              type="text"
-              placeholder="Enter emergency contact name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </FormField>
+          />
 
-          <FormField
+          <SelectField
+            name="emergencyContact.relationship"
             label="Relationship"
+            placeholder="Select relationship"
+            register={register}
             error={errors.emergencyContact?.relationship?.message}
-          >
-            <SelectField
-              {...register('emergencyContact.relationship')}
-              placeholder="Select relationship"
-              options={[
-                { value: '', label: 'Select relationship' },
-                { value: 'SPOUSE', label: 'Spouse' },
-                { value: 'PARENT', label: 'Parent' },
-                { value: 'SIBLING', label: 'Sibling' },
-                { value: 'CHILD', label: 'Child' },
-                { value: 'FRIEND', label: 'Friend' },
-                { value: 'OTHER', label: 'Other' }
-              ]}
-            />
-          </FormField>
+            options={[
+              { value: '', label: 'Select relationship' },
+              { value: 'SPOUSE', label: 'Spouse' },
+              { value: 'PARENT', label: 'Parent' },
+              { value: 'SIBLING', label: 'Sibling' },
+              { value: 'CHILD', label: 'Child' },
+              { value: 'FRIEND', label: 'Friend' },
+              { value: 'OTHER', label: 'Other' }
+            ]}
+          />
 
           <FormField
+            name="emergencyContact.phone"
             label="Contact Phone"
+            placeholder="Enter emergency contact phone"
+            type="tel"
+            register={register}
             error={errors.emergencyContact?.phone?.message}
-          >
-            <input
-              {...register('emergencyContact.phone')}
-              type="tel"
-              placeholder="Enter emergency contact phone"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </FormField>
+          />
 
           <FormField
+            name="notes"
             label="Notes"
+            placeholder="Enter any additional notes about the employee"
+            type="textarea"
+            rows={3}
+            register={register}
             error={errors.notes?.message}
             className="md:col-span-2"
-          >
-            <textarea
-              {...register('notes')}
-              rows={3}
-              placeholder="Enter any additional notes about the employee"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-            />
-          </FormField>
+          />
         </div>
       </div>
     </motion.div>

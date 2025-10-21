@@ -44,6 +44,21 @@ export async function getEmployeeById(id) {
   const e = await repo.findById(id);
   if (!e) return null;
 
+  console.log('Raw employee data from DB:', {
+    id: e.id,
+    firstName: e.firstName,
+    lastName: e.lastName,
+    address: e.address,
+    city: e.city,
+    state: e.state,
+    postalCode: e.postalCode,
+    country: e.country,
+    payFrequency: e.payFrequency,
+    benefitsPackage: e.benefitsPackage,
+    emergencyContact: e.emergencyContact,
+    notes: e.notes
+  });
+
   // Map DB fields to frontend expected shape
   return {
     id: e.id,
@@ -81,6 +96,19 @@ export async function listEmployeesForManagerSelection() {
 }
 
 export async function updateEmployeeById(id, payload) {
+  console.log('Updating employee with payload:', {
+    id,
+    address: payload.address,
+    city: payload.city,
+    state: payload.state,
+    postalCode: payload.postalCode,
+    country: payload.country,
+    payFrequency: payload.payFrequency,
+    benefitsPackage: payload.benefitsPackage,
+    emergencyContact: payload.emergencyContact,
+    notes: payload.notes
+  });
+
   // Transform data for Prisma
   const transformedPayload = { ...payload };
   
@@ -92,7 +120,9 @@ export async function updateEmployeeById(id, payload) {
     transformedPayload.hireDate = new Date(transformedPayload.hireDate);
   }
   
-  return repo.updateById(id, transformedPayload);
+  const result = await repo.updateById(id, transformedPayload);
+  console.log('Update result:', result);
+  return result;
 }
 
 export async function deleteEmployeeById(id) {

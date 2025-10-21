@@ -153,4 +153,32 @@ export const hireCandidateSchema = Joi.object({
   }).required(),
 });
 
+// Candidate Document Validation Schemas
+export const addCandidateDocumentSchema = Joi.object({
+  params: Joi.object({ id: Joi.string().uuid().required() }).required(),
+  body: Joi.object({ 
+    name: Joi.string().required(), 
+    fileUrl: Joi.string().uri().optional(),
+    documentType: Joi.string().valid('RESUME', 'COVER_LETTER', 'PORTFOLIO', 'CERTIFICATE', 'OTHER').optional()
+  }).required(),
+});
+
+export const updateCandidateDocumentSchema = Joi.object({
+  params: Joi.object({ 
+    id: Joi.string().uuid().required(),
+    documentId: Joi.string().uuid().required()
+  }).required(),
+  body: Joi.object({ 
+    name: Joi.string().optional(),
+    documentType: Joi.string().valid('RESUME', 'COVER_LETTER', 'PORTFOLIO', 'CERTIFICATE', 'OTHER').optional()
+  }).min(1).required(),
+});
+
+export const deleteCandidateDocumentSchema = Joi.object({
+  params: Joi.object({ 
+    id: Joi.string().uuid().required(),
+    documentId: Joi.string().uuid().required()
+  }).required(),
+});
+
 

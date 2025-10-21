@@ -27,6 +27,7 @@ import { queryKeys } from '../../lib/react-query';
 import { cn } from '../../lib/utils';
 import CandidateCard from './components/recuirementComponents/CandidateCard';
 import CandidateForm from './components/recuirementComponents/CandidateForm';
+import CandidateDetailView from './components/recuirementComponents/CandidateDetailView';
 import ScoreModal from './components/employeeComponents/employee/ScoreModal';
 import HireModal from './components/employeeComponents/employee/HireModal';
 import InterviewScheduler from './components/recuirementComponents/InterviewScheduler';
@@ -40,11 +41,13 @@ const GlobalCandidatesManagement = () => {
   const [stageFilter, setStageFilter] = useState('all');
   const [jobFilter, setJobFilter] = useState('all');
   const [showCandidateForm, setShowCandidateForm] = useState(false);
+  const [showCandidateDetail, setShowCandidateDetail] = useState(false);
   const [showScoreModal, setShowScoreModal] = useState(false);
   const [showHireModal, setShowHireModal] = useState(false);
   const [showInterviewModal, setShowInterviewModal] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [editingCandidate, setEditingCandidate] = useState(null);
+  const [viewingCandidate, setViewingCandidate] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -230,6 +233,12 @@ const GlobalCandidatesManagement = () => {
     setShowCandidateForm(true);
   };
 
+  const handleViewCandidate = (candidateId) => {
+    const candidate = candidates.find(c => c.id === candidateId);
+    setViewingCandidate(candidate);
+    setShowCandidateDetail(true);
+  };
+
   const deleteCandidateMutation = useDeleteCandidate();
 
   const handleDeleteCandidate = async (candidateId) => {
@@ -390,6 +399,7 @@ const GlobalCandidatesManagement = () => {
               onScheduleInterview={handleScheduleInterview}
               onHire={handleHire}
               onEdit={handleEditCandidate}
+              onView={handleViewCandidate}
               onDelete={handleDeleteCandidate}
               isLoading={false}
             />
@@ -445,6 +455,27 @@ const GlobalCandidatesManagement = () => {
         interviewers={interviewers}
         isLoading={scheduleInterviewMutation.isPending}
       />
+
+      {/* Candidate Detail View */}
+      {showCandidateDetail && viewingCandidate && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <CandidateDetailView
+              candidate={viewingCandidate}
+              onEdit={(candidateId) => {
+                setShowCandidateDetail(false);
+                setViewingCandidate(null);
+                handleEditCandidate(candidates.find(c => c.id === candidateId));
+              }}
+              onClose={() => {
+                setShowCandidateDetail(false);
+                setViewingCandidate(null);
+              }}
+              isLoading={false}
+            />
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };

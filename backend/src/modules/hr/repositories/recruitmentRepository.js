@@ -437,4 +437,40 @@ export async function hireCandidate(candidateId, { jobType, salary, managerId, s
   });
 }
 
+// Candidate Document Repository Functions
+export function findCandidateDocuments(candidateId) {
+  return prisma.candidateDocument.findMany({
+    where: { candidateId },
+    orderBy: { uploadedAt: 'desc' }
+  });
+}
+
+export function findCandidateDocumentById(documentId) {
+  return prisma.candidateDocument.findUnique({
+    where: { id: documentId }
+  });
+}
+
+export function createCandidateDocument(candidateId, data) {
+  return prisma.candidateDocument.create({
+    data: {
+      ...data,
+      candidateId
+    }
+  });
+}
+
+export function updateCandidateDocument(documentId, data) {
+  return prisma.candidateDocument.update({
+    where: { id: documentId },
+    data
+  });
+}
+
+export function deleteCandidateDocument(documentId) {
+  return prisma.candidateDocument.delete({
+    where: { id: documentId }
+  });
+}
+
 

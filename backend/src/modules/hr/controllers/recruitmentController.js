@@ -251,4 +251,60 @@ export async function hireCandidate(req, res, next) {
   }
 }
 
+// Candidate Document Controllers
+export async function getCandidateDocuments(req, res, next) {
+  try {
+    const result = await service.getCandidateDocuments(req.params.id);
+    if (result.success) {
+      res.json(response.success(result.data));
+    } else {
+      res.status(400).json(response.error(result.error, 400));
+    }
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function addCandidateDocument(req, res, next) {
+  try {
+    await validate(v.addCandidateDocumentSchema, { params: req.params, body: req.body });
+    const result = await service.addCandidateDocument(req.params.id, req.body);
+    if (result.success) {
+      res.json(response.success(result.data, "Document added successfully"));
+    } else {
+      res.status(400).json(response.error(result.error, 400));
+    }
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateCandidateDocument(req, res, next) {
+  try {
+    await validate(v.updateCandidateDocumentSchema, { params: req.params, body: req.body });
+    const result = await service.updateCandidateDocument(req.params.documentId, req.body);
+    if (result.success) {
+      res.json(response.success(result.data, "Document updated successfully"));
+    } else {
+      res.status(400).json(response.error(result.error, 400));
+    }
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function removeCandidateDocument(req, res, next) {
+  try {
+    await validate(v.deleteCandidateDocumentSchema, { params: req.params });
+    const result = await service.removeCandidateDocument(req.params.documentId);
+    if (result.success) {
+      res.json(response.success(result.data, "Document removed successfully"));
+    } else {
+      res.status(400).json(response.error(result.error, 400));
+    }
+  } catch (err) {
+    next(err);
+  }
+}
+
 

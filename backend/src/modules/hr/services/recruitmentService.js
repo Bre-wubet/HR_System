@@ -126,8 +126,8 @@ export async function createCandidateForJobWithGuards(jobId, data) {
   }
   const duplicate = await repo.findCandidateByEmailForJob(jobId, data.email);
   if (duplicate) {
-    const error = new Error(`Candidate with email ${data.email} already applied to this job`);
-    error.statusCode = 400;
+    const error = new Error(`A candidate with email ${data.email} has already applied to this job posting`);
+    error.statusCode = 409; // Conflict status code
     error.code = 'CANDIDATE_DUPLICATE';
     throw error;
   }
@@ -177,6 +177,65 @@ export async function updateCandidateStageWithGuards(candidateId, nextStage) {
 
 export function deleteCandidateById(candidateId) {
   return repo.deleteCandidateById(candidateId);
+}
+
+// Candidate Document Service Functions
+export async function getCandidateDocuments(candidateId) {
+  try {
+    const documents = await repo.findCandidateDocuments(candidateId);
+    return { success: true, data: documents };
+  } catch (error) {
+    console.error('Error fetching candidate documents:', error);
+    return { success: false, error: 'Failed to fetch candidate documents' };
+  }
+}
+
+export async function addCandidateDocument(candidateId, documentData) {
+  try {
+    // Validate that candidate exists
+    const candidate = await repo.findCandidateById(candidateId);
+    if (!candidate) {
+      return { success: false, error: 'Candidate not found' };
+    }
+
+    const document = await repo.createCandidateDocument(candidateId, documentData);
+    return { success: true, data: document };
+  } catch (error) {
+    console.error('Error adding candidate document:', error);
+    return { success: false, error: 'Failed to add candidate document' };
+  }
+}
+
+export async function updateCandidateDocument(documentId, updateData) {
+  try {
+    // Validate that document exists
+    const existingDocument = await repo.findCandidateDocumentById(documentId);
+    if (!existingDocument) {
+      return { success: false, error: 'Document not found' };
+    }
+
+    const document = await repo.updateCandidateDocument(documentId, updateData);
+    return { success: true, data: document };
+  } catch (error) {
+    console.error('Error updating candidate document:', error);
+    return { success: false, error: 'Failed to update candidate document' };
+  }
+}
+
+export async function removeCandidateDocument(documentId) {
+  try {
+    // Validate that document exists
+    const existingDocument = await repo.findCandidateDocumentById(documentId);
+    if (!existingDocument) {
+      return { success: false, error: 'Document not found' };
+    }
+
+    await repo.deleteCandidateDocument(documentId);
+    return { success: true, data: { id: documentId } };
+  } catch (error) {
+    console.error('Error removing candidate document:', error);
+    return { success: false, error: 'Failed to remove candidate document' };
+  }
 }
 
 export function hireCandidate(candidateId, data) {

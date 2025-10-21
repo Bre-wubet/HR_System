@@ -136,9 +136,15 @@ const useRecruitmentStore = create(
           return { success: true, data: newCandidate };
         } catch (error) {
           const errorMessage = error.response?.data?.message || 'Failed to add candidate';
+          const errorCode = error.response?.data?.code;
           set({ error: errorMessage, isLoading: false });
-          toast.error(errorMessage);
-          return { success: false, error: errorMessage };
+          
+          // Don't show toast for duplicate email errors - let the form handle it
+          if (errorCode !== 'CANDIDATE_DUPLICATE') {
+            toast.error(errorMessage);
+          }
+          
+          return { success: false, error: errorMessage, code: errorCode };
         }
       },
 
@@ -287,6 +293,82 @@ const useRecruitmentStore = create(
 
       setSelectedCandidate: (candidate) => {
         set({ selectedCandidate: candidate });
+      },
+
+      // Candidate Document Operations
+      fetchCandidateDocuments: async (candidateId) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await recruitmentApi.getCandidateDocuments(candidateId);
+          const documents = response.data.data;
+          return { success: true, data: documents };
+        } catch (error) {
+          const errorMessage = error.response?.data?.message || 'Failed to fetch candidate documents';
+          set({ error: errorMessage, isLoading: false });
+          toast.error(errorMessage);
+          return { success: false, error: errorMessage };
+        }
+      },
+
+      uploadCandidateDocument: async (candidateId, file) => {
+        set({ isLoading: true, error: null });
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          
+          const response = await recruitmentApi.uploadCandidateDocument(candidateId, formData);
+          const fileUrl = response.data.data.fileUrl;
+          return { success: true, data: { fileUrl } };
+        } catch (error) {
+          const errorMessage = error.response?.data?.message || 'Failed to upload document';
+          set({ error: errorMessage, isLoading: false });
+          toast.error(errorMessage);
+          return { success: false, error: errorMessage };
+        }
+      },
+
+      addCandidateDocument: async (candidateId, documentData) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await recruitmentApi.addCandidateDocument(candidateId, documentData);
+          const document = response.data.data;
+          toast.success('Document added successfully');
+          return { success: true, data: document };
+        } catch (error) {
+          const errorMessage = error.response?.data?.message || 'Failed to add document';
+          set({ error: errorMessage, isLoading: false });
+          toast.error(errorMessage);
+          return { success: false, error: errorMessage };
+        }
+      },
+
+      updateCandidateDocument: async (candidateId, documentId, updateData) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await recruitmentApi.updateCandidateDocument(candidateId, documentId, updateData);
+          const document = response.data.data;
+          toast.success('Document updated successfully');
+          return { success: true, data: document };
+        } catch (error) {
+          const errorMessage = error.response?.data?.message || 'Failed to update document';
+          set({ error: errorMessage, isLoading: false });
+          toast.error(errorMessage);
+          return { success: false, error: errorMessage };
+        }
+      },
+
+      removeCandidateDocument: async (candidateId, documentId) => {
+        set({ isLoading: true, error: null });
+        try {
+          await recruitmentApi.removeCandidateDocument(candidateId, documentId);
+          toast.success('Document removed successfully');
+          return { success: true };
+        } catch (error) {
+          const errorMessage = error.response?.data?.message || 'Failed to remove document';
+          set({ error: errorMessage, isLoading: false });
+          toast.error(errorMessage);
+          return { success: false, error: errorMessage };
+        }
       },
 
       clearError: () => {

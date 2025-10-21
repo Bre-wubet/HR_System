@@ -449,7 +449,7 @@ const useEmployeeStore = create(
 
       getSkillRecommendations: async (employeeId) => {
         try {
-          const response = await apiClient.get(`/hr/employees/${employeeId}/skills/recommendations`);
+          const response = await apiClient.get(`/hr/employees/${employeeId}/skill-recommendations`);
           const recommendations = response.data.data;
           return { success: true, data: recommendations };
         } catch (error) {

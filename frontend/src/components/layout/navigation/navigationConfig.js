@@ -126,34 +126,34 @@ export const NAVIGATION_ITEMS = [
       },
     ],
   },
-  {
-    name: 'Reports',
-    href: '/reports',
-    icon: FileText,
-    permission: 'employee:read', // Using employee:read as base permission
-    description: 'Generate HR reports',
-    category: 'reports',
-    subItems: [
-      {
-        name: 'Employee Reports',
-        href: '/reports/employees',
-        icon: Users,
-        permission: 'employee:read',
-      },
-      {
-        name: 'Attendance Reports',
-        href: '/reports/attendance',
-        icon: Calendar,
-        permission: 'attendance:read',
-      },
-      {
-        name: 'Recruitment Reports',
-        href: '/reports/recruitment',
-        icon: Briefcase,
-        permission: 'recruitment:read',
-      },
-    ],
-  },
+  // {
+  //   name: 'Reports',
+  //   href: '/reports',
+  //   icon: FileText,
+  //   permission: 'employee:read', // Using employee:read as base permission
+  //   description: 'Generate HR reports',
+  //   category: 'reports',
+  //   subItems: [
+  //     {
+  //       name: 'Employee Reports',
+  //       href: '/reports/employees',
+  //       icon: Users,
+  //       permission: 'employee:read',
+  //     },
+  //     {
+  //       name: 'Attendance Reports',
+  //       href: '/reports/attendance',
+  //       icon: Calendar,
+  //       permission: 'attendance:read',
+  //     },
+  //     {
+  //       name: 'Recruitment Reports',
+  //       href: '/reports/recruitment',
+  //       icon: Briefcase,
+  //       permission: 'recruitment:read',
+  //     },
+  //   ],
+  // },
   {
     name: 'Administration',
     href: '/admin',

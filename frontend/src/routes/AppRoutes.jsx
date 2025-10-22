@@ -37,10 +37,10 @@ import AttendanceAnalytics from '../pages/analytics/AttendanceAnalytics';
 import RecruitmentAnalytics from '../pages/analytics/RecruitmentAnalytics';
 
 // Reports Pages
-import ReportsDashboard from '../pages/reports/ReportsDashboard';
-import EmployeeReports from '../pages/reports/EmployeeReports';
-import AttendanceReports from '../pages/reports/AttendanceReports';
-import RecruitmentReports from '../pages/reports/RecruitmentReports';
+// import ReportsDashboard from '../pages/reports/ReportsDashboard';
+// import EmployeeReports from '../pages/reports/EmployeeReports';
+// import AttendanceReports from '../pages/reports/AttendanceReports';
+// import RecruitmentReports from '../pages/reports/RecruitmentReports';
 
 // Admin Pages
 import AdminDashboard from '../pages/admin/AdminDashboard';
@@ -318,7 +318,7 @@ function AppRoutes() {
       />
 
       {/* Reports Routes */}
-      <Route
+      {/* <Route
         path="/reports"
         element={
           <ProtectedRoute requiredPermissions={['attendance:read', 'employee:read', 'recruitment:read']}>
@@ -357,7 +357,7 @@ function AppRoutes() {
             </DashboardLayout>
           </ProtectedRoute>
         }
-      />
+      /> */}
 
       {/* Administration Routes */}
       <Route

@@ -170,10 +170,10 @@ const useAttendanceStore = create(
         }
       },
 
-      updateLeaveStatus: async (leaveId, status, approvedById) => {
+      updateLeaveStatus: async (leaveId, data) => {
         try {
           set({ loading: true, error: null });
-          const response = await attendanceApi.updateLeaveStatus(leaveId, { status, approvedById });
+          const response = await attendanceApi.updateLeaveStatus(leaveId, data);
           await get().fetchLeaveRequests();
           set({ loading: false });
           return response.data.data;

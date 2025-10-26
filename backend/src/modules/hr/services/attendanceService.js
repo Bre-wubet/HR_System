@@ -137,12 +137,32 @@ export async function createLeaveRequestWithGuards(payload) {
 }
 
 export async function updateLeaveStatusWithGuards(id, status, approvedById) {
+  // Check if leave request exists
+  const leaveRequest = await repo.findLeaveRequestById(id);
+  if (!leaveRequest) {
+    const error = new Error(`Leave request with ID ${id} not found`);
+    error.statusCode = 404;
+    error.code = 'LEAVE_REQUEST_NOT_FOUND';
+    throw error;
+  }
+
+  // Validate status transition
+  if (leaveRequest.status !== 'PENDING') {
+    const error = new Error(`Leave request is already ${leaveRequest.status}`);
+    error.statusCode = 400;
+    error.code = 'LEAVE_REQUEST_ALREADY_PROCESSED';
+    throw error;
+  }
+
+  // Validate approver for approval
   if (status === 'APPROVED' && !approvedById) {
     const error = new Error('approvedById is required to approve');
     error.statusCode = 400;
     error.code = 'APPROVER_REQUIRED';
     throw error;
   }
+
+  // Validate approver exists if provided
   if (approvedById) {
     const approver = await employeeRepo.findById(approvedById);
     if (!approver) {
@@ -152,6 +172,7 @@ export async function updateLeaveStatusWithGuards(id, status, approvedById) {
       throw error;
     }
   }
+
   return repo.updateLeaveStatus(id, status, approvedById);
 }
 

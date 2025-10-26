@@ -204,6 +204,11 @@ export const requireEmployeeAccess = () => {
       // Check if user is accessing their own employee data
       const isOwnEmployee = employeeId === userEmployeeId;
 
+      // If user doesn't have an employeeId linked, they can't access employee data
+      if (!userEmployeeId && !hasHrPermission) {
+        return res.status(403).json(response.error('Access denied: User must be linked to an employee record or have HR permissions', 403));
+      }
+
       if (!hasHrPermission && !isOwnEmployee) {
         return res.status(403).json(response.error('Access denied: You can only access your own employee data or need HR permissions', 403));
       }
@@ -211,6 +216,44 @@ export const requireEmployeeAccess = () => {
       next();
     } catch (error) {
       return res.status(500).json(response.error('Employee access check failed', 500));
+    }
+  };
+};
+
+/**
+ * Middleware to check if user is creating leave request for themselves or has attendance permissions
+ */
+export const requireOwnLeaveAccess = () => {
+  return async (req, res, next) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json(response.error('Authentication required', 401));
+      }
+
+      const employeeId = req.body.employeeId;
+      const userId = req.user.userId;
+      const userEmployeeId = req.user.user.employeeId;
+
+      // Check if user has attendance permissions
+      const hasAttendancePermission = req.user.permissions.some(permission => 
+        permission.startsWith('attendance:')
+      );
+
+      // Check if user is creating leave request for themselves
+      const isOwnLeave = employeeId === userEmployeeId;
+
+      // If user doesn't have an employeeId linked, they can't create leave requests
+      if (!userEmployeeId && !hasAttendancePermission) {
+        return res.status(403).json(response.error('Access denied: User must be linked to an employee record or have attendance permissions', 403));
+      }
+
+      if (!hasAttendancePermission && !isOwnLeave) {
+        return res.status(403).json(response.error('Access denied: You can only create leave requests for yourself or need attendance permissions', 403));
+      }
+
+      next();
+    } catch (error) {
+      return res.status(500).json(response.error('Leave access check failed', 500));
     }
   };
 };

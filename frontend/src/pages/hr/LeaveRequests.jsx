@@ -106,11 +106,17 @@ const LeaveRequests = () => {
         return;
       }
 
-      await updateLeaveStatus(requestId, {
+      const requestData = {
         status: LEAVE_STATUS.APPROVED,
-        approvedById: user?.employeeId,
         ...data
-      });
+      };
+
+      // Only include approvedById if user has a valid employeeId
+      if (user?.employeeId) {
+        requestData.approvedById = user.employeeId;
+      }
+
+      await updateLeaveStatus(requestId, requestData);
       await loadLeaveRequests();
     } catch (error) {
       console.error('Error approving leave request:', error);
@@ -125,11 +131,17 @@ const LeaveRequests = () => {
         return;
       }
 
-      await updateLeaveStatus(requestId, {
+      const requestData = {
         status: LEAVE_STATUS.REJECTED,
-        approvedById: user?.employeeId,
         ...data
-      });
+      };
+
+      // Only include approvedById if user has a valid employeeId
+      if (user?.employeeId) {
+        requestData.approvedById = user.employeeId;
+      }
+
+      await updateLeaveStatus(requestId, requestData);
       await loadLeaveRequests();
     } catch (error) {
       console.error('Error rejecting leave request:', error);

@@ -53,6 +53,10 @@ export function createLeaveRequest({ employeeId, type, startDate, endDate }) {
   return prisma.leaveRequest.create({ data: { employeeId, type, startDate: new Date(startDate), endDate: new Date(endDate) } });
 }
 
+export function findLeaveRequestById(id) {
+  return prisma.leaveRequest.findUnique({ where: { id } });
+}
+
 export function updateLeaveStatus(id, status, approvedById) {
   return prisma.leaveRequest.update({ where: { id }, data: { status, approvedById: approvedById || null } });
 }

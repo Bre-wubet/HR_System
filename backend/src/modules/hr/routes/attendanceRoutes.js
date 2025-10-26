@@ -4,7 +4,8 @@ import {
   authenticateToken, 
   requirePermission, 
   requireAnyPermission,
-  requireEmployeeAccess 
+  requireEmployeeAccess,
+  requireOwnLeaveAccess 
 } from "../../../middlewares/authMiddleware.js";
 import { validate } from "../../../middlewares/validationMiddleware.js";
 import * as v from "../validations/attendanceValidation.js";
@@ -20,12 +21,12 @@ router.post("/", requirePermission("attendance:create"), validate(v.recordAttend
 router.put("/:id", requirePermission("attendance:update"), validate(v.updateAttendanceSchema), controller.updateAttendance);
 router.get("/employee/:employeeId", requireEmployeeAccess(), validate(v.listAttendanceByEmployeeSchema), controller.listAttendanceByEmployee);
 
-// Check-in/out endpoints - require attendance create permission or own data
-router.post("/employee/:employeeId/check-in", requireAnyPermission(["attendance:create"]), requireEmployeeAccess(), validate(v.checkInSchema), controller.checkIn);
-router.post("/employee/:employeeId/check-out", requireAnyPermission(["attendance:create"]), requireEmployeeAccess(), validate(v.checkOutSchema), controller.checkOut);
+// Check-in/out endpoints - allow employees to check-in/out for themselves or require attendance create permission
+router.post("/employee/:employeeId/check-in", requireEmployeeAccess(), validate(v.checkInSchema), controller.checkIn);
+router.post("/employee/:employeeId/check-out", requireEmployeeAccess(), validate(v.checkOutSchema), controller.checkOut);
 
-// Leave requests - require attendance permissions
-router.post("/leave", requirePermission("attendance:create"), validate(v.createLeaveSchema), controller.createLeaveRequest);
+// Leave requests - allow employees to create leave requests for themselves or require attendance create permission
+router.post("/leave", requireOwnLeaveAccess(), validate(v.createLeaveSchema), controller.createLeaveRequest);
 router.put("/leave/:id/status", requireAnyPermission(["admin:manage_users", "admin:manage_system"]), validate(v.updateLeaveStatusSchema), controller.updateLeaveStatus);
 router.get("/leave", requirePermission("attendance:read"), validate(v.listLeaveRequestsSchema), controller.listLeaveRequests);
 

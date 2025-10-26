@@ -175,18 +175,34 @@ const UserMenu = ({ user, onLogout }) => {
       >
         <div className="relative">
           <div className={cn(
-            'h-8 w-8 bg-gradient-to-br rounded-full flex items-center justify-center ring-2',
-            userStatus.status === 'urgent' ? 'from-red-100 to-red-200 ring-red-50' :
-            userStatus.status === 'busy' ? 'from-yellow-100 to-yellow-200 ring-yellow-50' :
-            userStatus.status === 'admin' ? 'from-purple-100 to-purple-200 ring-purple-50' :
-            'from-blue-100 to-blue-200 ring-blue-50'
+            'h-8 w-8 bg-gradient-to-br rounded-full flex items-center justify-center ring-2 overflow-hidden',
+            !user.profileImage && (
+              userStatus.status === 'urgent' ? 'from-red-100 to-red-200 ring-red-50' :
+              userStatus.status === 'busy' ? 'from-yellow-100 to-yellow-200 ring-yellow-50' :
+              userStatus.status === 'admin' ? 'from-purple-100 to-purple-200 ring-purple-50' :
+              'from-blue-100 to-blue-200 ring-blue-50'
+            )
           )}>
+            {user.profileImage ? (
+              <img 
+                src={user.profileImage} 
+                alt={`${user.firstName} ${user.lastName}`}
+                className="h-8 w-8 object-cover"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+            ) : null}
             <span className={cn(
               'text-sm font-semibold',
-              userStatus.status === 'urgent' ? 'text-red-700' :
-              userStatus.status === 'busy' ? 'text-yellow-700' :
-              userStatus.status === 'admin' ? 'text-purple-700' :
-              'text-blue-700'
+              !user.profileImage && (
+                userStatus.status === 'urgent' ? 'text-red-700' :
+                userStatus.status === 'busy' ? 'text-yellow-700' :
+                userStatus.status === 'admin' ? 'text-purple-700' :
+                'text-blue-700'
+              ),
+              user.profileImage ? 'hidden' : ''
             )}>
               {getInitials(`${String(user.firstName || '')} ${String(user.lastName || '')}`)}
             </span>
@@ -231,18 +247,34 @@ const UserMenu = ({ user, onLogout }) => {
               <div className="flex items-center space-x-3">
                 <div className="relative">
                   <div className={cn(
-                    'h-12 w-12 bg-gradient-to-br rounded-full flex items-center justify-center',
-                    userStatus.status === 'urgent' ? 'from-red-100 to-red-200' :
-                    userStatus.status === 'busy' ? 'from-yellow-100 to-yellow-200' :
-                    userStatus.status === 'admin' ? 'from-purple-100 to-purple-200' :
-                    'from-blue-100 to-blue-200'
+                    'h-12 w-12 bg-gradient-to-br rounded-full flex items-center justify-center overflow-hidden',
+                    !user.profileImage && (
+                      userStatus.status === 'urgent' ? 'from-red-100 to-red-200' :
+                      userStatus.status === 'busy' ? 'from-yellow-100 to-yellow-200' :
+                      userStatus.status === 'admin' ? 'from-purple-100 to-purple-200' :
+                      'from-blue-100 to-blue-200'
+                    )
                   )}>
+                    {user.profileImage ? (
+                      <img 
+                            src={user.profileImage} 
+                            alt={`${user.firstName} ${user.lastName}`}
+                            className="h-12 w-12 object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                    ) : null}
                     <span className={cn(
                       'text-lg font-semibold',
-                      userStatus.status === 'urgent' ? 'text-red-700' :
-                      userStatus.status === 'busy' ? 'text-yellow-700' :
-                      userStatus.status === 'admin' ? 'text-purple-700' :
-                      'text-blue-700'
+                      !user.profileImage && (
+                        userStatus.status === 'urgent' ? 'text-red-700' :
+                        userStatus.status === 'busy' ? 'text-yellow-700' :
+                        userStatus.status === 'admin' ? 'text-purple-700' :
+                        'text-blue-700'
+                      ),
+                      user.profileImage ? 'hidden' : ''
                     )}>
                       {getInitials(`${String(user.firstName || '')} ${String(user.lastName || '')}`)}
                     </span>

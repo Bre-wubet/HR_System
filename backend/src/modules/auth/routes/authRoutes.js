@@ -1,9 +1,34 @@
 import express from 'express';
+import multer from 'multer';
+import path from 'path';
 import { AuthController } from '../controllers/authControllers.js';
 import { authenticateToken, requirePermission } from '../../../middlewares/authMiddleware.js';
 
 const router = express.Router();
 const authController = new AuthController();
+
+// Multer setup for profile image upload
+const profileImageStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, path.resolve(process.cwd(), 'uploads')),
+  filename: (_req, file, cb) => {
+    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname) || '.jpg';
+    cb(null, `profile-${unique}${ext}`);
+  },
+});
+
+const uploadProfileImage = multer({ 
+  storage: profileImageStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (_req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPEG, PNG, and WebP are allowed.'));
+    }
+  },
+});
 
 // Public routes
 router.post('/register', authController.register.bind(authController));
@@ -17,6 +42,7 @@ router.use(authenticateToken);
 // User profile routes
 router.get('/profile', authController.getProfile.bind(authController));
 router.put('/profile', authController.updateProfile.bind(authController));
+router.post('/profile/image', uploadProfileImage.single('image'), authController.uploadProfileImage.bind(authController));
 router.get('/roles-permissions', authController.getUserRolesAndPermissions.bind(authController));
 router.post('/change-password', authController.changePassword.bind(authController));
 router.post('/logout-all', authController.logoutAllDevices.bind(authController));

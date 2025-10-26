@@ -173,6 +173,7 @@ export class AuthService {
         email: true,
         firstName: true,
         lastName: true,
+        profileImage: true,
         isActive: true,
         emailVerified: true,
         employeeId: true,

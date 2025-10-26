@@ -191,6 +191,28 @@ export class AuthController {
   }
 
   /**
+   * Upload profile image
+   */
+  async uploadProfileImage(req, res, next) {
+    try {
+      const { userId } = req.user;
+
+      if (!req.file) {
+        return res.status(400).json(response.error('No file uploaded', 400));
+      }
+
+      const filePath = `/uploads/${req.file.filename}`;
+      
+      // Update user profile with the image URL
+      const user = await authService.updateUserProfile(userId, { profileImage: filePath });
+
+      res.json(response.success(user, 'Profile image uploaded successfully'));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * Get user roles and permissions
    */
   async getUserRolesAndPermissions(req, res, next) {

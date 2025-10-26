@@ -387,6 +387,7 @@ model User {
   password          String
   firstName         String
   lastName          String
+  profileImage      String?  // URL to profile image
   isActive          Boolean  @default(true)
   emailVerified     Boolean  @default(false)
   lastLoginAt       DateTime?

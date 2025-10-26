@@ -48,6 +48,9 @@ import UserManagement from '../pages/admin/UserManagement';
 import RolePermissions from '../pages/admin/RolePermissions';
 import SystemSettings from '../pages/admin/SystemSettings';
 
+// Profile Page
+import Profile from '../pages/profile/Profile';
+
 // Loading Component
 const LoadingSpinner = () => (
   <div className="min-h-screen flex items-center justify-center">
@@ -358,6 +361,18 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       /> */}
+
+      {/* Profile Route */}
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <Profile />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
 
       {/* Administration Routes */}
       <Route
